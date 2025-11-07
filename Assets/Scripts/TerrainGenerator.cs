@@ -41,6 +41,9 @@ public class TerrainGenerator : MonoBehaviour
     /// </summary>
 	public int chunkCountZ;
 
+	[Header("噪声算法配置")]
+	public float noiseScale;
+
 	/// <summary>
     /// 地形网格
     /// </summary>
