@@ -9,44 +9,45 @@ public class TerrainGenerator : MonoBehaviour
 {
 	[Header("地形属性")]
 	/// <summary>
-	/// 地形在X轴上的大小(宽度)
+	/// 地形宽度
 	/// </summary>
-	[Tooltip("地形在X轴上的大小(宽度)")]
-	public int xSize;
+	public int mapWidth;
 	/// <summary>
-	/// 地形在Z轴上的大小(长度)
+	/// 地形长度
 	/// </summary>
-	[Tooltip("地形在Z轴上的大小(长度)")]
-	public int zSize;
+	public int mapHeight;
 	/// <summary>
 	/// 最小高度
 	/// </summary>
 	public float minHeight;
 	/// <summary>
-    /// 最大高度
-    /// </summary>
+	/// 最大高度
+	/// </summary>
 	public float maxHeight;
 
 	[Header("地形分块属性")]
 	/// <summary>
-    /// 分块大小
-    /// </summary>
+	/// 分块大小
+	/// </summary>
 	public int chunckSize = 32;
 	/// <summary>
 	/// 分块数量(X方向)
 	/// </summary>
 	public int chunkCountX;
 	/// <summary>
-    /// 分块数量(Z方向)
-    /// </summary>
+	/// 分块数量(Z方向)
+	/// </summary>
 	public int chunkCountZ;
 
 	[Header("噪声算法配置")]
 	public float noiseScale;
+	public int octaves;
+	public float persistence;
+	public float lacunarity;
 
 	/// <summary>
-    /// 地形网格
-    /// </summary>
+	/// 地形网格
+	/// </summary>
 	private Mesh m_terrainMesh = null;
 	/// <summary>
 	/// 顶点数组
@@ -59,15 +60,15 @@ public class TerrainGenerator : MonoBehaviour
 	
 	private void OnDrawGizmos()
 	{
-		if (m_vertices == null)
-			return;
+		//if (m_vertices == null)
+		//	return;
 
-		//绘制顶点
-		for (int i = 0; i < m_vertices.Length; i++)
-        {
-			Gizmos.DrawSphere(m_vertices[i], 0.1f);
-        }
-    }
+		////绘制顶点
+		//for (int i = 0; i < m_vertices.Length; i++)
+		//{
+		//	Gizmos.DrawSphere(m_vertices[i], 0.1f);
+		//}
+	}
 
 	/// <summary>
 	/// 生成地形
@@ -84,50 +85,55 @@ public class TerrainGenerator : MonoBehaviour
 
 	private void CreateShape()
 	{
+		//创建高度图
+		float offsetX = Random.Range(0f, 10000f);
+		float offsetY = Random.Range(0f, 10000f);
+		//var noiseMap = Noise.PerlinNoiseMap(xSize, zSize, noiseScale, offsetX, offsetY, minHeight, maxHeight);
+		var noiseMap = Noise.OctavePerlinNoiseMap(mapWidth, mapHeight, noiseScale, offsetX, offsetY, minHeight, maxHeight, octaves, persistence, lacunarity);
+
 		//创建顶点数组
-		m_vertices = new Vector3[(xSize + 1) * (zSize + 1)];
+		m_vertices = new Vector3[(mapWidth + 1) * (mapHeight + 1)];
 		int index = 0;
-		for (int z = 0; z <= zSize; z++)
+		for (int z = 0; z <= mapHeight; z++)
 		{
-			for (int x = 0; x <= xSize; x++)
+			for (int x = 0; x <= mapWidth; x++)
 			{
-				float y = Mathf.PerlinNoise(x * 0.3f, z * 0.3f) * 2f;
-				m_vertices[index] = new Vector3(x, y, z);
+				m_vertices[index] = new Vector3(x, noiseMap[x, z], z);
 				index++;
 			}
 		}
 		Debug.Log("顶点数量：" + m_vertices.Length);
 
 		//创建索引数组
-		m_triangles = new int[xSize * zSize * 6];
+		m_triangles = new int[mapWidth * mapHeight * 6];
 		int triIndex = 0, verIndex = 0;
-		for (int z = 0; z < zSize; z++)
-        {
-			for (int x = 0; x < xSize; x++)
+		for (int z = 0; z < mapHeight; z++)
+		{
+			for (int x = 0; x < mapWidth; x++)
 			{
 				//第一个三角形
 				m_triangles[triIndex + 0] = verIndex + 0;
-				m_triangles[triIndex + 1] = verIndex + xSize + 1;
+				m_triangles[triIndex + 1] = verIndex + mapWidth + 1;
 				m_triangles[triIndex + 2] = verIndex + 1;
 
 				//第二个三角形
 				m_triangles[triIndex + 3] = verIndex + 1;
-				m_triangles[triIndex + 4] = verIndex + xSize + 1;
-				m_triangles[triIndex + 5] = verIndex + xSize + 2;
+				m_triangles[triIndex + 4] = verIndex + mapWidth + 1;
+				m_triangles[triIndex + 5] = verIndex + mapWidth + 2;
 
 				verIndex++;
 				triIndex += 6;
 			}
 			verIndex++;
-        }
+		}
 		Debug.Log("索引数量：" + m_triangles.Length);
 	}
 	
 	private void UpdateMesh()
-    {
+	{
 		m_terrainMesh.Clear();
 		m_terrainMesh.vertices = m_vertices;
 		m_terrainMesh.triangles = m_triangles;
 		m_terrainMesh.RecalculateNormals();
-    }
+	}
 }
