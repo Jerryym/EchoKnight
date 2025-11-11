@@ -18,10 +18,10 @@ public static class Noise
 		if (scale <= 0)
 			scale = 0.001f;
 
-		float[,] noiseMap = new float[mapWidth + 1, mapHeight + 1];
-		for (int y = 0; y <= mapHeight; y++)
+		float[,] noiseMap = new float[mapWidth, mapHeight];
+		for (int y = 0; y < mapHeight; y++)
 		{
-			for (int x = 0; x <= mapWidth; x++)
+			for (int x = 0; x < mapWidth; x++)
 			{
 				float xCoord = (x + offsetX) / scale;
 				float yCoord = (y + offsetY) / scale;
@@ -44,28 +44,58 @@ public static class Noise
 		if (scale <= 0)
 			scale = 0.001f;
 
-		float[,] noiseMap = new float[mapWidth + 1, mapHeight + 1];
-		for (int y = 0; y <= mapHeight; y++)
+		float[,] noiseMap = new float[mapWidth, mapHeight];
+		for (int y = 0; y < mapHeight; y++)
 		{
-			for (int x = 0; x <= mapWidth; x++)
+			for (int x = 0; x < mapWidth; x++)
 			{
 				float amplitude = 1.0f;//振幅
 				float frequency = 1.0f;//频率
-				float noiseHeight = 0f;  // 累积噪声值
+				float noiseHeight = 0f;//累积噪声值
 
 				for (int i = 0; i < octaves; i++)
 				{
-					float xCoord = (x + offsetX) / scale;
-					float yCoord = (y + offsetY) / scale;
+					float xCoord = (x + offsetX) / scale * frequency;
+					float yCoord = (y + offsetY) / scale * frequency;
 					float noiseValue = Mathf.PerlinNoise(xCoord, yCoord) * 2 - 1;
 					noiseHeight += noiseValue * amplitude;
-
 					amplitude *= persistence;
 					frequency *= lacunarity;
 				}
 				float normalizedHeight = Mathf.InverseLerp(-1f, 1f, noiseHeight);
-				// 映射到[minHeight, maxHeight]
-				float heightValue = Mathf.Lerp(minHeight, maxHeight, noiseHeight);
+				float heightValue = Mathf.Lerp(minHeight, maxHeight, normalizedHeight);
+				noiseMap[x, y] = heightValue;
+			}
+		}
+		return noiseMap;
+	}
+
+	public static float[,] OctavePerlinNoiseMap(int mapWidth, int mapHeight, float scale, float offsetX, float offsetY, float maxHeight, AnimationCurve heightCurve,
+		int octaves = 4, float persistence = 0.5f, float lacunarity = 2.0f)
+	{
+		if (scale <= 0)
+			scale = 0.001f;
+
+		float[,] noiseMap = new float[mapWidth, mapHeight];
+		for (int y = 0; y < mapHeight; y++)
+		{
+			for (int x = 0; x < mapWidth; x++)
+			{
+				float amplitude = 1.0f;//振幅
+				float frequency = 1.0f;//频率
+				float noiseHeight = 0f;//累积噪声值
+
+				for (int i = 0; i < octaves; i++)
+				{
+					float xCoord = (x + offsetX) / scale * frequency;
+					float yCoord = (y + offsetY) / scale * frequency;
+					float noiseValue = Mathf.PerlinNoise(xCoord, yCoord) * 2 - 1;
+					noiseHeight += noiseValue * amplitude;
+					amplitude *= persistence;
+					frequency *= lacunarity;
+				}
+				float normalizedNoise = Mathf.InverseLerp(-1f, 1f, noiseHeight);
+				float heightValue = heightCurve.Evaluate(normalizedNoise) * maxHeight;
 				noiseMap[x, y] = heightValue;
 			}
 		}
