@@ -20,14 +20,14 @@ public static class TerrainGenerator
 
 		//创建GameObject
 		GameObject terrainGO = new GameObject(setting.name);
-		Material material = new Material(Shader.Find("Standard"));
+		Material material = new Material(Shader.Find("Custom/TerrainHeightColor"));
 
 		//创建高度图
 		float offsetX = Random.Range(0f, 10000f);
 		float offsetY = Random.Range(0f, 10000f);
 		float[,] heightMap = Noise.OctavePerlinNoiseMap(setting.terrainWidth + 1, setting.terrainLength + 1, setting.noiseScale,
 			offsetX, offsetY,
-			setting.maxHeight, setting.heightCurve, setting.octaves, setting.persistence, setting.lacunarity);
+			setting.minHeight, setting.maxHeight, setting.heightCurve, setting.octaves, setting.persistence, setting.lacunarity);
 
 		//创建分块Mesh
 		int chunkCountX = setting.terrainWidth / setting.chunkSize;

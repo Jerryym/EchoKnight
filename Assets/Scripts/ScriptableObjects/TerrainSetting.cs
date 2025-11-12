@@ -20,6 +20,10 @@ public class TerrainSetting : ScriptableObject
 
 	#region 高度设置
 	/// <summary>
+	/// 地形最小高度
+	/// </summary>
+	[Range(1f, 200f)] public float minHeight = 0.0f;
+	/// <summary>
 	/// 地形最大高度
 	/// </summary>
 	[Range(1f, 200f)] public float maxHeight = 20f;

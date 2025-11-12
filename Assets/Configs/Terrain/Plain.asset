@@ -15,7 +15,8 @@ MonoBehaviour:
   terrainWidth: 256
   terrainLength: 256
   chunkSize: 32
-  maxHeight: 10
+  minHeight: 100
+  maxHeight: 150
   heightCurve:
     serializedVersion: 2
     m_Curve:
@@ -40,7 +41,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  noiseScale: 100
-  octaves: 2
-  persistence: 0.4
-  lacunarity: 1.8
+  noiseScale: 80
+  octaves: 1
+  persistence: 0.1
+  lacunarity: 2.2

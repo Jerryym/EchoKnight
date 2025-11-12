@@ -70,7 +70,7 @@ public static class Noise
 		return noiseMap;
 	}
 
-	public static float[,] OctavePerlinNoiseMap(int mapWidth, int mapHeight, float scale, float offsetX, float offsetY, float maxHeight, AnimationCurve heightCurve,
+	public static float[,] OctavePerlinNoiseMap(int mapWidth, int mapHeight, float scale, float offsetX, float offsetY, float minHeight, float maxHeight, AnimationCurve heightCurve,
 		int octaves = 4, float persistence = 0.5f, float lacunarity = 2.0f)
 	{
 		if (scale <= 0)
@@ -95,7 +95,8 @@ public static class Noise
 					frequency *= lacunarity;
 				}
 				float normalizedNoise = Mathf.InverseLerp(-1f, 1f, noiseHeight);
-				float heightValue = heightCurve.Evaluate(normalizedNoise) * maxHeight;
+				float curveValue = heightCurve.Evaluate(normalizedNoise);
+				float heightValue = Mathf.Lerp(minHeight, maxHeight, curveValue);
 				noiseMap[x, y] = heightValue;
 			}
 		}
