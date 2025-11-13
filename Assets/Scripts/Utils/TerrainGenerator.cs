@@ -1,4 +1,6 @@
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.Windows;
 
 /// <summary>
 /// 地形生成器
@@ -10,7 +12,7 @@ public static class TerrainGenerator
 	/// </summary>
 	/// <param name="setting">地形配置</param>
 	/// <returns></returns>
-	public static GameObject Generate(TerrainSetting setting)
+	public static GameObject Generate(TerrainSetting setting, Material terrainMat)
 	{
 		if (setting == null)
 		{
@@ -20,7 +22,6 @@ public static class TerrainGenerator
 
 		//创建GameObject
 		GameObject terrainGO = new GameObject(setting.name);
-		Material material = new Material(Shader.Find("Custom/TerrainHeightColor"));
 
 		//创建高度图
 		float offsetX = Random.Range(0f, 10000f);
@@ -32,6 +33,7 @@ public static class TerrainGenerator
 		//创建分块Mesh
 		int chunkCountX = setting.terrainWidth / setting.chunkSize;
 		int chunkCountZ = setting.terrainLength / setting.chunkSize;
+		string savePath = $"Assets/Terrains/Meshes/{terrainGO.name}";
 		for (int cz = 0; cz < chunkCountZ; cz++)
 		{
 			for (int cx = 0; cx < chunkCountX; cx++)
@@ -43,11 +45,15 @@ public static class TerrainGenerator
 				//添加组件
 				MeshFilter meshFilter = chunkGO.AddComponent<MeshFilter>();
 				MeshRenderer meshRenderer = chunkGO.AddComponent<MeshRenderer>();
-				meshRenderer.sharedMaterial = material;
+				meshRenderer.sharedMaterial = terrainMat;
 
+				//创建Mesh
 				Mesh mesh = CreateMesh(setting, cx, cz, heightMap);
 				mesh.name = $"Chunk_{cx}_{cz}";
 				meshFilter.sharedMesh = mesh;
+
+				//保存Mesh
+				SaveMesh(savePath, mesh);
 			}
 		}
 		return terrainGO;
@@ -115,5 +121,18 @@ public static class TerrainGenerator
 		mesh.uv = uvs;
 		mesh.RecalculateNormals();
 		return mesh;
+	}
+
+	private static void SaveMesh(string savePath, Mesh mesh)
+	{
+		if (mesh == null)
+			return;
+
+		if (!Directory.Exists(savePath))
+			Directory.CreateDirectory(savePath);
+
+		string fileName = savePath + $"/{mesh.name}.asset";
+		AssetDatabase.CreateAsset(mesh, fileName);
+		AssetDatabase.SaveAssets();
 	}
 }

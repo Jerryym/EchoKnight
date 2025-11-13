@@ -13,6 +13,7 @@ public class TerrainGeneratorEditor : EditorWindow
 	}
 
 	private TerrainSetting m_currentSetting = null;
+	private Material m_TerrainHeighMat = null;
 	private	TerrainEnum m_TerrainEnum = TerrainEnum.Plain;
 	private const string CONFIG_FOLDER_PATH = "Assets/Configs";
 	private bool m_HasLoadedSetting = false;
@@ -94,13 +95,21 @@ public class TerrainGeneratorEditor : EditorWindow
 		if (m_currentSetting == null)
 		{
 			EditorGUILayout.HelpBox("请先指定一个 TerrainSetting 资源。", MessageType.Warning);
-			return;
 		}
 
 		if (!m_HasLoadedSetting)
 		{
 			SetSettingData();
 			m_HasLoadedSetting = true;
+		}
+
+		//材质
+		EditorGUILayout.Space();
+		EditorGUILayout.LabelField("地形材质", EditorStyles.boldLabel);
+		m_TerrainHeighMat = (Material)EditorGUILayout.ObjectField("Terrain Material", m_TerrainHeighMat, typeof(Material), false);
+		if (m_TerrainHeighMat == null)
+		{
+			EditorGUILayout.HelpBox("请先指定一个 Terrain Material。", MessageType.Warning);
 		}
 
 		//地形预设
@@ -145,7 +154,7 @@ public class TerrainGeneratorEditor : EditorWindow
 		}
 
 		//更新设置按钮
-		GUI.enabled = m_currentSetting != null;
+		GUI.enabled = (m_currentSetting != null && m_TerrainHeighMat != null);
 		if (GUILayout.Button("更新设置"))
 		{
 			UpdateTerrainSetting();
@@ -156,7 +165,7 @@ public class TerrainGeneratorEditor : EditorWindow
 		if (GUILayout.Button("生成"))
 		{
 			GetSettingData(m_currentSetting);
-			TerrainGenerator.Generate(m_currentSetting);
+			TerrainGenerator.Generate(m_currentSetting, m_TerrainHeighMat);
 		}
 		EditorGUILayout.EndHorizontal();
 		#endregion

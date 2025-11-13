@@ -15,8 +15,8 @@ MonoBehaviour:
   terrainWidth: 256
   terrainLength: 256
   chunkSize: 32
-  minHeight: 100
-  maxHeight: 150
+  minHeight: 0
+  maxHeight: 20
   heightCurve:
     serializedVersion: 2
     m_Curve:
@@ -30,8 +30,35 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
+      time: 0.4421225
+      value: 0.10033725
+      inSlope: 0.74171215
+      outSlope: 0.74171215
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.6888748
+      value: 0.21072292
+      inSlope: 0.93667614
+      outSlope: 0.93667614
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.8212315
+      value: 0.36260998
+      inSlope: 0.7608387
+      outSlope: 0.7608387
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.37519577
+    - serializedVersion: 3
       time: 1
-      value: 1
+      value: 0.4433937
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -41,7 +68,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  noiseScale: 80
-  octaves: 1
-  persistence: 0.1
-  lacunarity: 2.2
+  noiseScale: 100
+  octaves: 2
+  persistence: 0.4
+  lacunarity: 1.8
