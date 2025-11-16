@@ -12,8 +12,11 @@ Shader "Custom/TerrainHeightColor"
 
 	SubShader
 	{
-		Tags { "RenderType"="Opaque" }
-		LOD 100
+		Tags
+		{ 
+			"RenderPipeline"="UniversalRenderPipeline"
+			"RenderType"="Opaque" 
+		}
 
 		Pass
 		{
