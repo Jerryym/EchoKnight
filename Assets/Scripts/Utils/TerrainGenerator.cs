@@ -20,9 +20,6 @@ public static class TerrainGenerator
 			return null;
 		}
 
-		//创建GameObject
-		GameObject terrainGO = new GameObject(setting.name);
-
 		//创建高度图
 		float offsetX = Random.Range(0f, 10000f);
 		float offsetY = Random.Range(0f, 10000f);
@@ -30,10 +27,13 @@ public static class TerrainGenerator
 			offsetX, offsetY,
 			setting.minHeight, setting.maxHeight, setting.heightCurve, setting.octaves, setting.persistence, setting.lacunarity);
 
+		//创建GameObject
+		GameObject terrainGO = new GameObject(setting.name);
+		string savePath = $"Assets/Terrains/Meshes/{terrainGO.name}";
+
 		//创建分块Mesh
 		int chunkCountX = setting.terrainWidth / setting.chunkSize;
 		int chunkCountZ = setting.terrainLength / setting.chunkSize;
-		string savePath = $"Assets/Terrains/Meshes/{terrainGO.name}";
 		for (int cz = 0; cz < chunkCountZ; cz++)
 		{
 			for (int cx = 0; cx < chunkCountX; cx++)
