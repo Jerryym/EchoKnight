@@ -15,7 +15,7 @@ MonoBehaviour:
   terrainWidth: 256
   terrainLength: 256
   chunkSize: 32
-  minHeight: 0
+  minHeight: 1
   maxHeight: 20
   heightCurve:
     serializedVersion: 2
