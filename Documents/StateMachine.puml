@@ -1,0 +1,53 @@
+@startuml StateMachine
+
+class PlayerStateMachine extends MonoBehaviour {
+	- m_playerController : PlayerController
+	- m_currentState : PlayerBaseState
+	- m_stateFactory : PlayerStateFactory
+
+	+ void setCurrentState(currentState : PlayerBaseState)
+	+ PlayerBaseState getCurrentState()
+}
+
+interface IState {
+	+ void EnterState()
+	+ void UpdateState()
+	+ void ExitState()
+}
+
+abstract class PlayerBaseState extends IState {
+	# m_currentContext : PlayerStateMachine
+	# m_stateFactory : PlayerStateFactory
+
+	+ PlayerBaseState(PlayerStateMachine currentContext, PlayerStateFactory stateFactory)
+	+ {abstract} void CheckSwitchStates()
+	+ {abstract} void InitSubStates()
+	- void SwitchState(PlayerBaseState newState)
+}
+
+class PlayerLocationState extends PlayerBaseState {
+
+}
+
+class PlayerIdleState extends PlayerBaseState {
+
+}
+
+class PlayerWalkState extends PlayerBaseState {
+
+}
+
+class PlayerRunState extends PlayerBaseState {
+
+}
+
+class PlayerStateFactory {
+	- m_stateMachineContext : PlayerStateMachine
+
+	+ PlayerStateFactory(PlayerStateMachine stateMachineContext)
+}
+
+PlayerBaseState --o PlayerStateMachine
+PlayerStateFactory --o PlayerStateMachine
+
+@enduml
