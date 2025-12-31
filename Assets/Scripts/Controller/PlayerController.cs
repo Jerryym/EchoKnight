@@ -8,8 +8,6 @@ using UnityEngine;
 [RequireComponent(typeof(Animator))]
 public class PlayerController : MonoBehaviour
 {
-	private Animator m_Animator;
-
 	#region Managers
 	private CommandManager m_commandMgr = null;
 	#endregion
@@ -19,8 +17,6 @@ public class PlayerController : MonoBehaviour
 
 	private void Awake()
 	{
-		m_Animator = GetComponent<Animator>();
-
 		m_commandMgr = new CommandManager();
 
 		m_inputActions = new PlayerInputSystem();

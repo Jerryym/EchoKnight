@@ -5,6 +5,9 @@ public class PlayerStateMachine : MonoBehaviour
 {
 	private PlayerController m_controller;
 
+	/// <summary>
+	/// 状态机工厂
+	/// </summary>
 	private PlayerStateFactory m_factory = null;
 	/// <summary>
 	/// 玩家状态
@@ -18,5 +21,16 @@ public class PlayerStateMachine : MonoBehaviour
 		//设置状态机
 		m_factory = new PlayerStateFactory();
 		m_state = m_factory.Create(PlayerStateEnum.Location);
+		m_state.EnterState();
+	}
+
+	private void Update()
+	{
+		
+	}
+
+	private void FixedUpdate()
+	{
+		
 	}
 }

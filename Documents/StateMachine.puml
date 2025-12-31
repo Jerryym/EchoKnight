@@ -5,24 +5,20 @@ class PlayerStateMachine extends MonoBehaviour {
 	- m_currentState : PlayerBaseState
 	- m_stateFactory : PlayerStateFactory
 
-	+ void setCurrentState(currentState : PlayerBaseState)
-	+ PlayerBaseState getCurrentState()
+	+ setCurrentState(currentState : PlayerBaseState) : PlayerBaseState
+	+ getCurrentState() : PlayerBaseState
 }
 
-interface IState {
-	+ void EnterState()
-	+ void UpdateState()
-	+ void ExitState()
-}
-
-abstract class PlayerBaseState extends IState {
+abstract class PlayerBaseState {
 	# m_currentContext : PlayerStateMachine
 	# m_stateFactory : PlayerStateFactory
 
 	+ PlayerBaseState(PlayerStateMachine currentContext, PlayerStateFactory stateFactory)
-	+ {abstract} void CheckSwitchStates()
+	+ {abstract} void EnterState()
+	+ {abstract} void UpdateState()
+	+ {abstract} void ExitState()
+	+ {abstract} void SwitchState(PlayerBaseState newState)
 	+ {abstract} void InitSubStates()
-	- void SwitchState(PlayerBaseState newState)
 }
 
 class PlayerLocationState extends PlayerBaseState {
