@@ -19,14 +19,14 @@ public class PlayerStateMachine : MonoBehaviour
 		m_controller = GetComponent<PlayerController>();
 
 		//设置状态机
-		m_factory = new PlayerStateFactory();
-		m_state = m_factory.Create(PlayerStateEnum.Location);
+		m_factory = new PlayerStateFactory(this);
+		m_state = m_factory.Create(PlayerStateEnum.Grounded);
 		m_state.EnterState();
 	}
 
 	private void Update()
 	{
-		
+		m_state.UpdateState();
 	}
 
 	private void FixedUpdate()

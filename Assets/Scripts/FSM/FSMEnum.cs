@@ -7,7 +7,7 @@ namespace Echo.FSM
 	public enum PlayerStateEnum
 	{
 		None = -1,
-		Location,
+		Grounded,
 		Idle,
 		Walk,
 		Run

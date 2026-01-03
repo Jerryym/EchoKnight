@@ -7,7 +7,12 @@ namespace Echo.FSM
 	/// </summary>
 	public class PlayerStateFactory
 	{
-		public PlayerStateFactory() { }
+		private PlayerStateMachine m_stateMachine;
+
+		public PlayerStateFactory(PlayerStateMachine stateMachine)
+		{
+			m_stateMachine = stateMachine;
+		}
 
 		/// <summary>
 		/// 根据枚举类型创建对应的状态实例
@@ -20,16 +25,16 @@ namespace Echo.FSM
 			{
 				case PlayerStateEnum.None:
 					return null;
-				case PlayerStateEnum.Location:
-					return new PlayerLocationState();
+				case PlayerStateEnum.Grounded:
+					return new PlayerGroundedState(m_stateMachine);
 				case PlayerStateEnum.Idle:
-					return new PlayerIdleState();
+					return new PlayerIdleState(m_stateMachine);
 				case PlayerStateEnum.Walk:
-					return new PlayerWalkState();
+					return new PlayerWalkState(m_stateMachine);
 				case PlayerStateEnum.Run:
-					return new PlayerRunState();
+					return new PlayerRunState(m_stateMachine);
 				default:
-					Debug.LogWarning($"未在工厂中定义状态: {stateEnum}");
+					Debug.LogWarning($"未定义状态: {stateEnum}");
 					break;
 			}
 			return null;

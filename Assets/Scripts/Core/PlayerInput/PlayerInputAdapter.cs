@@ -23,18 +23,13 @@ namespace Echo
 		/// <param name="ctx"></param>
 		public void OnMove(InputAction.CallbackContext ctx)
 		{
-			if (!ctx.performed)
-				return;
-
-			Vector2 dir = ctx.ReadValue<Vector2>();
-			m_commandMgr.ExecuteCommand(new MoveCommand());
+			Debug.Log($"Move: {ctx.ReadValue<Vector2>()}");
+			m_commandMgr.ExecuteCommand(new MoveCommand(m_commandMgr.Player, ctx.ReadValue<Vector2>()));
 		}
 
 		public void OnJump(InputAction.CallbackContext ctx)
 		{
-			if (!ctx.performed)
-				return;
-
+			Debug.Log("Jump");
 		}
 		#endregion
 	}

@@ -2,7 +2,7 @@ namespace Echo.FSM
 {
 	public class PlayerRunState : PlayerBaseState
 	{
-		public PlayerRunState() { }
+		public PlayerRunState(PlayerStateMachine stateMachine) : base(stateMachine) { }
 		
 		public override void EnterState()
 		{

@@ -5,7 +5,12 @@ namespace Echo.FSM
 	/// </summary>
 	public abstract class PlayerBaseState : IState
 	{
-		public PlayerBaseState() { }
+		protected PlayerStateMachine m_stateMachine;
+
+		public PlayerBaseState(PlayerStateMachine stateMachine)
+		{
+			m_stateMachine = stateMachine;
+		}
 
 		public abstract void EnterState();
 		public abstract void UpdateState();

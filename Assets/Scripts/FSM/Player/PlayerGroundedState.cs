@@ -1,9 +1,9 @@
 namespace Echo.FSM
 {
-	public class PlayerLocationState : PlayerBaseState
+	public class PlayerGroundedState : PlayerBaseState
 	{
-		public PlayerLocationState()
-			: base()
+		public PlayerGroundedState(PlayerStateMachine stateMachine)
+			: base(stateMachine)
 		{ }
 
 		public override void EnterState()
