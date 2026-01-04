@@ -9,23 +9,21 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
-	[Header("配置")]
-	/// <summary>
-	/// 地面重力
-	/// </summary>
-	public float groundGravity;
 	/// <summary>
 	/// 重力
 	/// </summary>
-	[Range(-10, -1)]
 	public float gravity = Physics.gravity.y;
+	/// <summary>
+	/// 地面重力
+	/// </summary>
+	public float groundGravity = -0.05f;
 	/// <summary>
 	/// 每帧旋转速度
 	/// </summary>
 	[Tooltip("每帧旋转速度")]
 	public float rotationFactorPerFrame = 15.0f;
 
-	# region 组件
+	#region 组件
 	private CharacterController m_characterController;
 	private Animator m_animator;
 	#endregion
@@ -34,26 +32,24 @@ public class PlayerController : MonoBehaviour
 	private PlayerInputSystem m_inputActions = null;
 	private PlayerInputAdapter m_inputAdapter = null;
 
-	private Vector3 m_currentMoveMent = Vector3.zero;
-	private bool m_isMoving = false;
+	private PlayerStateMachine m_stateMachine = null;
 
 	#region Animator Param
 	private int m_speedHash;
 	#endregion
 
-	# region Unity生命周期函数
+	#region Unity生命周期函数
 	private void Awake()
 	{
 		//获取组件
 		m_characterController = GetComponent<CharacterController>();
 		m_animator = GetComponentInChildren<Animator>();
 
-		m_commandMgr = new CommandManager(this);
-		m_inputActions = new PlayerInputSystem();
-		m_inputAdapter = new PlayerInputAdapter(m_commandMgr);
+		//初始化输入控制
+		InitalInputActions();
 
-		m_inputActions.Player.Move.performed += m_inputAdapter.OnMove;
-		m_inputActions.Player.Move.canceled += m_inputAdapter.OnMove;
+		//初始化状态机
+		m_stateMachine = new PlayerStateMachine(this);
 
 		//Animator Param
 		m_speedHash = Animator.StringToHash("moveSpeed");
@@ -73,15 +69,17 @@ public class PlayerController : MonoBehaviour
 
 	private void Update()
 	{
-		HandleGravity();
 		HandleRotation();
+		//更新状态机
+		m_stateMachine.Update();
+		//更新动画
 		UpdateAnimation();
-		m_characterController.Move(m_currentMoveMent * Time.deltaTime);
+		m_characterController.Move(m_stateMachine.Movment * Time.deltaTime);
 	}
 
 	private void FixedUpdate()
 	{
-		
+
 	}
 	#endregion
 
@@ -91,36 +89,20 @@ public class PlayerController : MonoBehaviour
 	/// <param name="input"></param>
 	public void Move(Vector2 input)
 	{
-		m_isMoving = input.x != 0 || input.y != 0;
-		float speed = Math.Abs(input.x) > 0.5f || Math.Abs(input.y) > 0.5f ? 3.0f : 1.0f;
-		m_currentMoveMent.x = input.x * speed;
-		m_currentMoveMent.z = input.y * speed;
+		m_stateMachine.SetMoveInput(input);
 	}
 
-	private void HandleGravity()
+	/// <summary>
+	/// 初始化输入控制
+	/// </summary>
+	private void InitalInputActions()
 	{
-		if (m_characterController.isGrounded)
-		{
-			//在地面上
-			m_currentMoveMent.y = groundGravity;
-		}
-		else
-		{
-			//不在地面, 则根据重力加速度下降
-			m_currentMoveMent.y += gravity * Time.deltaTime;
-		}
-	}
+		m_commandMgr = new CommandManager(this);
+		m_inputActions = new PlayerInputSystem();
+		m_inputAdapter = new PlayerInputAdapter(m_commandMgr);
 
-	private void HandleRotation()
-	{
-		Vector3 posToLookAt = new Vector3(m_currentMoveMent.x, 0.0f, m_currentMoveMent.z);
-		Quaternion currentRot = transform.rotation;
-		//移动时旋转
-		if (m_isMoving)
-		{
-			Quaternion targetRot = Quaternion.LookRotation(posToLookAt);
-			transform.rotation = Quaternion.Slerp(currentRot, targetRot, rotationFactorPerFrame * Time.deltaTime);
-		}
+		m_inputActions.Player.Move.performed += m_inputAdapter.OnMove;
+		m_inputActions.Player.Move.canceled += m_inputAdapter.OnMove;
 	}
 
 	/// <summary>
@@ -132,4 +114,26 @@ public class PlayerController : MonoBehaviour
 		float speed = new Vector2(velocity.x, velocity.z).magnitude;
 		m_animator.SetFloat(m_speedHash, speed);
 	}
+
+	/// <summary>
+	/// 处理旋转
+	/// </summary>
+	private void HandleRotation()
+	{
+		Vector3 posToLookAt = new Vector3(m_stateMachine.CurrentMoveMent.x, 0.0f, m_stateMachine.CurrentMoveMent.z);
+		Quaternion currentRot = transform.rotation;
+		//移动时旋转
+		if (m_stateMachine.IsMoving)
+		{
+			Quaternion targetRot = Quaternion.LookRotation(posToLookAt);
+			transform.rotation = Quaternion.Slerp(currentRot, targetRot, rotationFactorPerFrame * Time.deltaTime);
+		}
+	}
+
+	#region setter & getter
+	/// <summary>
+	/// 是否在地面
+	/// </summary>
+	public bool IsGrounded => m_characterController.isGrounded;
+	#endregion
 }
