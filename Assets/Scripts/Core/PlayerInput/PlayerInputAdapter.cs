@@ -27,9 +27,14 @@ namespace Echo
 			m_commandMgr.ExecuteCommand(new MoveCommand(m_commandMgr.Player, ctx.ReadValue<Vector2>()));
 		}
 
+		/// <summary>
+		/// 跳跃
+		/// </summary>
+		/// <param name="ctx"></param>
 		public void OnJump(InputAction.CallbackContext ctx)
 		{
 			Debug.Log("Jump");
+			m_commandMgr.ExecuteCommand(new JumpCommand(m_commandMgr.Player));
 		}
 		#endregion
 	}
