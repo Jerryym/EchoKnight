@@ -101,8 +101,13 @@ public class PlayerController : MonoBehaviour
 		m_inputActions = new PlayerInputSystem();
 		m_inputAdapter = new PlayerInputAdapter(m_commandMgr);
 
+		//移动
 		m_inputActions.Player.Move.performed += m_inputAdapter.OnMove;
 		m_inputActions.Player.Move.canceled += m_inputAdapter.OnMove;
+
+		//跳跃
+		m_inputActions.Player.Jump.started += m_inputAdapter.OnJump;
+		m_inputActions.Player.Jump.canceled += m_inputAdapter.OnJump;
 	}
 
 	/// <summary>
