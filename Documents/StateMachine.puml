@@ -1,49 +1,57 @@
 @startuml StateMachine
 
-class PlayerStateMachine extends MonoBehaviour {
+class PlayerStateMachine {
 	- m_playerController : PlayerController
 	- m_currentState : PlayerBaseState
 	- m_stateFactory : PlayerStateFactory
 
-	+ setCurrentState(currentState : PlayerBaseState) : PlayerBaseState
-	+ getCurrentState() : PlayerBaseState
+	+ PlayerStateMachine(PlayerController playerController)
+	+ void Update()
+	+ void SetMoveInput(Vector2 input)
 }
 
-abstract class PlayerBaseState {
-	# m_currentContext : PlayerStateMachine
-	# m_stateFactory : PlayerStateFactory
+interface IState {
+	+ void EnterState();
+	+ void UpdateState();
+	+ void ExitState();
+}
 
-	+ PlayerBaseState(PlayerStateMachine currentContext, PlayerStateFactory stateFactory)
+abstract class PlayerBaseState implements IState {
+	# m_stateMachine : PlayerStateMachine
+	# m_subStates : Dictionary<PlayerStateEnum, PlayerBaseState>
+	# m_currentSubState : PlayerBaseState
+
+	+ PlayerBaseState(PlayerStateMachine stateMachine)
 	+ {abstract} void EnterState()
 	+ {abstract} void UpdateState()
 	+ {abstract} void ExitState()
-	+ {abstract} void SwitchState(PlayerBaseState newState)
+	+ {abstract} void CheckSwitchStates()
 	+ {abstract} void InitSubStates()
+	+ void UpdateStates()
+	# void SwitchState(PlayerStateEnum stateEnum)
+	# void SwitchSubState(PlayerStateEnum stateEnum)
 }
 
-class PlayerLocationState extends PlayerBaseState {
-
+class PlayerGroundedState extends PlayerBaseState {
+	- void HandleGravity()
 }
 
 class PlayerIdleState extends PlayerBaseState {
-
 }
 
 class PlayerWalkState extends PlayerBaseState {
-
 }
 
 class PlayerRunState extends PlayerBaseState {
-
 }
 
 class PlayerStateFactory {
 	- m_stateMachineContext : PlayerStateMachine
 
 	+ PlayerStateFactory(PlayerStateMachine stateMachineContext)
+	+ PlayerBaseState Create(PlayerStateEnum stateEnum)
 }
 
-PlayerBaseState --o PlayerStateMachine
-PlayerStateFactory --o PlayerStateMachine
-
+PlayerStateMachine *-- PlayerBaseState
+PlayerStateMachine *-- PlayerStateFactory
 @enduml

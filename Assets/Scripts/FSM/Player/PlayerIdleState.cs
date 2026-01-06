@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Echo.FSM
 {
-	public class PlayerIdleState : PlayerGroundedState
+	public class PlayerIdleState : PlayerBaseState
 	{
 		public PlayerIdleState(PlayerStateMachine stateMachine) : base(stateMachine) { }
 
