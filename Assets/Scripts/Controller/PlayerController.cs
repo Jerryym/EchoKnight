@@ -31,7 +31,6 @@ public class PlayerController : MonoBehaviour
 	private CommandManager m_commandMgr = null;
 	private PlayerInputSystem m_inputActions = null;
 	private PlayerInputAdapter m_inputAdapter = null;
-
 	private PlayerStateMachine m_stateMachine = null;
 
 	#region Animator Param
@@ -90,6 +89,14 @@ public class PlayerController : MonoBehaviour
 	public void Move(Vector2 input)
 	{
 		m_stateMachine.SetMoveInput(input);
+	}
+
+	/// <summary>
+	/// 跳跃
+	/// </summary>
+	public void Jump()
+	{
+		m_stateMachine.IsJumpPressed = true;
 	}
 
 	/// <summary>

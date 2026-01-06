@@ -49,6 +49,10 @@ namespace Echo.FSM
 
 		public override void CheckSwitchStates()
 		{
+			if (m_stateMachine.IsJumpPressed)
+			{
+				SwitchState(PlayerStateEnum.Jump);
+			}
 		}
 
 		/// <summary>

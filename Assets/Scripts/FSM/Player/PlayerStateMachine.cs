@@ -32,6 +32,8 @@ public class PlayerStateMachine
 
 	private bool m_isMoving = false;
 	private bool m_isRun = false;
+	private bool m_isJumpPressed = false;
+	private bool m_isJump = false;
 
 	public PlayerStateMachine(PlayerController playerController)
 	{
@@ -89,7 +91,16 @@ public class PlayerStateMachine
 	}
 
 	public bool IsMoving => m_isMoving;
-
 	public bool IsRun => m_isRun;
+	public bool IsJumpPressed
+	{
+		get { return m_isJumpPressed; }
+		set { m_isJumpPressed = value; }
+	}
+	public bool IsJump
+	{
+		get { return m_isJump; }
+		set { m_isJump = value; }
+	}
 	#endregion
 }

@@ -1,0 +1,2 @@
+"ID",gravity,groundGravity,rotationFactorPerFrame,initialJumpVelocity,maxJumpHeight,maxJumpTime
+Knight, -9.8,-2, 15, 6.5, 2.0, 0.6

@@ -10,7 +10,8 @@ namespace Echo.FSM
 		Grounded,
 		Idle,
 		Walk,
-		Run
+		Run,
+		Jump
 	}
 
 }

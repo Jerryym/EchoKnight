@@ -33,6 +33,8 @@ namespace Echo.FSM
 					return new PlayerWalkState(m_stateMachine);
 				case PlayerStateEnum.Run:
 					return new PlayerRunState(m_stateMachine);
+				case PlayerStateEnum.Jump:
+					return new PlayerJumpState(m_stateMachine);
 				default:
 					Debug.LogWarning($"未定义状态: {stateEnum}");
 					break;
