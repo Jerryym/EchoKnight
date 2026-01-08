@@ -15,6 +15,5 @@ MonoBehaviour:
   gravity: -9.8
   groundGravity: -2
   rotationFactorPerFrame: 15
-  initialJumpVelocity: 6.5
-  maxJumpHeight: 2
-  maxJumpTime: 0.6
+  maxJumpHeight: 4
+  maxJumpTime: 0.75

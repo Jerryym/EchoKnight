@@ -10,18 +10,11 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
 	/// <summary>
-	/// 重力
+	/// 物理配置
 	/// </summary>
-	public float gravity = Physics.gravity.y;
-	/// <summary>
-	/// 地面重力
-	/// </summary>
-	public float groundGravity = -0.05f;
-	/// <summary>
-	/// 每帧旋转速度
-	/// </summary>
-	[Tooltip("每帧旋转速度")]
-	public float rotationFactorPerFrame = 15.0f;
+	[SerializeField]
+	[Tooltip("物理配置")]
+	private PlayerPhysicsConfigSO m_physicsConfig;
 
 	#region 组件
 	private CharacterController m_characterController;
@@ -35,6 +28,7 @@ public class PlayerController : MonoBehaviour
 
 	#region Animator Param
 	private int m_speedHash;
+	private int m_isJumpHash;
 	#endregion
 
 	#region Unity生命周期函数
@@ -52,6 +46,7 @@ public class PlayerController : MonoBehaviour
 
 		//Animator Param
 		m_speedHash = Animator.StringToHash("moveSpeed");
+		m_isJumpHash = Animator.StringToHash("isJump");
 	}
 
 	private void OnEnable()
@@ -73,7 +68,7 @@ public class PlayerController : MonoBehaviour
 		m_stateMachine.Update();
 		//更新动画
 		UpdateAnimation();
-		m_characterController.Move(m_stateMachine.Movment * Time.deltaTime);
+		m_characterController.Move(m_stateMachine.AppliedMovment* Time.deltaTime);
 	}
 
 	private void FixedUpdate()
@@ -138,11 +133,17 @@ public class PlayerController : MonoBehaviour
 		if (m_stateMachine.IsMoving)
 		{
 			Quaternion targetRot = Quaternion.LookRotation(posToLookAt);
-			transform.rotation = Quaternion.Slerp(currentRot, targetRot, rotationFactorPerFrame * Time.deltaTime);
+			transform.rotation = Quaternion.Slerp(currentRot, targetRot, m_physicsConfig.rotationFactorPerFrame * Time.deltaTime);
 		}
 	}
 
 	#region setter & getter
+	public float Gravity => m_physicsConfig.gravity;
+	public float GroundGravity => m_physicsConfig.groundGravity;
+	public float RotationFactorPerFrame => m_physicsConfig.rotationFactorPerFrame;
+	public float MaxJumpHeight => m_physicsConfig.maxJumpHeight;
+	public float MaxJumpTime => m_physicsConfig.maxJumpTime;
+
 	/// <summary>
 	/// 是否在地面
 	/// </summary>

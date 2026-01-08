@@ -18,10 +18,6 @@ public class PlayerPhysicsConfigSO : ScriptableObject
 	/// </summary>
 	public float rotationFactorPerFrame;
 	/// <summary>
-	/// 跳跃初始速度
-	/// </summary>
-	public float initialJumpVelocity;
-	/// <summary>
 	/// 最大跳跃高度
 	/// </summary>
 	public float maxJumpHeight;

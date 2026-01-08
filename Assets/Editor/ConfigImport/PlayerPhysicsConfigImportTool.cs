@@ -62,7 +62,7 @@ public class PlayerPhysicsConfigImportTool : EditorWindow
 				continue;
 
 			string[] tokens = lines[i].Trim().Split(',');
-			if (tokens.Length < 7)
+			if (tokens.Length < 6)
 			{
 				Debug.LogError($"配置行格式错误: {lines[i]}");
 				continue;
@@ -96,17 +96,12 @@ public class PlayerPhysicsConfigImportTool : EditorWindow
 				Debug.LogError($"rotationFactorPerFrame 解析失败, ID={id}"); 
 				continue; 
 			}
-			if (!float.TryParse(tokens[4], out config.initialJumpVelocity))//跳跃初速度
-			{ 
-				Debug.LogError($"initialJumpVelocity 解析失败, ID={id}"); 
-				continue; 
-			}
-			if (!float.TryParse(tokens[5], out config.maxJumpHeight))//最大跳跃高度
+			if (!float.TryParse(tokens[4], out config.maxJumpHeight))//最大跳跃高度
 			{ 
 				Debug.LogError($"maxJumpHeight 解析失败, ID={id}"); 
 				continue; 
 			}
-			if (!float.TryParse(tokens[6], out config.maxJumpTime))//最大跳跃时间
+			if (!float.TryParse(tokens[5], out config.maxJumpTime))//最大跳跃时间
 			{ 
 				Debug.LogError($"maxJumpTime 解析失败, ID={id}"); 
 				continue; 

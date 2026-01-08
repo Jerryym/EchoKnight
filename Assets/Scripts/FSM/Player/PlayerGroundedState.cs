@@ -17,7 +17,7 @@ namespace Echo.FSM
 		public override void EnterState()
 		{
 			Debug.Log("进入Grounded状态");
-			m_stateMachine.CurrentMoveMentY = m_stateMachine.Controller.groundGravity;
+			m_stateMachine.CurrentMoveMentY = m_stateMachine.Controller.GroundGravity;
 		}
 
 		public override void ExitState()
@@ -62,12 +62,12 @@ namespace Echo.FSM
 		{
 			if (m_stateMachine.Controller.IsGrounded)
 			{
-				m_stateMachine.CurrentMoveMentY = m_stateMachine.Controller.groundGravity;
+				m_stateMachine.CurrentMoveMentY = m_stateMachine.Controller.GroundGravity;
 			}
 			else
 			{
 				//不在地面, 则根据重力加速度下降
-				m_stateMachine.CurrentMoveMentY += m_stateMachine.Controller.gravity * Time.deltaTime;
+				m_stateMachine.CurrentMoveMentY += m_stateMachine.Controller.Gravity * Time.deltaTime;
 			}
 		}
 	}

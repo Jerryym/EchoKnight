@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Echo.FSM
 {
@@ -51,6 +52,7 @@ namespace Echo.FSM
 		/// <param name="stateEnum">目标状态</param>
 		protected void SwitchState(PlayerStateEnum stateEnum)
 		{
+			Debug.Log($"切换状态: {stateEnum}");
 			//退出当前状态
 			ExitState();
 			//创建并进入新状态

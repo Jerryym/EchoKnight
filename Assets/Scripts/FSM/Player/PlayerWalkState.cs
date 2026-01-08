@@ -14,7 +14,7 @@ namespace Echo.FSM
 		public override void UpdateState()
 		{
 			CheckSwitchStates();
-			m_stateMachine.Movment = m_stateMachine.CurrentMoveMent;
+			m_stateMachine.AppliedMovment = m_stateMachine.CurrentMoveMent;
 		}
 
 		public override void ExitState()

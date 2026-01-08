@@ -26,9 +26,9 @@ public class PlayerStateMachine
 	/// </summary>
 	private Vector3 m_currentMoveMent = Vector3.zero;
 	/// <summary>
-	/// 移动向量
+	/// 移动应用向量
 	/// </summary>
-	private Vector3 m_Movment = Vector3.zero;
+	private Vector3 m_appliedMovment = Vector3.zero;
 
 	private bool m_isMoving = false;
 	private bool m_isRun = false;
@@ -77,17 +77,21 @@ public class PlayerStateMachine
 		get { return m_currentMoveMent; }
 		set { m_currentMoveMent = value; }
 	}
-
 	public float CurrentMoveMentY
 	{
 		get { return m_currentMoveMent.y; }
 		set { m_currentMoveMent.y = value; }
 	}
 
-	public Vector3 Movment
+	public Vector3 AppliedMovment
 	{
-		get { return m_Movment; }
-		set { m_Movment = value; }
+		get { return m_appliedMovment; }
+		set { m_appliedMovment = value; }
+	}
+	public float AppliedMovmentY
+	{
+		get { return m_appliedMovment.y; }
+		set { m_appliedMovment.y = value; }
 	}
 
 	public bool IsMoving => m_isMoving;
