@@ -6,21 +6,21 @@ public class PlayerJumpState : PlayerBaseState
 	/// <summary>
 	/// 跳起重力
 	/// </summary>
-	private float m_jumpGravity;
+	private float m_rJumpGravity = 5.0f;
 	/// <summary>
 	/// 跳跃初始速度
 	/// </summary>
-	private float m_initialJumpVelocity;
+	private float m_rInitialJumpVelocity;
 
     public PlayerJumpState(PlayerStateMachine stateMachine)
 		: base(stateMachine)
 	{
 		//初始化跳跃参数
-		float timeToApex = m_stateMachine.Controller.MaxJumpHeight / 2;
-		m_jumpGravity = -2 * m_stateMachine.Controller.MaxJumpHeight / Mathf.Pow(timeToApex, 2);
-		m_initialJumpVelocity = 2 * m_stateMachine.Controller.MaxJumpHeight / timeToApex;
+		//float timeToApex = m_stateMachine.Player.MaxJumpHeight / 2;
+		//m_jumpGravity = -2 * m_stateMachine.Player.MaxJumpHeight / Mathf.Pow(timeToApex, 2);
+		//m_initialJumpVelocity = 2 * m_stateMachine.Player.MaxJumpHeight / timeToApex;
 
-		Debug.Log($"JumpGravity:{m_jumpGravity} InitialJumpVelocity:{m_initialJumpVelocity}");
+		Debug.Log($"JumpGravity:{m_rJumpGravity} InitialJumpVelocity:{m_rInitialJumpVelocity}");
 	}
 
 	public override void EnterState()
@@ -37,19 +37,10 @@ public class PlayerJumpState : PlayerBaseState
 
     public override void UpdateState()
 	{
-		bool isFalling = m_stateMachine.CurrentMoveMentY < 0;
-		float fallMult = 2.0f;
+		bool isFalling = m_stateMachine.VelocityY < 0;
 		if (isFalling)
 		{
-			float previousY = m_stateMachine.CurrentMoveMentY;
-			m_stateMachine.CurrentMoveMentY = m_jumpGravity * fallMult * Time.deltaTime;
-			m_stateMachine.AppliedMovmentY = Mathf.Max(previousY + m_stateMachine.CurrentMoveMentY * .5f, -20f);
-		}
-		else
-		{
-			float previousY = m_stateMachine.CurrentMoveMentY;
-			m_stateMachine.CurrentMoveMentY = m_jumpGravity * Time.deltaTime;
-			m_stateMachine.AppliedMovmentY = previousY + m_stateMachine.CurrentMoveMentY * .5f;
+			m_stateMachine.VelocityY += m_stateMachine.Player.GroundGravity * Time.deltaTime;
 		}
 		CheckSwitchStates();
 	}
@@ -58,7 +49,7 @@ public class PlayerJumpState : PlayerBaseState
 
     public override void CheckSwitchStates()
 	{
-		if (m_stateMachine.Controller.IsGrounded)
+		if (m_stateMachine.Player.IsGrounded)
 		{
 			SwitchState(PlayerStateEnum.Grounded);
 		}
@@ -67,7 +58,6 @@ public class PlayerJumpState : PlayerBaseState
 	private void HandleJump()
 	{
 		m_stateMachine.IsJump = true;
-		m_stateMachine.CurrentMoveMentY = m_initialJumpVelocity;
-		m_stateMachine.AppliedMovmentY = m_initialJumpVelocity;
+		m_stateMachine.VelocityY = m_rJumpGravity;
 	}
 }

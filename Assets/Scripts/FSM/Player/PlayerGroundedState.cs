@@ -17,7 +17,7 @@ namespace Echo.FSM
 		public override void EnterState()
 		{
 			Debug.Log("进入Grounded状态");
-			m_stateMachine.CurrentMoveMentY = m_stateMachine.Controller.GroundGravity;
+			m_stateMachine.VelocityY = m_stateMachine.Player.GroundGravity;
 		}
 
 		public override void ExitState()
@@ -49,9 +49,9 @@ namespace Echo.FSM
 
 		public override void CheckSwitchStates()
 		{
-			if (m_stateMachine.IsJumpPressed)
+			if (!m_stateMachine.Player.IsGrounded)
 			{
-				SwitchState(PlayerStateEnum.Jump);
+				SwitchState(PlayerStateEnum.Airborne);
 			}
 		}
 
@@ -60,14 +60,14 @@ namespace Echo.FSM
 		/// </summary>
 		private void HandleGravity()
 		{
-			if (m_stateMachine.Controller.IsGrounded)
+			if (m_stateMachine.Player.IsGrounded)
 			{
-				m_stateMachine.CurrentMoveMentY = m_stateMachine.Controller.GroundGravity;
+				m_stateMachine.VelocityY = m_stateMachine.Player.GroundGravity;
 			}
 			else
 			{
 				//不在地面, 则根据重力加速度下降
-				m_stateMachine.CurrentMoveMentY += m_stateMachine.Controller.Gravity * Time.deltaTime;
+				m_stateMachine.VelocityY += m_stateMachine.Player.Gravity * Time.deltaTime;
 			}
 		}
 	}

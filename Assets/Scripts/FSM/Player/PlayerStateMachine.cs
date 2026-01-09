@@ -1,4 +1,3 @@
-using System;
 using Echo.FSM;
 using UnityEngine;
 
@@ -22,18 +21,22 @@ public class PlayerStateMachine
 	private PlayerBaseState m_currentState = null;
 
 	/// <summary>
-	/// 当前移动向量
+	/// 输入向量
 	/// </summary>
-	private Vector3 m_currentMoveMent = Vector3.zero;
+	private Vector2 m_input = Vector2.zero;
 	/// <summary>
 	/// 移动应用向量
 	/// </summary>
-	private Vector3 m_appliedMovment = Vector3.zero;
+	private Vector3 m_playerMovement = Vector3.zero;
+	/// <summary>
+	/// 垂直方向速度
+	/// </summary>
+	private float m_rVelocityY = 0.0f;
 
-	private bool m_isMoving = false;
-	private bool m_isRun = false;
-	private bool m_isJumpPressed = false;
-	private bool m_isJump = false;
+	private bool m_bIsMoving = false;
+	private bool m_bIsRun = false;
+	private bool m_bIsJumpPressed = false;
+	private bool m_bIsJump = false;
 
 	public PlayerStateMachine(PlayerController playerController)
 	{
@@ -47,22 +50,20 @@ public class PlayerStateMachine
 
 	public void SetMoveInput(Vector2 input)
 	{
-		m_isMoving = input.x != 0 || input.y != 0;
-		m_isRun = Math.Abs(input.x) > 0.5f || Math.Abs(input.y) > 0.5f;
-
-		//设置移动向量
-		m_currentMoveMent.x = input.x;
-		m_currentMoveMent.z = input.y;
+		m_bIsMoving = input.x != 0 || input.y != 0;
+		m_bIsRun = Mathf.Abs(input.x) > 0.5f || Mathf.Abs(input.y) > 0.5f;
+		m_input = input;
 	}
 
 	public void Update()
 	{
+		m_playerMovement.y = m_rVelocityY * Time.deltaTime;
 		//更新状态
 		m_currentState.UpdateStates();
 	}
 	
 	#region setter & getter
-	public PlayerController Controller => m_controller;
+	public PlayerController Player => m_controller;
 
 	public PlayerBaseState CurrentState
 	{
@@ -72,39 +73,29 @@ public class PlayerStateMachine
 
 	public PlayerStateFactory Factory => m_factory;
 
-	public Vector3 CurrentMoveMent
+	public Vector3 Input => m_input;
+	public Vector3 PlayerMovment
 	{
-		get { return m_currentMoveMent; }
-		set { m_currentMoveMent = value; }
+		get { return m_playerMovement; }
+		set { m_playerMovement = value; }
 	}
-	public float CurrentMoveMentY
+	public float VelocityY
 	{
-		get { return m_currentMoveMent.y; }
-		set { m_currentMoveMent.y = value; }
-	}
-
-	public Vector3 AppliedMovment
-	{
-		get { return m_appliedMovment; }
-		set { m_appliedMovment = value; }
-	}
-	public float AppliedMovmentY
-	{
-		get { return m_appliedMovment.y; }
-		set { m_appliedMovment.y = value; }
+		get { return m_rVelocityY; }
+		set { m_rVelocityY = value; }
 	}
 
-	public bool IsMoving => m_isMoving;
-	public bool IsRun => m_isRun;
+	public bool IsMoving => m_bIsMoving;
+	public bool IsRun => m_bIsRun;
 	public bool IsJumpPressed
 	{
-		get { return m_isJumpPressed; }
-		set { m_isJumpPressed = value; }
+		get { return m_bIsJumpPressed; }
+		set { m_bIsJumpPressed = value; }
 	}
 	public bool IsJump
 	{
-		get { return m_isJump; }
-		set { m_isJump = value; }
+		get { return m_bIsJump; }
+		set { m_bIsJump = value; }
 	}
 	#endregion
 }

@@ -73,14 +73,15 @@ public class PlayerPhysicsConfigImportTool : EditorWindow
 			string assetPath = Path.Combine(m_outputPath, id + ".asset");
 
 			//判断是否已存在同名SO资源
-			PlayerPhysicsConfigSO config = AssetDatabase.LoadAssetAtPath<PlayerPhysicsConfigSO>(assetPath);
+			CharacterPhysicsConfigSO config = AssetDatabase.LoadAssetAtPath<CharacterPhysicsConfigSO>(assetPath);
 			if (config == null)
 			{
 				//创建对应SO文件
-				config = ScriptableObject.CreateInstance<PlayerPhysicsConfigSO>();
+				config = ScriptableObject.CreateInstance<CharacterPhysicsConfigSO>();
 				AssetDatabase.CreateAsset(config, assetPath);
 			}
 
+			config.id = id;//ID
 			if (!float.TryParse(tokens[1], out config.gravity))//重力
 			{ 
 				Debug.LogError($"gravity 解析失败, ID={id}"); 

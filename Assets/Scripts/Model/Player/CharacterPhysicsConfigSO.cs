@@ -1,10 +1,14 @@
 using UnityEngine;
 
 /// <summary>
-/// 玩家物理配置 ScriptableObject: 用于集中管理玩家角色的物理参数
+/// 角色物理配置ScriptableObject: 用于管理角色的物理参数
 /// </summary>
-public class PlayerPhysicsConfigSO : ScriptableObject
+public class CharacterPhysicsConfigSO : ScriptableObject
 {
+	/// <summary>
+	/// ID
+	/// </summary>
+	public string id;
 	/// <summary>
 	/// 重力
 	/// </summary>

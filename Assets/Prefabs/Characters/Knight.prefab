@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6892628897702016914}
   - component: {fileID: 3124365193546184700}
+  - component: {fileID: 787800904245897386}
   - component: {fileID: 7414580914128698151}
   m_Layer: 3
   m_Name: Knight
@@ -61,6 +62,18 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0
   m_Center: {x: 0, y: 1.25, z: 0}
+--- !u!114 &787800904245897386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6334462176496841812}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6ed05da82d806248be5ab14f6d56897, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &7414580914128698151
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -73,9 +86,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e6474f55fac8cf4abcf6cbeeda0648f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gravity: -9.81
-  groundGravity: -0.05
-  rotationFactorPerFrame: 15
+  m_physicsConfig: {fileID: 11400000, guid: 00e78614b4d9fd9428d9e83c51d803c1, type: 2}
 --- !u!1 &8397376201188810264
 GameObject:
   m_ObjectHideFlags: 0

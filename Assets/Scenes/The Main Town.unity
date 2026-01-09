@@ -1678,6 +1678,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 787800904245897386, guid: d12951d225b9cf542877c17316c6f4ec, type: 3}
+      propertyPath: groundCheckOffset
+      value: 0.55
+      objectReference: {fileID: 0}
     - target: {fileID: 2312160030955731328, guid: d12951d225b9cf542877c17316c6f4ec, type: 3}
       propertyPath: m_Avatar
       value: 
@@ -1700,7 +1704,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6892628897702016914, guid: d12951d225b9cf542877c17316c6f4ec, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3
+      value: 3.05
       objectReference: {fileID: 0}
     - target: {fileID: 6892628897702016914, guid: d12951d225b9cf542877c17316c6f4ec, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1734,10 +1738,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7414580914128698151, guid: d12951d225b9cf542877c17316c6f4ec, type: 3}
-      propertyPath: m_physicsConfig
-      value: 
-      objectReference: {fileID: 11400000, guid: 00e78614b4d9fd9428d9e83c51d803c1, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 4635919148007808457, guid: d12951d225b9cf542877c17316c6f4ec, type: 3}

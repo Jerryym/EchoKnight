@@ -14,10 +14,11 @@ public class PlayerController : MonoBehaviour
 	/// </summary>
 	[SerializeField]
 	[Tooltip("物理配置")]
-	private PlayerPhysicsConfigSO m_physicsConfig;
+	private CharacterPhysicsConfigSO m_physicsConfig;
 
 	#region 组件
 	private CharacterController m_characterController;
+	private PhysicsCheck m_physicsCheck;
 	private Animator m_animator;
 	#endregion
 
@@ -27,8 +28,8 @@ public class PlayerController : MonoBehaviour
 	private PlayerStateMachine m_stateMachine = null;
 
 	#region Animator Param
-	private int m_speedHash;
-	private int m_isJumpHash;
+	private int m_iSpeedHash;
+	private int m_iJumpHash;
 	#endregion
 
 	#region Unity生命周期函数
@@ -36,6 +37,7 @@ public class PlayerController : MonoBehaviour
 	{
 		//获取组件
 		m_characterController = GetComponent<CharacterController>();
+		m_physicsCheck = GetComponent<PhysicsCheck>();
 		m_animator = GetComponentInChildren<Animator>();
 
 		//初始化输入控制
@@ -45,8 +47,8 @@ public class PlayerController : MonoBehaviour
 		m_stateMachine = new PlayerStateMachine(this);
 
 		//Animator Param
-		m_speedHash = Animator.StringToHash("moveSpeed");
-		m_isJumpHash = Animator.StringToHash("isJump");
+		m_iSpeedHash = Animator.StringToHash("moveSpeed");
+		m_iJumpHash = Animator.StringToHash("isJump");
 	}
 
 	private void OnEnable()
@@ -68,7 +70,7 @@ public class PlayerController : MonoBehaviour
 		m_stateMachine.Update();
 		//更新动画
 		UpdateAnimation();
-		m_characterController.Move(m_stateMachine.AppliedMovment* Time.deltaTime);
+		m_characterController.Move(m_stateMachine.PlayerMovment * Time.deltaTime);
 	}
 
 	private void FixedUpdate()
@@ -119,7 +121,7 @@ public class PlayerController : MonoBehaviour
 	{
 		Vector3 velocity = m_characterController.velocity;
 		float speed = new Vector2(velocity.x, velocity.z).magnitude;
-		m_animator.SetFloat(m_speedHash, speed);
+		m_animator.SetFloat(m_iSpeedHash, speed);
 	}
 
 	/// <summary>
@@ -127,7 +129,7 @@ public class PlayerController : MonoBehaviour
 	/// </summary>
 	private void HandleRotation()
 	{
-		Vector3 posToLookAt = new Vector3(m_stateMachine.CurrentMoveMent.x, 0.0f, m_stateMachine.CurrentMoveMent.z);
+		Vector3 posToLookAt = new Vector3(m_stateMachine.Input.x, 0.0f, m_stateMachine.Input.y);
 		Quaternion currentRot = transform.rotation;
 		//移动时旋转
 		if (m_stateMachine.IsMoving)
@@ -144,9 +146,6 @@ public class PlayerController : MonoBehaviour
 	public float MaxJumpHeight => m_physicsConfig.maxJumpHeight;
 	public float MaxJumpTime => m_physicsConfig.maxJumpTime;
 
-	/// <summary>
-	/// 是否在地面
-	/// </summary>
-	public bool IsGrounded => m_characterController.isGrounded;
+	public bool IsGrounded => m_physicsCheck.IsGrounded;
 	#endregion
 }

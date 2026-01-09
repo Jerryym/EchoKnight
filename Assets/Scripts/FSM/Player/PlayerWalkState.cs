@@ -4,6 +4,8 @@ namespace Echo.FSM
 {
 	public class PlayerWalkState : PlayerBaseState
 	{
+		private float m_rWalkSpeed = 1.5f;
+
 		public PlayerWalkState(PlayerStateMachine stateMachine)  : base(stateMachine) { }
 
 		public override void EnterState()
@@ -14,7 +16,7 @@ namespace Echo.FSM
 		public override void UpdateState()
 		{
 			CheckSwitchStates();
-			m_stateMachine.AppliedMovment = m_stateMachine.CurrentMoveMent;
+			m_stateMachine.PlayerMovment = new Vector3(m_stateMachine.Input.x * m_rWalkSpeed, m_stateMachine.VelocityY, m_stateMachine.Input.y * m_rWalkSpeed);
 		}
 
 		public override void ExitState()

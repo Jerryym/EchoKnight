@@ -11,6 +11,7 @@ namespace Echo.FSM
 		Idle,
 		Walk,
 		Run,
+		Airborne,
 		Jump
 	}
 
