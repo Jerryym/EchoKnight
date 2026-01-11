@@ -1,4 +1,3 @@
-using System;
 using Echo;
 using Echo.Command;
 using UnityEngine;
@@ -30,6 +29,7 @@ public class PlayerController : MonoBehaviour
 	#region Animator Param
 	private int m_iSpeedHash;
 	private int m_iJumpHash;
+	private int m_iVelocityYHash;
 	#endregion
 
 	#region Unity生命周期函数
@@ -49,6 +49,7 @@ public class PlayerController : MonoBehaviour
 		//Animator Param
 		m_iSpeedHash = Animator.StringToHash("moveSpeed");
 		m_iJumpHash = Animator.StringToHash("isJump");
+		m_iVelocityYHash = Animator.StringToHash("velocityY");
 	}
 
 	private void OnEnable()
@@ -66,6 +67,8 @@ public class PlayerController : MonoBehaviour
 	private void Update()
 	{
 		HandleRotation();
+		//地面检测
+		m_physicsCheck.CheckGround();
 		//更新状态机
 		m_stateMachine.Update();
 		//更新动画
@@ -110,7 +113,7 @@ public class PlayerController : MonoBehaviour
 		m_inputActions.Player.Move.canceled += m_inputAdapter.OnMove;
 
 		//跳跃
-		m_inputActions.Player.Jump.started += m_inputAdapter.OnJump;
+		m_inputActions.Player.Jump.performed += m_inputAdapter.OnJump;
 		m_inputActions.Player.Jump.canceled += m_inputAdapter.OnJump;
 	}
 
@@ -122,6 +125,8 @@ public class PlayerController : MonoBehaviour
 		Vector3 velocity = m_characterController.velocity;
 		float speed = new Vector2(velocity.x, velocity.z).magnitude;
 		m_animator.SetFloat(m_iSpeedHash, speed);
+		//m_animator.SetBool(m_iJumpHash, m_stateMachine.IsJump);
+		//m_animator.SetFloat(m_iVelocityYHash, m_stateMachine.VelocityY);
 	}
 
 	/// <summary>
@@ -146,6 +151,17 @@ public class PlayerController : MonoBehaviour
 	public float MaxJumpHeight => m_physicsConfig.maxJumpHeight;
 	public float MaxJumpTime => m_physicsConfig.maxJumpTime;
 
-	public bool IsGrounded => m_physicsCheck.IsGrounded;
+	public bool IsGrounded
+	{
+		get
+		{
+			//上升阶段强制不接地
+			if (m_stateMachine.IsJump && m_stateMachine.VelocityY > 0.01f)
+			{
+				return false;
+			}
+			return m_physicsCheck.IsGrounded;
+		}
+	}
 	#endregion
 }

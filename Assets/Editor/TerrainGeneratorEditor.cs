@@ -72,7 +72,7 @@ public class TerrainGeneratorEditor : EditorWindow
 	[Range(1f, 4f)] public float m_lacunarity = 2.0f;
 	#endregion
 
-	[MenuItem("Window/PTG Editor")]
+	[MenuItem("Tools/PTG Editor")]
 	static void Init()
 	{
 		TerrainGeneratorEditor editor = (TerrainGeneratorEditor)GetWindow(typeof(TerrainGeneratorEditor), false, "Procedural Terrain Generation");

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: Knight
   gravity: -9.8
-  groundGravity: -0.2
+  groundGravity: -0.05
   rotationFactorPerFrame: 15
   maxJumpHeight: 2
   maxJumpTime: 0.6

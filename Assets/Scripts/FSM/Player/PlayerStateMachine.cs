@@ -1,4 +1,6 @@
 using Echo.FSM;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -12,9 +14,9 @@ public class PlayerStateMachine
 	private PlayerController m_controller = null;
 
 	/// <summary>
-	/// 状态机工厂
+	/// 状态字典
 	/// </summary>
-	private PlayerStateFactory m_factory = null;
+	private Dictionary<PlayerStateType, PlayerParentState> m_stateDic;
 	/// <summary>
 	/// 玩家当前状态
 	/// </summary>
@@ -42,9 +44,9 @@ public class PlayerStateMachine
 	{
 		m_controller = playerController;
 
-		//设置状态机
-		m_factory = new PlayerStateFactory(this);
-		m_currentState = m_factory.Create(PlayerStateEnum.Grounded);
+		//初始化状态机
+		InitStateMachine();
+		m_currentState = m_stateDic[PlayerStateType.Grounded];
 		m_currentState.EnterState();
 	}
 
@@ -55,13 +57,44 @@ public class PlayerStateMachine
 		m_input = input;
 	}
 
+	/// <summary>
+	/// 更新状态
+	/// </summary>
 	public void Update()
 	{
-		m_playerMovement.y = m_rVelocityY * Time.deltaTime;
-		//更新状态
-		m_currentState.UpdateStates();
+		m_currentState.UpdateState();
+		m_playerMovement.y = m_rVelocityY;
 	}
-	
+
+	/// <summary>
+	/// 切换状态
+	/// </summary>
+	/// <param name="stateType"></param>
+	public void SwitchState(PlayerStateType stateType)
+	{
+		if (!m_stateDic.TryGetValue(stateType, out var newState))
+		{
+			Debug.LogError($"状态 {stateType} 未注册！");
+			return;
+		}
+
+		m_currentState.ExitState();
+		m_currentState = newState;
+		m_currentState.EnterState();
+	}
+
+	/// <summary>
+	/// 初始化状态机
+	/// </summary>
+	private void InitStateMachine()
+	{
+		m_stateDic = new Dictionary<PlayerStateType, PlayerParentState>();
+		//Grounded
+		m_stateDic.Add(PlayerStateType.Grounded, new PlayerGroundedState(this));
+		//Airborne
+		m_stateDic.Add(PlayerStateType.Airborne, new PlayerAirborneState(this));
+	}
+
 	#region setter & getter
 	public PlayerController Player => m_controller;
 
@@ -71,9 +104,7 @@ public class PlayerStateMachine
 		set { m_currentState = value; }
 	}
 
-	public PlayerStateFactory Factory => m_factory;
-
-	public Vector3 Input => m_input;
+	public Vector2 Input => m_input;
 	public Vector3 PlayerMovment
 	{
 		get { return m_playerMovement; }

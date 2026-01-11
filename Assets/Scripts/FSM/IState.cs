@@ -1,7 +1,7 @@
 namespace Echo.FSM
 {
 	/// <summary>
-	/// 状态机接口
+	/// 父状态接口
 	/// </summary>
 	public interface IState
 	{

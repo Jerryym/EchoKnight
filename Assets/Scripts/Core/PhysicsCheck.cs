@@ -3,6 +3,7 @@ using UnityEngine;
 public class PhysicsCheck : MonoBehaviour
 {
 	public float groundCheckOffset = 0.1f;
+	public LayerMask groundLayerMask;
 
 	private CharacterController m_controller;
 	/// <summary>
@@ -15,28 +16,26 @@ public class PhysicsCheck : MonoBehaviour
 		m_controller = GetComponent<CharacterController>();
 	}
 
-	private void Update()
+	private void OnDrawGizmosSelected()
 	{
-		StateCheck();
-	}
+		var characterController = GetComponent<CharacterController>();
 
-	private void OnDrawGizmos()
-	{
-		Gizmos.color = Color.yellow;
-		
 		//绘制地面碰撞检测球
-		Vector3 origin = transform.position + (Vector3.up * groundCheckOffset);
-		float rRadius = 0.6f;
+		Vector3 origin = transform.position + Vector3.up * (characterController.radius - characterController.skinWidth);
+		float rRadius = characterController.radius * 0.9f;
+		Gizmos.color = Color.yellow;
 		Gizmos.DrawSphere(origin, rRadius);
 	}
 
-	private void StateCheck()
+	/// <summary>
+	/// 地面检测
+	/// </summary>
+	public void CheckGround()
 	{
-		//地面检测
-		Vector3 origin = transform.position + (Vector3.up * groundCheckOffset);
-		float rRadius = m_controller.radius;
-		float rGroundedDistance = groundCheckOffset - rRadius + 2 * m_controller.skinWidth;
-		if (Physics.SphereCast(origin, rRadius, Vector3.down, out RaycastHit hit, groundCheckOffset))
+		//检测起点：从角色底部向上偏移一点（避免嵌入地面）
+		Vector3 origin = transform.position + Vector3.up * (m_controller.radius - m_controller.skinWidth);
+		float rRadius = m_controller.radius * 0.9f;
+		if (Physics.SphereCast(origin, rRadius, Vector3.down, out RaycastHit hit, groundCheckOffset, groundLayerMask))
 		{
 			m_bIsGrounded = true;
 		}
@@ -44,7 +43,6 @@ public class PhysicsCheck : MonoBehaviour
 		{
 			m_bIsGrounded = false;
 		}
-		Debug.Log($"地面检测: {m_bIsGrounded}");
 	}
 
 	#region setter & getter

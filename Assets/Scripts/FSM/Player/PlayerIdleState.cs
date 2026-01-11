@@ -1,37 +1,23 @@
+using Echo.FSM;
 using UnityEngine;
 
-namespace Echo.FSM
+public class PlayerIdleState : PlayerSubState
 {
-	public class PlayerIdleState : PlayerBaseState
+	public PlayerIdleState(PlayerStateMachine stateMachine) : base(stateMachine) { }
+
+	public override void EnterState()
 	{
-		public PlayerIdleState(PlayerStateMachine stateMachine) : base(stateMachine) { }
-
-		public override void EnterState()
-		{
-			Debug.Log("SubState: 进入Idle状态");
-			m_stateMachine.PlayerMovment = new Vector3(0, m_stateMachine.VelocityY, 0);
-		}
-
-		public override void UpdateState()
-		{
-			CheckSwitchStates();
-		}
-
-		public override void ExitState()
-		{
-			
-		}
-
-		public override void CheckSwitchStates()
-		{
-			if (m_stateMachine.IsMoving)
-			{
-				SwitchState(m_stateMachine.IsRun ? PlayerStateEnum.Run : PlayerStateEnum.Walk);
-			}
-		}
-
-		public override void InitSubStates()
-		{
-		}
+		Debug.Log("SubState: 进入Idle状态");
 	}
+
+	public override void UpdateState()
+	{
+	}
+
+	public override void ExitState()
+	{
+
+	}
+
+	public override PlayerSubStateType Type => PlayerSubStateType.Idle;
 }

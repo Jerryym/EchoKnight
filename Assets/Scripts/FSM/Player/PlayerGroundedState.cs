@@ -1,74 +1,76 @@
+using Echo.FSM;
+using System;
 using UnityEngine;
 
-namespace Echo.FSM
+/// <summary>
+/// 地面状态：玩家在在地面上的状态
+/// 子状态: Idle, Walk, Run
+/// </summary>
+public class PlayerGroundedState : PlayerParentState
 {
-	/// <summary>
-	/// 地面状态：玩家在在地面上的状态, 包含三个子状态——Idle, Walk, Run
-	/// </summary>
-	public class PlayerGroundedState : PlayerBaseState
+	public PlayerGroundedState(PlayerStateMachine stateMachine) : base(stateMachine)
 	{
-		public PlayerGroundedState(PlayerStateMachine stateMachine)
-			: base(stateMachine)
+		//初始化子状态
+		InitSubStates();
+	}
+
+	public override void EnterState()
+	{
+		Debug.Log("进入Grounded状态");
+		m_stateMachine.VelocityY = m_stateMachine.Player.Gravity * Time.deltaTime;
+		m_currentSubState.EnterState();
+	}
+
+	public override void ExitState()
+	{
+		m_currentSubState.ExitState();
+	}
+
+	public override void UpdateState()
+	{
+		m_currentSubState.UpdateState();
+		CheckSwitchStates();
+	}
+
+	protected override void InitSubStates()
+	{
+		//初始化子状态
+		m_subStates.Add(PlayerSubStateType.Idle, new PlayerIdleState(m_stateMachine));
+		m_subStates.Add(PlayerSubStateType.Walk, new PlayerWalkState(m_stateMachine));
+		m_subStates.Add(PlayerSubStateType.Run, new PlayerRunState(m_stateMachine));
+
+		m_currentSubState = m_subStates[PlayerSubStateType.Idle];
+	}
+
+	protected override void CheckSwitchStates()
+	{
+		Debug.Log($"IsGrounded = {m_stateMachine.Player.IsGrounded}, IsJumpPressed = {m_stateMachine.IsJumpPressed}");
+		if (!m_stateMachine.Player.IsGrounded)
 		{
-			//初始化子状态
-			InitSubStates();
+			SwitchParentState(PlayerStateType.Airborne);
+			return;
 		}
 
-		public override void EnterState()
+		//子状态切换
+		CheckSwitchSubStates();
+	}
+
+	private void CheckSwitchSubStates()
+	{
+		PlayerSubStateType targetSubState;
+		if (!m_stateMachine.IsMoving)
 		{
-			Debug.Log("进入Grounded状态");
-			m_stateMachine.VelocityY = m_stateMachine.Player.GroundGravity;
+			targetSubState = PlayerSubStateType.Idle;
+		}
+		else
+		{
+			targetSubState = m_stateMachine.IsRun ? PlayerSubStateType.Run : PlayerSubStateType.Walk;
 		}
 
-		public override void ExitState()
+		//只有变化时才切换
+		if (m_currentSubState == null || m_currentSubState.Type != targetSubState)
 		{
-		}
-
-		public override void UpdateState()
-		{
-			CheckSwitchStates();
-			HandleGravity();
-		}
-
-		public override void InitSubStates()
-		{
-			//初始化子状态
-			m_subStates.Add(PlayerStateEnum.Idle, new PlayerIdleState(m_stateMachine));
-			m_subStates.Add(PlayerStateEnum.Walk, new PlayerWalkState(m_stateMachine));
-			m_subStates.Add(PlayerStateEnum.Run, new PlayerRunState(m_stateMachine));
-
-			if (!m_stateMachine.IsMoving)
-			{
-				SwitchSubState(PlayerStateEnum.Idle);
-			}
-			else
-			{
-				SwitchSubState(m_stateMachine.IsRun ? PlayerStateEnum.Run : PlayerStateEnum.Walk);
-			}
-		}
-
-		public override void CheckSwitchStates()
-		{
-			if (!m_stateMachine.Player.IsGrounded)
-			{
-				SwitchState(PlayerStateEnum.Airborne);
-			}
-		}
-
-		/// <summary>
-		/// 处理重力
-		/// </summary>
-		private void HandleGravity()
-		{
-			if (m_stateMachine.Player.IsGrounded)
-			{
-				m_stateMachine.VelocityY = m_stateMachine.Player.GroundGravity;
-			}
-			else
-			{
-				//不在地面, 则根据重力加速度下降
-				m_stateMachine.VelocityY += m_stateMachine.Player.Gravity * Time.deltaTime;
-			}
+			SwitchSubState(targetSubState);
 		}
 	}
 }
