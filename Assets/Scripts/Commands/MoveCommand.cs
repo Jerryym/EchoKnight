@@ -14,7 +14,6 @@ public class MoveCommand : ICommand
 
 	public void Execute()
 	{
-		Debug.Log("MoveCommand Execute!");
 		m_player.Move(m_input);
 	}
 }

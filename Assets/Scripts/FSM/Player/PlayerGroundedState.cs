@@ -18,7 +18,7 @@ public class PlayerGroundedState : PlayerParentState
 	{
 		Debug.Log("进入Grounded状态");
 		m_stateMachine.VelocityY = m_stateMachine.Player.Gravity * Time.deltaTime;
-		m_currentSubState.EnterState();
+		SwitchSubState(PlayerSubStateType.Idle);
 	}
 
 	public override void ExitState()
@@ -38,14 +38,19 @@ public class PlayerGroundedState : PlayerParentState
 		m_subStates.Add(PlayerSubStateType.Idle, new PlayerIdleState(m_stateMachine));
 		m_subStates.Add(PlayerSubStateType.Walk, new PlayerWalkState(m_stateMachine));
 		m_subStates.Add(PlayerSubStateType.Run, new PlayerRunState(m_stateMachine));
-
-		m_currentSubState = m_subStates[PlayerSubStateType.Idle];
 	}
 
 	protected override void CheckSwitchStates()
 	{
 		Debug.Log($"IsGrounded = {m_stateMachine.Player.IsGrounded}, IsJumpPressed = {m_stateMachine.IsJumpPressed}");
-		if (!m_stateMachine.Player.IsGrounded)
+		if (m_stateMachine.IsJumpPressed)//主动跳跃
+		{
+			m_stateMachine.VelocityY = 8.0f;
+			SwitchParentState(PlayerStateType.Airborne);
+			return;
+		}
+		
+		if (!m_stateMachine.Player.IsGrounded)//掉落
 		{
 			SwitchParentState(PlayerStateType.Airborne);
 			return;

@@ -8,22 +8,19 @@ public class PlayerJumpState : PlayerSubState
 	/// </summary>
 	private float m_rInitialJumpVelocity = 8.0f;
 
-    public PlayerJumpState(PlayerStateMachine stateMachine)
-		: base(stateMachine)
-	{
-	}
+    public PlayerJumpState(PlayerStateMachine stateMachine) : base(stateMachine) { }
 
 
 	public override void EnterState()
 	{
-        Debug.Log("SubState: 进入Jump状态");
+        Debug.Log("SubState: 进入Jump状态-1");
 		m_stateMachine.IsJump = true;
-		m_stateMachine.VelocityY = m_rInitialJumpVelocity;
 	}
 
 	public override void ExitState()
 	{
 		m_stateMachine.IsJump = false;
+		m_stateMachine.IsJumpPressed = false;
 	}
 
     public override void UpdateState()

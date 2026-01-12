@@ -17,7 +17,7 @@ public class PlayerAirborneState : PlayerParentState
 	public override void EnterState()
 	{
 		Debug.Log("进入Airborne状态");
-		m_currentSubState.EnterState();
+		SwitchSubState(m_stateMachine.VelocityY > 0.01f ? PlayerSubStateType.Jump : PlayerSubStateType.Falling);
 	}
 
 	public override void ExitState()
@@ -37,8 +37,6 @@ public class PlayerAirborneState : PlayerParentState
 	{
 		m_subStates.Add(PlayerSubStateType.Jump, new PlayerJumpState(m_stateMachine));
 		m_subStates.Add(PlayerSubStateType.Falling, new PlayerFallingState(m_stateMachine));
-
-		m_currentSubState = m_subStates[PlayerSubStateType.Jump];
 	}
 
 	protected override void CheckSwitchStates()
@@ -55,8 +53,8 @@ public class PlayerAirborneState : PlayerParentState
 
 	private void CheckSwitchSubStates()
 	{
-		//Jump → Falling：当垂直速度 <= 0（上升结束，开始下落）
-		if (m_currentSubState.Type == PlayerSubStateType.Jump && m_stateMachine.VelocityY <= 0.0f)
+		//Jump -> Falling：当垂直速度 <= 0.01（上升结束，开始下落）
+		if (m_currentSubState.Type == PlayerSubStateType.Jump && m_stateMachine.VelocityY <= 0.01f)
 		{
 			SwitchSubState(PlayerSubStateType.Falling);
 		}

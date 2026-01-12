@@ -9,7 +9,7 @@ public class PlayerFallingState : PlayerSubState
 
 	public override void EnterState()
 	{
-		Debug.Log("SubState: 进入Falling状态");
+		Debug.Log("SubState: 进入Falling状态-2");
 	}
 
 	public override void ExitState()
