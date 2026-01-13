@@ -3,7 +3,6 @@
 class PlayerStateMachine {
 	- m_playerController : PlayerController
 	- m_currentState : PlayerBaseState
-	- m_stateFactory : PlayerStateFactory
 
 	+ PlayerStateMachine(PlayerController playerController)
 	+ void Update()
@@ -18,40 +17,48 @@ interface IState {
 
 abstract class PlayerBaseState implements IState {
 	# m_stateMachine : PlayerStateMachine
-	# m_subStates : Dictionary<PlayerStateEnum, PlayerBaseState>
-	# m_currentSubState : PlayerBaseState
 
 	+ PlayerBaseState(PlayerStateMachine stateMachine)
 	+ {abstract} void EnterState()
 	+ {abstract} void UpdateState()
 	+ {abstract} void ExitState()
-	+ {abstract} void CheckSwitchStates()
-	+ {abstract} void InitSubStates()
-	+ void UpdateStates()
-	# void SwitchState(PlayerStateEnum stateEnum)
-	# void SwitchSubState(PlayerStateEnum stateEnum)
 }
 
-class PlayerGroundedState extends PlayerBaseState {
-	- void HandleGravity()
+abstract class PlayerParentState extends PlayerBaseState {
+	# m_subStates : Dictionary<PlayerSubStateType, PlayerSubState>
+	# m_currentSubState : PlayerSubState
+
+	+ PlayerParentState(PlayerStateMachine stateMachine)
+	# {abstract} void CheckSwitchStates()
+	# {abstract} void InitSubStates()
+	# void SwitchParentState(PlayerStateType parentStateType)
+	# void SwitchSubState(PlayerSubStateType subStateType)
 }
 
-class PlayerIdleState extends PlayerBaseState {
+abstract class PlayerSubState extends PlayerBaseState { 
+	+ {abstract} PlayerSubStateType Type
 }
 
-class PlayerWalkState extends PlayerBaseState {
+class PlayerGroundedState extends PlayerParentState {
 }
 
-class PlayerRunState extends PlayerBaseState {
+class PlayerIdleState extends PlayerSubState {
 }
 
-class PlayerStateFactory {
-	- m_stateMachineContext : PlayerStateMachine
+class PlayerWalkState extends PlayerSubState {
+}
 
-	+ PlayerStateFactory(PlayerStateMachine stateMachineContext)
-	+ PlayerBaseState Create(PlayerStateEnum stateEnum)
+class PlayerRunState extends PlayerSubState {
+}
+
+class PlayerAirBorneState extends PlayerParentState { 
+}
+
+class PlayerJumpState extends PlayerSubState { 
+}
+
+class PlayerFallingState extends PlayerSubState { 
 }
 
 PlayerStateMachine *-- PlayerBaseState
-PlayerStateMachine *-- PlayerStateFactory
 @enduml
