@@ -27,7 +27,7 @@ public class PlayerController : MonoBehaviour
 	private PlayerStateMachine m_stateMachine = null;
 
 	#region Animator Param
-	private int m_iSpeedHash;
+	private int m_moveSpeedHash;
 	private int m_iJumpHash;
 	private int m_iVelocityYHash;
 	#endregion
@@ -47,9 +47,12 @@ public class PlayerController : MonoBehaviour
 		m_stateMachine = new PlayerStateMachine(this);
 
 		//Animator Param
-		m_iSpeedHash = Animator.StringToHash("moveSpeed");
+		m_moveSpeedHash = Animator.StringToHash("moveSpeed");
 		m_iJumpHash = Animator.StringToHash("isJump");
 		m_iVelocityYHash = Animator.StringToHash("velocityY");
+
+		//设置鼠标锁定
+		Cursor.lockState = CursorLockMode.Locked;
 	}
 
 	private void OnEnable()
@@ -124,7 +127,7 @@ public class PlayerController : MonoBehaviour
 	{
 		Vector3 velocity = m_characterController.velocity;
 		float speed = new Vector2(velocity.x, velocity.z).magnitude;
-		m_animator.SetFloat(m_iSpeedHash, speed);
+		m_animator.SetFloat(m_moveSpeedHash, speed);
 		//m_animator.SetBool(m_iJumpHash, m_stateMachine.IsJump);
 		//m_animator.SetFloat(m_iVelocityYHash, m_stateMachine.VelocityY);
 	}
