@@ -32,6 +32,9 @@ public class PlayerController : MonoBehaviour
 	private int m_iVelocityYHash;
 	#endregion
 
+	private Transform m_cameraTrans;
+	private Vector3 m_moveDir;
+
 	#region Unity生命周期函数
 	private void Awake()
 	{
@@ -51,7 +54,10 @@ public class PlayerController : MonoBehaviour
 		m_iJumpHash = Animator.StringToHash("isJump");
 		m_iVelocityYHash = Animator.StringToHash("velocityY");
 
+		m_cameraTrans = Camera.main.transform;
+
 		//设置鼠标锁定
+		Cursor.visible = false;
 		Cursor.lockState = CursorLockMode.Locked;
 	}
 
@@ -76,7 +82,7 @@ public class PlayerController : MonoBehaviour
 		m_stateMachine.Update();
 		//更新动画
 		UpdateAnimation();
-		m_characterController.Move(m_stateMachine.PlayerMovment * Time.deltaTime);
+		m_characterController.Move(3.5f * Time.deltaTime * m_moveDir);
 	}
 
 	private void FixedUpdate()
@@ -137,13 +143,29 @@ public class PlayerController : MonoBehaviour
 	/// </summary>
 	private void HandleRotation()
 	{
-		Vector3 posToLookAt = new Vector3(m_stateMachine.Input.x, 0.0f, m_stateMachine.Input.y);
-		Quaternion currentRot = transform.rotation;
-		//移动时旋转
-		if (m_stateMachine.IsMoving)
+		//Vector3 posToLookAt = new Vector3(m_stateMachine.Input.x, 0.0f, m_stateMachine.Input.y);
+		//Quaternion currentRot = transform.rotation;
+		////移动时旋转
+		//if (m_stateMachine.IsMoving)
+		//{
+		//	Quaternion targetRot = Quaternion.LookRotation(posToLookAt);
+		//	transform.rotation = Quaternion.Slerp(currentRot, targetRot, m_physicsConfig.rotationFactorPerFrame * Time.deltaTime);
+		//}
+
+		Vector3 cameraForward = m_cameraTrans.forward;
+		Vector3 cameraRight = m_cameraTrans.right;
+		cameraForward.y = 0f;
+		cameraRight.y = 0f;
+		cameraForward.Normalize();
+		cameraRight.Normalize();
+
+		// 计算世界空间移动方向
+		Vector2 input = m_stateMachine.Input;
+		m_moveDir = (cameraForward * input.y + cameraRight * input.x).normalized;
+		if (m_moveDir.magnitude > 0.1f)
 		{
-			Quaternion targetRot = Quaternion.LookRotation(posToLookAt);
-			transform.rotation = Quaternion.Slerp(currentRot, targetRot, m_physicsConfig.rotationFactorPerFrame * Time.deltaTime);
+			Quaternion targetRot = Quaternion.LookRotation(m_moveDir, Vector3.up);
+			transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, m_physicsConfig.rotationFactorPerFrame * Time.deltaTime);
 		}
 	}
 
