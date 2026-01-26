@@ -45,13 +45,13 @@ public static class TerrainGenerator
 				//添加组件
 				MeshFilter meshFilter = chunkGO.AddComponent<MeshFilter>();
 				MeshRenderer meshRenderer = chunkGO.AddComponent<MeshRenderer>();
-				meshRenderer.sharedMaterial = terrainMat;
 				MeshCollider meshCollider = chunkGO.AddComponent<MeshCollider>();
 
 				//创建Mesh
 				Mesh mesh = CreateMesh(setting, cx, cz, heightMap);
 				mesh.name = $"Chunk_{cx}_{cz}";
 				meshFilter.sharedMesh = mesh;
+				meshRenderer.sharedMaterial = terrainMat;
 				meshCollider.sharedMesh = mesh;
 
 				//保存Mesh
