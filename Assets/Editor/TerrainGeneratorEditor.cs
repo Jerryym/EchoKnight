@@ -12,10 +12,6 @@ public class TerrainGeneratorEditor : EditorWindow
 		Mountain,	//山地
 	}
 
-	/// <summary>
-	/// 地形名称
-	/// </summary>
-	public string terrainName = "Terrain";
 	#region 地形尺寸
 	/// <summary>
 	/// 地形横向宽度(X)
@@ -91,19 +87,14 @@ public class TerrainGeneratorEditor : EditorWindow
 		DrawTerrainSettingSection();
 		//地形参数
 		DrawParamSection();
-		//材质
-		DrawMaterialSection();
 		//按钮
 		DrawButtons();
 	}
 
 	private void OnEnable()
 	{
-		if (m_currentSetting == null)
-		{
-			m_currentSetting = ScriptableObject.CreateInstance<TerrainSetting>();
-			m_currentSetting.name = "Unsaved Terrain Setting";
-		}
+		m_currentSetting = null;
+		m_HasLoadedSetting = false;
 	}
 
 	private void DrawTerrainSettingSection()
@@ -120,7 +111,8 @@ public class TerrainGeneratorEditor : EditorWindow
 
 		if (m_currentSetting == null)
 		{
-			EditorGUILayout.HelpBox("请先指定一个 TerrainSetting 资源。", MessageType.Warning);
+			m_HasLoadedSetting = false;
+			return;
 		}
 
 		if (!m_HasLoadedSetting)
@@ -136,12 +128,20 @@ public class TerrainGeneratorEditor : EditorWindow
 		EditorGUILayout.LabelField("参数", EditorStyles.boldLabel);
 		EditorGUILayout.BeginVertical("box");
 
-		terrainName = EditorGUILayout.TextField("地形名称", terrainName);
-		TerrainType newType = (TerrainType)EditorGUILayout.EnumPopup("类型", m_TerrainType);
+		//地形类型
+		TerrainType newType = (TerrainType)EditorGUILayout.EnumPopup("地形类型", m_TerrainType);
 		if (newType != m_TerrainType)
 		{
 			m_TerrainType = newType;
 			GetSettingByType();
+			Repaint();
+		}
+
+		//地形材质
+		m_TerrainHeighMat = (Material)EditorGUILayout.ObjectField("地形材质", m_TerrainHeighMat, typeof(Material), false);
+		if (m_TerrainHeighMat == null)
+		{
+			EditorGUILayout.HelpBox("请设置地形材质", MessageType.Error);
 		}
 
 		//地形参数
@@ -167,17 +167,6 @@ public class TerrainGeneratorEditor : EditorWindow
 		EditorGUILayout.EndVertical();
 
 		EditorGUILayout.EndVertical();
-	}
-
-	private void DrawMaterialSection()
-	{
-		EditorGUILayout.Space();
-		EditorGUILayout.LabelField("材质", EditorStyles.boldLabel);
-		m_TerrainHeighMat = (Material)EditorGUILayout.ObjectField("地形材质", m_TerrainHeighMat, typeof(Material), false);
-		if (m_TerrainHeighMat == null)
-		{
-			EditorGUILayout.HelpBox("请设置地形材质", MessageType.Error);
-		}
 	}
 
 	private void DrawButtons()
@@ -245,7 +234,6 @@ public class TerrainGeneratorEditor : EditorWindow
 				heightCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 				break;
 		}
-		Repaint();
 	}
 
 	private void SaveTerrainSetting()
@@ -254,14 +242,7 @@ public class TerrainGeneratorEditor : EditorWindow
 			Directory.CreateDirectory(CONFIG_FOLDER_PATH);
 
 		//打开保存对话框
-		string path = EditorUtility.SaveFilePanelInProject(
-			"保存地形配置",
-			"NewTerrainSetting",
-			"asset",
-			"请选择保存位置",
-			CONFIG_FOLDER_PATH
-		);
-
+		string path = EditorUtility.SaveFilePanelInProject("保存地形配置", "NewTerrainSetting", "asset", "请选择保存位置", CONFIG_FOLDER_PATH);
 		if (string.IsNullOrEmpty(path))
 			return;
 
