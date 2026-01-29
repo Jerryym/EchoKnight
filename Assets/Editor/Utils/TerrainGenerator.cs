@@ -12,7 +12,7 @@ public static class TerrainGenerator
 	/// </summary>
 	/// <param name="setting">地形配置</param>
 	/// <returns></returns>
-	public static GameObject Generate(TerrainSetting setting, Material terrainMat)
+	public static GameObject Generate(string sTerrainName, TerrainSetting setting, Material terrainMat)
 	{
 		if (setting == null)
 		{
@@ -28,8 +28,7 @@ public static class TerrainGenerator
 			setting.minHeight, setting.maxHeight, setting.heightCurve, setting.octaves, setting.persistence, setting.lacunarity);
 
 		//创建GameObject
-		GameObject terrainGO = new GameObject(setting.name);
-		string savePath = $"Assets/Terrains/Meshes/{terrainGO.name}";
+		GameObject terrainGO = new GameObject(sTerrainName);
 
 		//创建分块Mesh
 		int chunkCountX = setting.terrainWidth / setting.chunkSize;
@@ -53,9 +52,6 @@ public static class TerrainGenerator
 				meshFilter.sharedMesh = mesh;
 				meshRenderer.sharedMaterial = terrainMat;
 				meshCollider.sharedMesh = mesh;
-
-				//保存Mesh
-				SaveMesh(savePath, mesh);
 			}
 		}
 		return terrainGO;

@@ -66,6 +66,7 @@ public class TerrainGeneratorEditor : EditorWindow
 	[Range(1f, 4f)] public float lacunarity = 2.0f;
 	#endregion
 
+	private string m_sTerrainName = "Terrain";
 	private TerrainSetting m_currentSetting = null;
 	private TerrainType m_TerrainType = TerrainType.Plain;
 	private Material m_TerrainHeighMat = null;
@@ -73,6 +74,9 @@ public class TerrainGeneratorEditor : EditorWindow
 	private const string CONFIG_FOLDER_PATH = "Assets/Configs";
 	private bool m_HasLoadedSetting = false;
 	private GameObject m_TerrainGo = null;
+
+	private bool m_bFlodOut_TerrainParam = false;
+	private bool m_bFlodOut_NoiseParam = false;
 
 	[MenuItem("Tools/PTG Editor")]
 	static void Init()
@@ -128,6 +132,9 @@ public class TerrainGeneratorEditor : EditorWindow
 		EditorGUILayout.LabelField("参数", EditorStyles.boldLabel);
 		EditorGUILayout.BeginVertical("box");
 
+		//地形名称
+		m_sTerrainName = EditorGUILayout.TextField("地形名称", m_sTerrainName);
+
 		//地形类型
 		TerrainType newType = (TerrainType)EditorGUILayout.EnumPopup("地形类型", m_TerrainType);
 		if (newType != m_TerrainType)
@@ -146,25 +153,29 @@ public class TerrainGeneratorEditor : EditorWindow
 
 		//地形参数
 		EditorGUILayout.Space();
-		EditorGUILayout.LabelField("地形参数", EditorStyles.boldLabel);
-		EditorGUILayout.BeginVertical("box");
-		terrainWidth = EditorGUILayout.IntField("地形宽度 (X)", terrainWidth);
-		terrainLength = EditorGUILayout.IntField("地形长度 (Z)", terrainLength);
-		chunkSize = EditorGUILayout.IntField("分块大小", chunkSize);
-		minHeight = EditorGUILayout.FloatField("地形最小高度", minHeight);
-		maxHeight = EditorGUILayout.FloatField("地形最大高度", maxHeight);
-		heightCurve = EditorGUILayout.CurveField("高度曲线", heightCurve, Color.green, new Rect(0, 0, 1, 1));
-		EditorGUILayout.EndVertical();
+		m_bFlodOut_TerrainParam = EditorGUILayout.Foldout(m_bFlodOut_TerrainParam, "地形参数");
+		if (m_bFlodOut_TerrainParam)
+		{
+			terrainWidth = EditorGUILayout.IntField("地形宽度 (X)", terrainWidth);
+			terrainLength = EditorGUILayout.IntField("地形长度 (Z)", terrainLength);
+			chunkSize = EditorGUILayout.IntField("分块大小", chunkSize);
+			minHeight = EditorGUILayout.FloatField("地形最小高度", minHeight);
+			maxHeight = EditorGUILayout.FloatField("地形最大高度", maxHeight);
+			heightCurve = EditorGUILayout.CurveField("高度曲线", heightCurve, Color.green, new Rect(0, 0, 1, 1));
+		}
+		EditorGUILayout.EndFoldoutHeaderGroup();
 
 		//噪声配置参数
 		EditorGUILayout.Space();
-		EditorGUILayout.LabelField("噪声配置参数", EditorStyles.boldLabel);
-		EditorGUILayout.BeginVertical("box");
-		noiseScale = EditorGUILayout.FloatField("噪声缩放", noiseScale);
-		octaves = EditorGUILayout.IntSlider("噪声层数", octaves, 1, 8);
-		persistence = EditorGUILayout.Slider("持久度 (Persistence)", persistence, 0f, 1f);
-		lacunarity = EditorGUILayout.Slider("空隙度 (Lacunarity)", lacunarity, 1f, 4f);
-		EditorGUILayout.EndVertical();
+		m_bFlodOut_NoiseParam = EditorGUILayout.Foldout(m_bFlodOut_NoiseParam, "噪声配置参数");
+		if (m_bFlodOut_NoiseParam)
+		{
+			noiseScale = EditorGUILayout.FloatField("噪声缩放", noiseScale);
+			octaves = EditorGUILayout.IntSlider("噪声层数", octaves, 1, 8);
+			persistence = EditorGUILayout.Slider("持久度 (Persistence)", persistence, 0f, 1f);
+			lacunarity = EditorGUILayout.Slider("空隙度 (Lacunarity)", lacunarity, 1f, 4f);
+		}
+		EditorGUILayout.EndFoldoutHeaderGroup();
 
 		EditorGUILayout.EndVertical();
 	}
@@ -175,7 +186,7 @@ public class TerrainGeneratorEditor : EditorWindow
 		EditorGUILayout.BeginHorizontal();
 
 		//保存设置按钮
-		if (GUILayout.Button("保存设置"))
+		if (GUILayout.Button("保存/更新设置"))
 		{
 			SaveTerrainSetting();
 		}
@@ -193,11 +204,11 @@ public class TerrainGeneratorEditor : EditorWindow
 		{
 			if (m_TerrainGo != null)
 			{
-				Destroy(m_TerrainGo);
+				DestroyImmediate(m_TerrainGo);
 			}
 
-			GetSettingData(m_currentSetting);
-			m_TerrainGo = TerrainGenerator.Generate(m_currentSetting, m_TerrainHeighMat);
+			m_currentSetting = GenerateTerrainSetting();
+			m_TerrainGo = TerrainGenerator.Generate(m_sTerrainName, m_currentSetting, m_TerrainHeighMat);
 		}
 		EditorGUILayout.EndHorizontal();
 	}
@@ -297,5 +308,25 @@ public class TerrainGeneratorEditor : EditorWindow
 		setting.octaves = octaves;
 		setting.persistence = persistence;
 		setting.lacunarity = lacunarity;
+	}
+
+	private TerrainSetting GenerateTerrainSetting()
+	{
+		TerrainSetting setting = ScriptableObject.CreateInstance<TerrainSetting>();
+
+		setting.terrainWidth = terrainWidth;
+		setting.terrainLength = terrainLength;
+		setting.chunkSize = chunkSize;
+
+		setting.minHeight = minHeight;
+		setting.maxHeight = maxHeight;
+		setting.heightCurve = heightCurve;
+
+		setting.noiseScale = noiseScale;
+		setting.octaves = octaves;
+		setting.persistence = persistence;
+		setting.lacunarity = lacunarity;
+
+		return setting;
 	}
 }
