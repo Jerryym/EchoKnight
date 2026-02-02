@@ -3,7 +3,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-public class TerrainGeneratorEditor : EditorWindow
+public class PCGEditorTool : EditorWindow
 {
 	private enum TerrainType
 	{
@@ -70,27 +70,33 @@ public class TerrainGeneratorEditor : EditorWindow
 	private TerrainSetting m_currentSetting = null;
 	private TerrainType m_TerrainType = TerrainType.Plain;
 	private Material m_TerrainHeighMat = null;
-
-	private const string CONFIG_FOLDER_PATH = "Assets/Configs";
-	private bool m_HasLoadedSetting = false;
-	private GameObject m_TerrainGo = null;
+	private bool m_bOpenLOD = true;
+	private readonly string[] m_LODOptions = new string[] { "生成1层LOD", "生成2层LOD", "生成3层LOD" };
+	private int m_iLODIndex = 0;
 
 	private bool m_bFlodOut_TerrainParam = false;
 	private bool m_bFlodOut_NoiseParam = false;
 
-	[MenuItem("Tools/PTG Editor")]
+	private const string CONFIG_FOLDER_PATH = "Assets/Configs";
+	private const string PREFAB_FOLDER_PATH = "Assets/Prefabs";
+	private bool m_bHasLoadedSetting = false;
+	private GameObject m_TerrainGo = null;
+
+	[MenuItem("Tools/PCG Editor Tool")]
 	static void Init()
 	{
-		TerrainGeneratorEditor editor = (TerrainGeneratorEditor)GetWindow(typeof(TerrainGeneratorEditor), false, "PTG Editor");
-		editor.Show();
+		PCGEditorTool editorTool = (PCGEditorTool)GetWindow(typeof(PCGEditorTool), false, "PCG Editor Tool");
+		editorTool.Show();
 	}
 
 	private void OnGUI()
 	{
 		//地形配置文件
-		DrawTerrainSettingSection();
+		DrawTerrainSetting();
 		//地形参数
-		DrawParamSection();
+		DrawParam();
+		//LOD
+		DrawLODSetting();
 		//按钮
 		DrawButtons();
 	}
@@ -98,10 +104,10 @@ public class TerrainGeneratorEditor : EditorWindow
 	private void OnEnable()
 	{
 		m_currentSetting = null;
-		m_HasLoadedSetting = false;
+		m_bHasLoadedSetting = false;
 	}
 
-	private void DrawTerrainSettingSection()
+	private void DrawTerrainSetting()
 	{
 		EditorGUILayout.Space();
 		EditorGUILayout.LabelField("地形设置文件", EditorStyles.boldLabel);
@@ -109,24 +115,25 @@ public class TerrainGeneratorEditor : EditorWindow
 		if (newSetting != m_currentSetting)
 		{
 			m_currentSetting = newSetting;
-			m_HasLoadedSetting = false; // 重新加载一次数据
+			m_bHasLoadedSetting = false; // 重新加载一次数据
+			m_sTerrainName = (newSetting != null) ? newSetting.name : "";
 			Repaint();
 		}
 
 		if (m_currentSetting == null)
 		{
-			m_HasLoadedSetting = false;
+			m_bHasLoadedSetting = false;
 			return;
 		}
 
-		if (!m_HasLoadedSetting)
+		if (!m_bHasLoadedSetting)
 		{
 			SetSettingData();
-			m_HasLoadedSetting = true;
+			m_bHasLoadedSetting = true;
 		}
 	}
 
-	private void DrawParamSection()
+	private void DrawParam()
 	{
 		EditorGUILayout.Space();
 		EditorGUILayout.LabelField("参数", EditorStyles.boldLabel);
@@ -180,35 +187,45 @@ public class TerrainGeneratorEditor : EditorWindow
 		EditorGUILayout.EndVertical();
 	}
 
+	private void DrawLODSetting()
+	{
+		EditorGUILayout.Space();
+		EditorGUILayout.LabelField("LOD设置", EditorStyles.boldLabel);
+		EditorGUILayout.BeginVertical("box");
+
+		m_bOpenLOD = EditorGUILayout.Toggle("开启LOD", m_bOpenLOD);
+		EditorGUI.BeginDisabledGroup(!m_bOpenLOD);
+		m_iLODIndex = EditorGUILayout.Popup("LOD等级", m_iLODIndex, m_LODOptions);
+		EditorGUI.EndDisabledGroup();		
+
+		EditorGUILayout.EndVertical();
+	}
 	private void DrawButtons()
 	{
 		EditorGUILayout.Space();
 		EditorGUILayout.BeginHorizontal();
 
-		//保存设置按钮
+		//保存/更新设置
 		if (GUILayout.Button("保存/更新设置"))
 		{
 			SaveTerrainSetting();
 		}
 
-		//更新设置按钮
-		GUI.enabled = (m_currentSetting != null && m_TerrainHeighMat != null);
-		if (GUILayout.Button("更新设置"))
-		{
-			UpdateTerrainSetting();
-		}
-		GUI.enabled = true;
-
-		//生成按钮
-		if (GUILayout.Button("生成"))
+		//预览
+		if (GUILayout.Button("预览"))
 		{
 			if (m_TerrainGo != null)
 			{
 				DestroyImmediate(m_TerrainGo);
 			}
-
 			m_currentSetting = GenerateTerrainSetting();
 			m_TerrainGo = TerrainGenerator.Generate(m_sTerrainName, m_currentSetting, m_TerrainHeighMat);
+		}
+
+		//保存
+		if (GUILayout.Button("保存"))
+		{
+			SaveTerrain();
 		}
 		EditorGUILayout.EndHorizontal();
 	}
@@ -247,37 +264,45 @@ public class TerrainGeneratorEditor : EditorWindow
 		}
 	}
 
+	/// <summary>
+	/// 保存/更新地形配置
+	/// </summary>
 	private void SaveTerrainSetting()
 	{
-		if (!Directory.Exists(CONFIG_FOLDER_PATH))
-			Directory.CreateDirectory(CONFIG_FOLDER_PATH);
+		if (m_currentSetting)//更新配置
+		{
+			GetSettingData(m_currentSetting);
+			EditorUtility.SetDirty(m_currentSetting);
+			AssetDatabase.SaveAssets();
 
-		//打开保存对话框
-		string path = EditorUtility.SaveFilePanelInProject("保存地形配置", "NewTerrainSetting", "asset", "请选择保存位置", CONFIG_FOLDER_PATH);
-		if (string.IsNullOrEmpty(path))
-			return;
+			ShowTip($"更新{ m_currentSetting.name }配置成功!");
+		}
+		else//保存配置
+		{
+			if (!Directory.Exists(CONFIG_FOLDER_PATH))
+				Directory.CreateDirectory(CONFIG_FOLDER_PATH);
 
-		//创建新的SO实例
-		TerrainSetting setting = ScriptableObject.CreateInstance<TerrainSetting>();
-		GetSettingData(setting);
+			//打开保存对话框
+			string path = EditorUtility.SaveFilePanelInProject("保存地形配置", m_sTerrainName, "asset", "请选择保存位置", CONFIG_FOLDER_PATH);
+			if (string.IsNullOrEmpty(path))
+				return;
 
-		AssetDatabase.CreateAsset(setting, path);
-		AssetDatabase.SaveAssets();
-		AssetDatabase.Refresh();
+			//创建新的SO实例
+			TerrainSetting setting = GenerateTerrainSetting();
 
-		m_currentSetting = setting;
+			AssetDatabase.CreateAsset(setting, path);
+			AssetDatabase.SaveAssets();
+			AssetDatabase.Refresh();
+
+			m_currentSetting = setting;
+
+			ShowTip($"保存{ m_currentSetting.name }配置成功!");
+		}
 	}
 
-	private void UpdateTerrainSetting()
-	{
-		if (m_currentSetting == null)
-			return;
-
-		GetSettingData(m_currentSetting);
-		EditorUtility.SetDirty(m_currentSetting);
-		AssetDatabase.SaveAssets();
-	}
-
+	/// <summary>
+	/// 设置配置数据
+	/// </summary>
 	private void SetSettingData()
 	{
 		terrainWidth = m_currentSetting.terrainWidth;
@@ -294,6 +319,9 @@ public class TerrainGeneratorEditor : EditorWindow
 		lacunarity = m_currentSetting.lacunarity;
 	}
 
+	/// <summary>
+	/// 获取配置数据
+	/// </summary>
 	private void GetSettingData(TerrainSetting setting)
 	{
 		setting.terrainWidth = terrainWidth;
@@ -310,6 +338,9 @@ public class TerrainGeneratorEditor : EditorWindow
 		setting.lacunarity = lacunarity;
 	}
 
+	/// <summary>
+	/// 生成地形配置
+	/// </summary>
 	private TerrainSetting GenerateTerrainSetting()
 	{
 		TerrainSetting setting = ScriptableObject.CreateInstance<TerrainSetting>();
@@ -328,5 +359,41 @@ public class TerrainGeneratorEditor : EditorWindow
 		setting.lacunarity = lacunarity;
 
 		return setting;
+	}
+
+	private void SaveTerrain()
+	{
+		string sPath = PREFAB_FOLDER_PATH + "/Terrains/";
+		if (!Directory.Exists(sPath))
+			Directory.CreateDirectory(sPath);
+
+		if (m_TerrainGo != null)
+		{
+			var TerrainGO = TerrainGenerator.CombineChunkMeshes(m_TerrainGo, m_TerrainHeighMat);
+			//保存mesh
+			string sMeshPath = sPath + m_sTerrainName + "_Mesh" + ".asset";
+			AssetDatabase.CreateAsset(TerrainGO.GetComponent<MeshFilter>().sharedMesh, sMeshPath);
+
+			//保存prefab
+			string sPrefabPath = sPath + m_sTerrainName + ".prefab";
+			PrefabUtility.SaveAsPrefabAsset(TerrainGO, sPrefabPath);
+
+			AssetDatabase.SaveAssets();
+    		AssetDatabase.Refresh();
+			ShowTip($"保存{ m_sTerrainName }成功!");
+
+			//删除
+			DestroyImmediate(m_TerrainGo);
+			m_TerrainGo = null;
+		}
+	}
+
+	/// <summary>
+	/// 显示提示
+	/// </summary>
+	/// <param name="msg"></param>
+	private void ShowTip(string msg)
+	{
+		ShowNotification(new GUIContent(msg), 0.5);
 	}
 }

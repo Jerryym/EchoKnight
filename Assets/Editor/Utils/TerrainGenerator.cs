@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Windows;
@@ -20,6 +21,11 @@ public static class TerrainGenerator
 			return null;
 		}
 
+		if (sTerrainName == null)
+		{
+			sTerrainName = "Terrain";
+		}
+		
 		//创建高度图
 		float offsetX = Random.Range(0f, 10000f);
 		float offsetY = Random.Range(0f, 10000f);
@@ -55,6 +61,49 @@ public static class TerrainGenerator
 			}
 		}
 		return terrainGO;
+	}
+
+	/// <summary>
+	/// 合并分块Mesh
+	/// </summary>
+	/// <param name="terrainGO"></param>
+	public static GameObject CombineChunkMeshes(GameObject terrainGO, Material terrainMat)
+	{
+		if (terrainGO == null)
+			return null;
+
+		//获取子对象的MeshFilter
+		MeshFilter[] meshFilters = terrainGO.GetComponentsInChildren<MeshFilter>();
+		List<CombineInstance> combineInstances = new List<CombineInstance>();
+		foreach (MeshFilter meshFilter in meshFilters)
+		{
+			if (meshFilter == null || meshFilter.sharedMesh == null)
+				continue;
+		
+			CombineInstance combineInstance = new CombineInstance();
+			combineInstance.mesh = meshFilter.sharedMesh;
+			combineInstance.transform = meshFilter.transform.localToWorldMatrix;
+			combineInstances.Add(combineInstance);
+		}
+
+		GameObject newTerrainGO = new GameObject(terrainGO.name);
+		MeshFilter newMeshFilter = newTerrainGO.AddComponent<MeshFilter>();
+		MeshRenderer newMeshRenderer = newTerrainGO.AddComponent<MeshRenderer>();
+		MeshCollider meshCollider = newTerrainGO.AddComponent<MeshCollider>();
+
+		//创建Mesh
+		Mesh combinedMesh = new Mesh();
+		combinedMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+		combinedMesh.CombineMeshes(combineInstances.ToArray(), true, true);
+		combinedMesh.RecalculateBounds();
+    	combinedMesh.RecalculateNormals();
+		combinedMesh.RecalculateTangents();
+
+		newMeshFilter.sharedMesh = combinedMesh;
+		newMeshRenderer.sharedMaterial = terrainMat;
+		meshCollider.sharedMesh = combinedMesh;
+
+		return newTerrainGO;
 	}
 
 	private static Mesh CreateMesh(TerrainSetting setting, int chunkX, int chunkZ, float[,] heightMap)
@@ -117,20 +166,11 @@ public static class TerrainGenerator
 		mesh.vertices = vertices;
 		mesh.triangles = triangles;
 		mesh.uv = uvs;
+		
+		//重新计算法线
 		mesh.RecalculateNormals();
+		
 		return mesh;
 	}
 
-	private static void SaveMesh(string savePath, Mesh mesh)
-	{
-		if (mesh == null)
-			return;
-
-		if (!Directory.Exists(savePath))
-			Directory.CreateDirectory(savePath);
-
-		string fileName = savePath + $"/{mesh.name}.asset";
-		AssetDatabase.CreateAsset(mesh, fileName);
-		AssetDatabase.SaveAssets();
-	}
 }
