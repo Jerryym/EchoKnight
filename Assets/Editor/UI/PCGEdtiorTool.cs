@@ -5,13 +5,6 @@ using UnityEngine;
 
 public class PCGEditorTool : EditorWindow
 {
-	private enum TerrainType
-	{
-		Plain,		//平原
-		Hill,		//丘陵
-		Mountain,	//山地
-	}
-
 	#region 地形尺寸
 	/// <summary>
 	/// 地形横向宽度(X)
@@ -65,6 +58,13 @@ public class PCGEditorTool : EditorWindow
 	/// </summary>
 	[Range(1f, 4f)] public float lacunarity = 2.0f;
 	#endregion
+
+	private enum TerrainType
+	{
+		Plain,      //平原
+		Hill,       //丘陵
+		Mountain,   //山地
+	}
 
 	private string m_sTerrainName = "Terrain";
 	private TerrainSetting m_currentSetting = null;
@@ -289,11 +289,9 @@ public class PCGEditorTool : EditorWindow
 
 			//创建新的SO实例
 			TerrainSetting setting = GenerateTerrainSetting();
-
 			AssetDatabase.CreateAsset(setting, path);
 			AssetDatabase.SaveAssets();
 			AssetDatabase.Refresh();
-
 			m_currentSetting = setting;
 
 			ShowTip($"保存{ m_currentSetting.name }配置成功!");
@@ -379,7 +377,7 @@ public class PCGEditorTool : EditorWindow
 			PrefabUtility.SaveAsPrefabAsset(TerrainGO, sPrefabPath);
 
 			AssetDatabase.SaveAssets();
-    		AssetDatabase.Refresh();
+			AssetDatabase.Refresh();
 			ShowTip($"保存{ m_sTerrainName }成功!");
 
 			//删除

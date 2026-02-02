@@ -25,13 +25,9 @@ public static class TerrainGenerator
 		{
 			sTerrainName = "Terrain";
 		}
-		
+
 		//创建高度图
-		float offsetX = Random.Range(0f, 10000f);
-		float offsetY = Random.Range(0f, 10000f);
-		float[,] heightMap = Noise.OctavePerlinNoiseMap(setting.terrainWidth + 1, setting.terrainLength + 1, setting.noiseScale,
-			offsetX, offsetY,
-			setting.minHeight, setting.maxHeight, setting.heightCurve, setting.octaves, setting.persistence, setting.lacunarity);
+		float[,] heightMap = GenerateHeightMap(setting);
 
 		//创建GameObject
 		GameObject terrainGO = new GameObject(sTerrainName);
@@ -106,6 +102,21 @@ public static class TerrainGenerator
 		return newTerrainGO;
 	}
 
+	/// <summary>
+	/// 生成高度图
+	/// </summary>
+	/// <returns></returns>
+	private static float[,] GenerateHeightMap(TerrainSetting setting)
+	{
+		float offsetX = Random.Range(0f, 10000f);
+		float offsetY = Random.Range(0f, 10000f);
+		float[,] heightMap = Noise.OctavePerlinNoiseMap(setting.terrainWidth + 1, setting.terrainLength + 1, setting.noiseScale,
+			offsetX, offsetY,
+			setting.minHeight, setting.maxHeight, setting.heightCurve, setting.octaves, setting.persistence, setting.lacunarity);
+
+		return heightMap;
+	}
+
 	private static Mesh CreateMesh(TerrainSetting setting, int chunkX, int chunkZ, float[,] heightMap)
 	{
 		int heightMapXIndex = chunkX * setting.chunkSize;
@@ -172,5 +183,4 @@ public static class TerrainGenerator
 		
 		return mesh;
 	}
-
 }
