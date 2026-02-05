@@ -49,7 +49,7 @@ public static class TerrainGenerator
 				MeshCollider meshCollider = chunkGO.AddComponent<MeshCollider>();
 
 				//创建Mesh
-				Mesh mesh = CreateMesh(setting, cx, cz, heightMap);
+				Mesh mesh = CreateMesh(setting, cx, cz, heightMap, 1);
 				mesh.name = $"Chunk_{cx}_{cz}";
 				meshFilter.sharedMesh = mesh;
 				meshRenderer.sharedMaterial = terrainMat;
@@ -117,41 +117,47 @@ public static class TerrainGenerator
 		return heightMap;
 	}
 
-	private static Mesh CreateMesh(TerrainSetting setting, int chunkX, int chunkZ, float[,] heightMap)
+	private static Mesh CreateMesh(TerrainSetting setting, int chunkX, int chunkZ, float[,] heightMap, int step)
 	{
 		int heightMapXIndex = chunkX * setting.chunkSize;
 		int heightMapZIndex = chunkZ * setting.chunkSize;
 
+		int lodSize = setting.chunkSize / step;
+		int verticesCount = lodSize + 1;
+
 		//创建顶点数组
-		Vector3[] vertices = new Vector3[(setting.chunkSize + 1) * (setting.chunkSize + 1)];
+		Vector3[] vertices = new Vector3[verticesCount * verticesCount];
+		Vector2[] uvs = new Vector2[vertices.Length];
+
 		int index = 0;
-		for (int z = 0; z <= setting.chunkSize; z++)
+		for (int z = 0; z <= setting.chunkSize; z+=step)
 		{
-			for (int x = 0; x <= setting.chunkSize; x++)
+			for (int x = 0; x <= setting.chunkSize; x+=step)
 			{
 				float y = heightMap[heightMapXIndex + x, heightMapZIndex + z];
 				vertices[index] = new Vector3(x, y, z);
+				uvs[index] = new Vector2(x / (float)setting.chunkSize, z / (float)setting.chunkSize);
 				index++;
 			}
 		}
 		Debug.Log("顶点数量：" + vertices.Length);
 
 		//创建索引数组
-		int[] triangles = new int[setting.chunkSize * setting.chunkSize * 6];
+		int[] triangles = new int[lodSize * lodSize * 6];
 		int triIndex = 0, verIndex = 0;
-		for (int z = 0; z < setting.chunkSize; z++)
+		for (int z = 0; z < lodSize; z++)
 		{
-			for (int x = 0; x < setting.chunkSize; x++)
+			for (int x = 0; x < lodSize; x++)
 			{
 				//第一个三角形
 				triangles[triIndex + 0] = verIndex + 0;
-				triangles[triIndex + 1] = verIndex + setting.chunkSize + 1;
+				triangles[triIndex + 1] = verIndex + verticesCount;
 				triangles[triIndex + 2] = verIndex + 1;
 
 				//第二个三角形
 				triangles[triIndex + 3] = verIndex + 1;
-				triangles[triIndex + 4] = verIndex + setting.chunkSize + 1;
-				triangles[triIndex + 5] = verIndex + setting.chunkSize + 2;
+				triangles[triIndex + 4] = verIndex + verticesCount;
+				triangles[triIndex + 5] = verIndex + verticesCount + 1;
 
 				verIndex++;
 				triIndex += 6;
@@ -159,18 +165,6 @@ public static class TerrainGenerator
 			verIndex++;
 		}
 		Debug.Log("索引数量：" + triangles.Length);
-
-		//创建UV
-		index = 0;
-		Vector2[] uvs = new Vector2[vertices.Length];
-		for (int z = 0; z <= setting.chunkSize; z++)
-		{
-			for (int x = 0; x <= setting.chunkSize; x++)
-			{
-				uvs[index] = new Vector2(x / (float)setting.chunkSize, z / (float)setting.chunkSize);
-				index++;
-			}
-		}
 
 		//创建Mesh
 		Mesh mesh = new Mesh();
