@@ -1,113 +1,108 @@
 .dock-widget {
-    flex-direction: column;
-    flex-grow: 1;
+	flex-direction: column;
+	flex-grow: 1;
 
-    background-color: #2b2b2b;
+	background-color: #2b2b2b;
 
-    border-left-width: 1px;
-    border-right-width: 1px;
-    border-top-width: 1px;
-    border-bottom-width: 1px;
+	border-left-width: 1px;
+	border-right-width: 1px;
+	border-top-width: 1px;
+	border-bottom-width: 1px;
 
-    border-left-color: #1e1e1e;
-    border-right-color: #1e1e1e;
-    border-top-color: #1e1e1e;
-    border-bottom-color: #1e1e1e;
+	border-left-color: #1e1e1e;
+	border-right-color: #1e1e1e;
+	border-top-color: #1e1e1e;
+	border-bottom-color: #1e1e1e;
 }
 
 .title-bar {
-    height: 24px;
-    flex-direction: row; /* 横向布局 */
-    align-items: center; /* 垂直居中 */
-    justify-content: space-between; /* 内部两端对齐 */
+	height: 24px;
+	flex-direction: row; /* 横向布局 */
+	align-items: center; /* 垂直居中 */
+	justify-content: space-between; /* 内部两端对齐 */
 
 	padding-left: 6px;
-    padding-right: 2px;
+	padding-right: 2px;
 
-   	background-color: #323232;
+	background-color: #323232;
 
-    border-bottom-width: 1px;
-    border-bottom-color: #1e1e1e;
+	border-bottom-width: 1px;
+	border-bottom-color: #1e1e1e;
 }
 
 .title {
-    height: 20px;
+	height: 20px;
 
-    color: #cccccc;
-    font-size: 12px;
-    -unity-font-style: bold;
+	color: #cccccc;
+	font-size: 12px;
+	-unity-font-style: bold;
 
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 /* Button Group */
 .button-group {
-    flex-direction: row; /* 横向布局 */
-    align-items: center;
+	flex-direction: row; /* 横向布局 */
+	align-items: center;
 }
 
-.button-group > Button:first-child {
-    margin-left: 0;
-}
-
-/* 清除 Button 默认样式（非常重要） */
 .button-group Button {
-    padding: 0;
-    margin-top: 0;
-    margin-bottom: 0;
+	padding: 0;
+	margin-top: 0;
+	margin-bottom: 0;
 
-    min-width: 0;
-    min-height: 0;
+	min-width: 0;
+	min-height: 0;
 
-    border-width: 0;
-    background-color: transparent;
+	border-width: 0;
+	background-color: transparent;
 }
 
 /* maximize button */
 .maximize-button {
 	width: 16px;
-    height: 16px;
+	height: 16px;
 
-    background-image: resource("icons/maximize");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 12px 12px;
+	background-image: resource("icons/maximize");
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 12px 12px;
 
-    background-color: transparent;
-    border-width: 0;
+	background-color: transparent;
+	border-width: 0;
 }
 
 .maximize-button:hover {
-    background-color: #444444;
-    color: white;
-    border-radius: 2px;
+	background-color: #444444;
+	color: white;
+	border-radius: 2px;
 }
 
 /* Close Button */
 .close-button {
-    width: 16px;
-    height: 16px;
+	width: 16px;
+	height: 16px;
 
-    background-image: resource("icons/close");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 12px 12px;
+	background-image: resource("icons/close");
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 12px 12px;
 
-    background-color: transparent;
-    border-width: 0;
+	background-color: transparent;
+	border-width: 0;
 }
 
 .close-button:hover {
-    background-color: #ff4444;
-    color: white;
-    border-radius: 2px;
+	background-color: #ff4444;
+	color: white;
+	border-radius: 2px;
 }
 
 .dock-content {
-    flex-grow: 1;
-    padding: 4px;
+	flex-grow: 1;
+	padding: 4px;
 
-    background-color: #252526;
+	background-color: #252526;
 }

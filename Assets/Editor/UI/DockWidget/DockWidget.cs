@@ -1,8 +1,14 @@
 using UnityEditor;
 using UnityEngine.UIElements;
 
+/// <summary>
+/// 停靠窗口
+/// </summary>
 public class DockWidget : VisualElement
 {
+	/// <summary>
+	/// UXML工厂
+	/// </summary>
 	public new class UxmlFactory : UxmlFactory<DockWidget> {}
 
 	/// <summary>
@@ -40,6 +46,10 @@ public class DockWidget : VisualElement
 		m_titleLabel.text = "DockWidget";
 	}
 
+	/// <summary>
+	/// 设置标题
+	/// </summary>
+	/// <param name="title"></param>
 	public void SetTitle(string title)
 	{
 		m_titleLabel.text = title;
