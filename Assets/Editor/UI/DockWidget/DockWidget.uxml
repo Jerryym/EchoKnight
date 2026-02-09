@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UXML xmlns="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+	<VisualElement name="DockWidget" class="dock-widget">
+		<!--标题栏-->
+		<VisualElement name="TitleBar" class="title-bar">
+			<Label name="Title" class="title" />
+			<!--右侧按钮-->
+			<VisualElement name="ButtonGroup" class="button-group">
+				<Button name="MaximizeBtn" class="maximize-button" />
+				<Button name="CloseBtn" class="close-button" />
+			</VisualElement>
+		</VisualElement>
+		<!--内容区域-->
+		<VisualElement name="Content" class="dock-content" />
+	</VisualElement>
+</UXML>
