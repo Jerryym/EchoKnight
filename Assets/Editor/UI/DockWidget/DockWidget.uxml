@@ -6,7 +6,7 @@
 			<Label name="Title" class="title" />
 			<!--右侧按钮-->
 			<VisualElement name="ButtonGroup" class="button-group">
-				<Button name="MaximizeBtn" class="maximize-button" />
+				<Button name="FloatingBtn" class="floating-button" />
 				<Button name="CloseBtn" class="close-button" />
 			</VisualElement>
 		</VisualElement>

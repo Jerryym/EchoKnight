@@ -60,12 +60,12 @@
 	background-color: transparent;
 }
 
-/* maximize button */
-.maximize-button {
+/* floating button */
+.floating-button {
 	width: 16px;
 	height: 16px;
 
-	background-image: resource("icons/maximize");
+	background-image: resource("icons/floating");
 	background-repeat: no-repeat;
 	background-position: center;
 	background-size: 12px 12px;
@@ -74,7 +74,7 @@
 	border-width: 0;
 }
 
-.maximize-button:hover {
+.floating-button:hover {
 	background-color: #444444;
 	color: white;
 	border-radius: 2px;
