@@ -1,0 +1,16 @@
+.root {
+    flex-grow: 1;
+    flex-direction: column;
+}
+
+.left-panel {
+    flex-grow: 1;
+}
+
+.center-panel {
+    flex-grow: 1;
+}
+
+.right-panel {
+    flex-grow: 1;
+}
