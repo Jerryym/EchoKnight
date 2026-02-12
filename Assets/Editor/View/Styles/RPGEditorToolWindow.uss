@@ -1,16 +1,27 @@
 .root {
     flex-grow: 1;
     flex-direction: column;
+    background-color: #1e1e1e;
 }
 
 .left-panel {
     flex-grow: 1;
+    background-color: #252526;
+    border-right-width: 1px;
+    border-right-color: #3c3c3c;
+    padding: 4px;
 }
 
 .center-panel {
     flex-grow: 1;
+    background-color: #1b1b1b;
+    padding: 6px;
 }
 
 .right-panel {
     flex-grow: 1;
+    background-color: #252526;
+    border-left-width: 1px;
+    border-left-color: #3c3c3c;
+    padding: 4px;
 }
