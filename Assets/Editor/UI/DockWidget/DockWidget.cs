@@ -1,8 +1,9 @@
 using System;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Echo.EditorTool
+namespace Echo.EditorTool.UI
 {
 	/// <summary>
 	/// 停靠窗口
@@ -28,6 +29,17 @@ namespace Echo.EditorTool
 		private VisualElement m_content;
 		#endregion
 
+		#region 事件
+		/// <summary>
+		/// 浮动状态改变事件
+		/// </summary>
+		public event Action<bool> OnFloatingStateChanged;
+		/// <summary>
+		/// 关闭事件
+		/// </summary>
+		public event Action OnClose;
+		#endregion
+
 		/// <summary>
 		/// 浮动状态标识
 		/// </summary>
@@ -46,12 +58,14 @@ namespace Echo.EditorTool
 			//事件绑定
 			m_floatingBtn.clicked += OnFloatingButtonClicked;
 			m_closeBtn.clicked += OnCloseButtonClicked;
+
+			//注册事件
+			RegisterCallback<DetachFromPanelEvent>(OnElementDetach);
 		}
 
 		/// <summary>
 		/// 设置标题
 		/// </summary>
-		/// <param name="title"></param>
 		public void SetTitle(string title)
 		{
 			m_titleLabel.text = title;
@@ -79,20 +93,36 @@ namespace Echo.EditorTool
 			m_content = this.Q<VisualElement>("Content");
 
 			m_titleLabel.text = "DockWidget";
-			m_floatingBtn.tooltip = (m_isFloating) ? "浮动" : "停靠";
+			UpdateFloatingButtonTooltip();
 			m_closeBtn.tooltip = "关闭";
+		}
+
+		private void UpdateFloatingButtonTooltip()
+		{
+			m_floatingBtn.tooltip = m_isFloating ? "停靠" : "浮动";
 		}
 
 		#region Event Funcs
 		private void OnFloatingButtonClicked()
 		{
 			m_isFloating = !m_isFloating;
-
+			UpdateFloatingButtonTooltip();
+			OnFloatingStateChanged?.Invoke(m_isFloating);
 		}
 
 		private void OnCloseButtonClicked()
 		{
 			this.style.display = DisplayStyle.None;
+			OnClose?.Invoke();
+		}
+
+		private void OnElementDetach(DetachFromPanelEvent evt)
+		{
+			Debug.Log("DockWidget: OnElementDetach");
+
+			//解绑事件
+			m_floatingBtn.clicked -= OnFloatingButtonClicked;
+			m_closeBtn.clicked -= OnCloseButtonClicked;
 		}
 		#endregion
 	}
