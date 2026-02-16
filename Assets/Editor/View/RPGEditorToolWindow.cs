@@ -41,6 +41,8 @@ namespace Echo.EditorTool
 		private DockWidget m_toolBox = null;
 
 		private DockWidget m_Inspector = null;
+
+		private SceneView m_sceneView = null;
 		#endregion
 
 		[MenuItem("Tools/RPG Editor Tool")]
@@ -108,6 +110,7 @@ namespace Echo.EditorTool
 			m_leftPanel.Add(m_toolBox);
 
 			//Scene View
+			m_sceneView = EditorWindow.GetWindow<SceneView>();
 
 			//属性栏
 			m_Inspector = new DockWidget();
