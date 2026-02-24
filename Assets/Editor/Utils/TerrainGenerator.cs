@@ -1,7 +1,7 @@
+using Echo.Editor;
 using System.Collections.Generic;
-using UnityEditor;
+using UnityEditor.PackageManager;
 using UnityEngine;
-using UnityEngine.Windows;
 
 /// <summary>
 /// 地形生成器
@@ -13,7 +13,7 @@ public static class TerrainGenerator
 	/// </summary>
 	/// <param name="setting">地形配置</param>
 	/// <returns></returns>
-	public static GameObject Generate(string sTerrainName, TerrainSetting setting, Material terrainMat)
+	public static GameObject GenerateTerrain(string terrainName, TerrainSetting setting)
 	{
 		if (setting == null)
 		{
@@ -21,16 +21,16 @@ public static class TerrainGenerator
 			return null;
 		}
 
-		if (sTerrainName == null)
+		if (terrainName == null)
 		{
-			sTerrainName = "Terrain";
+			terrainName = "Terrain";
 		}
 
 		//创建高度图
 		float[,] heightMap = GenerateHeightMap(setting);
 
 		//创建GameObject
-		GameObject terrainGO = new GameObject(sTerrainName);
+		GameObject terrainGO = new GameObject(terrainName);
 
 		//创建分块Mesh
 		int chunkCountX = setting.terrainWidth / setting.chunkSize;
@@ -52,11 +52,63 @@ public static class TerrainGenerator
 				Mesh mesh = CreateMesh(setting, cx, cz, heightMap, 1);
 				mesh.name = $"Chunk_{cx}_{cz}";
 				meshFilter.sharedMesh = mesh;
-				meshRenderer.sharedMaterial = terrainMat;
+				meshRenderer.sharedMaterial = setting.material;
 				meshCollider.sharedMesh = mesh;
 			}
 		}
 		return terrainGO;
+	}
+
+	public static List<GameObject> GenerateTerrainLODs(string terrainName, TerrainSetting setting)
+	{
+		if (setting == null)
+		{
+			Debug.LogError("TerrainSetting为空，无法生成地形！");
+			return null;
+		}
+
+		if (terrainName == null)
+		{
+			terrainName = "Terrain";
+		}
+
+		List<GameObject> terrainGOList = new List<GameObject>();
+		
+		//创建高度图
+		float[,] heightMap = GenerateHeightMap(setting);
+		for (int i = 0; i < setting.lodLevel; ++i)
+		{
+			//创建GameObject
+			GameObject terrainGO = new GameObject($"{terrainName}_LOD{i}");
+			terrainGO.transform.position = new Vector3((setting.terrainWidth + 20) * i, 0, 0);
+
+			//创建分块Mesh
+			int chunkCountX = setting.terrainWidth / setting.chunkSize;
+			int chunkCountZ = setting.terrainLength / setting.chunkSize;
+			for (int cz = 0; cz < chunkCountZ; cz++)
+			{
+				for (int cx = 0; cx < chunkCountX; cx++)
+				{
+					GameObject chunkGO = new GameObject($"Chunk_{cx}_{cz}");
+					chunkGO.transform.parent = terrainGO.transform;
+					chunkGO.transform.localPosition = new Vector3(cx * setting.chunkSize, 0, cz * setting.chunkSize);
+
+					//添加组件
+					MeshFilter meshFilter = chunkGO.AddComponent<MeshFilter>();
+					MeshRenderer meshRenderer = chunkGO.AddComponent<MeshRenderer>();
+					MeshCollider meshCollider = chunkGO.AddComponent<MeshCollider>();
+
+					//创建Mesh
+					Mesh mesh = CreateMesh(setting, cx, cz, heightMap, 1 << i);
+					mesh.name = $"Chunk_{cx}_{cz}";
+					meshFilter.sharedMesh = mesh;
+					meshRenderer.sharedMaterial = setting.material;
+					meshCollider.sharedMesh = mesh;
+				}
+			}
+			terrainGOList.Add(terrainGO);
+		}
+		return terrainGOList;
 	}
 
 	/// <summary>
@@ -89,6 +141,7 @@ public static class TerrainGenerator
 
 		//创建Mesh
 		Mesh combinedMesh = new Mesh();
+		combinedMesh.name = $"{terrainGO.name}_Mesh";
 		combinedMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
 		combinedMesh.CombineMeshes(combineInstances.ToArray(), true, true);
 		combinedMesh.RecalculateBounds();

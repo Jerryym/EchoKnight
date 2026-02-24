@@ -1,0 +1,7 @@
+<ToolBox>
+    <Group name="场景工具">
+        <Command id="GenerateTerrain" name="生成地形"/>
+        <Command id="GenerateTerrain" name="沿线布设"/>
+        <Command id="GenerateTerrain" name="区域布设"/>
+    </Group>
+</ToolBox>

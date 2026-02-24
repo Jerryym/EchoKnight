@@ -1,0 +1,21 @@
+.group-box {
+	flex-direction: column;
+	margin-bottom: 10px;
+
+	border-top-width: 1px;
+	border-bottom-width: 1px;
+	border-left-width: 1px;
+	border-right-width: 1px;
+
+	border-top-color: rgb(64, 64, 64);
+	border-bottom-color: rgb(64, 64, 64);
+	border-left-color: rgb(64, 64, 64);
+	border-right-color: rgb(64, 64, 64);
+
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	border-bottom-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+
+	background-color: rgb(46, 46, 46);
+}

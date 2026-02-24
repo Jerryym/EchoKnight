@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Echo.EditorTool.UI
+namespace Echo.Editor.UI
 {
 	/// <summary>
 	/// 停靠窗口
@@ -54,7 +54,7 @@ namespace Echo.EditorTool.UI
 		{
 			LoadUIAsset();
 			InitWidget();
-			
+
 			//事件绑定
 			m_floatingBtn.clicked += OnFloatingButtonClicked;
 			m_closeBtn.clicked += OnCloseButtonClicked;
@@ -69,6 +69,20 @@ namespace Echo.EditorTool.UI
 		public void SetTitle(string title)
 		{
 			m_titleLabel.text = title;
+		}
+
+		/// <summary>
+		/// 设置内容
+		/// </summary>
+		public void SetContent(VisualElement element)
+		{
+			m_content.Add(element);
+		}
+
+		public void ShowButton(bool show)
+		{
+			m_floatingBtn.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
+			m_closeBtn.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
 		}
 
 		private void LoadUIAsset()
