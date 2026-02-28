@@ -63,6 +63,7 @@ namespace Echo.Editor.UI
 			RegisterCallback<DetachFromPanelEvent>(OnElementDetach);
 		}
 
+		#region Public Funcs
 		/// <summary>
 		/// 设置标题
 		/// </summary>
@@ -84,6 +85,7 @@ namespace Echo.Editor.UI
 			m_floatingBtn.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
 			m_closeBtn.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
 		}
+		#endregion
 
 		private void LoadUIAsset()
 		{

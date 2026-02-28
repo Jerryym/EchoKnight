@@ -19,8 +19,8 @@ MonoBehaviour:
     terrainName: New Terrain
     terrainType: 0
     terrainMaterial: {fileID: 2100000, guid: 99da67691096887458b519b6b78586de, type: 2}
-    terrainWidth: 256
-    terrainLength: 256
+    terrainWidth: 1024
+    terrainLength: 1024
     chunkSize: 32
     minHeight: 0
     maxHeight: 20
@@ -31,7 +31,7 @@ MonoBehaviour:
         time: 0
         value: 0
         inSlope: 0
-        outSlope: 1
+        outSlope: 0
         tangentMode: 0
         weightedMode: 0
         inWeight: 0
@@ -39,7 +39,7 @@ MonoBehaviour:
       - serializedVersion: 3
         time: 1
         value: 1
-        inSlope: 1
+        inSlope: 0
         outSlope: 0
         tangentMode: 0
         weightedMode: 0
@@ -50,7 +50,7 @@ MonoBehaviour:
       m_RotationOrder: 4
     noiseScale: 100
     octaves: 4
-    persistence: 0.5
+    persistence: 0.353
     lacunarity: 2
     enableLOD: 1
-    lodLevel: 0
+    lodLevel: 2

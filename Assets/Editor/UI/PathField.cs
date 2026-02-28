@@ -37,11 +37,11 @@ namespace Echo.Editor.UI
 			set => m_textField.value = value;
 		}
 
-		public PathField(string label, PathMode mode = PathMode.OpenFolder, string defaultFileName = "", string extension = "", bool useAssetPath = true)
+		public PathField(string label, PathMode mode = PathMode.OpenFolder, string extension = "", string defaultFileName = "",  bool useAssetPath = true)
 		{
 			m_mode = mode;
-			m_defaultFileName = defaultFileName;
 			m_extension = extension;
+			m_defaultFileName = defaultFileName;
 			m_useAssetPath = useAssetPath;
 
 			style.flexDirection = FlexDirection.Row;

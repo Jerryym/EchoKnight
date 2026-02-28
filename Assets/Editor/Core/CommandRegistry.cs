@@ -34,7 +34,6 @@ namespace Echo.Editor
 			return func.Invoke();
 		}
 
-
 		private CommandRegistry()
 		{
 			m_commandDic = new Dictionary<string, Func<ICommand>>();
@@ -47,6 +46,7 @@ namespace Echo.Editor
 		private void RegistryCommands()
 		{
 			m_commandDic.Add("GenerateTerrain", () => new CMD_GenerateTerrain());
+			m_commandDic.Add("CSVToSO", () => new CMD_CSVToSO());
 		}
 
 	}
