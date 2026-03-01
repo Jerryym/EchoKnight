@@ -1,8 +1,10 @@
+using Echo;
 using UnityEngine;
 
 /// <summary>
 /// 角色物理配置ScriptableObject: 用于管理角色的物理参数
 /// </summary>
+[ConfigInfo("角色物理属性")]
 public class CharacterPhysicsConfigSO : ScriptableObject
 {
 	/// <summary>

@@ -141,7 +141,6 @@ namespace Echo.Editor.UI
 			if (columns != m_columnCount)
 			{
 				m_columnCount = columns;
-				InitColumns();
 			}
 
 			m_rowCount = rows;
@@ -289,13 +288,11 @@ namespace Echo.Editor.UI
 
 		private void InitColumns()
 		{
-			m_listView.columns.Clear();
-			if (m_columnItems.Count == 0)
-			{
-				for (int i = 0; i < m_columnCount; i++)
-					m_columnItems.Add(new ColumnItem());
-			}
+			m_columnItems.Clear();
+			for (int i = 0; i < m_columnCount; i++)
+				m_columnItems.Add(new ColumnItem());
 
+			m_listView.columns.Clear();
 			for (int i = 0; i < m_columnCount; i++)
 			{
 				int colIndex = i;
