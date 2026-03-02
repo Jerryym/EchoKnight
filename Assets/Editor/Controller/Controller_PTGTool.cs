@@ -226,7 +226,7 @@ namespace Echo.Editor
 		/// <summary>
 		/// 显示提示
 		/// </summary>
-		public void ShowTip(string msg, StatusBar.TipLevel level = StatusBar.TipLevel.Info)
+		private void ShowTip(string msg, StatusBar.TipLevel level = StatusBar.TipLevel.Info)
 		{
 			activeWindow.SetStatusBarText(msg, level);
 		}

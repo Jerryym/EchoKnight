@@ -2,7 +2,7 @@ using UnityEditor;
 
 namespace Echo.Editor
 {
-	[FilePath("ProjectSettings/PTGToolSettings.asset", FilePathAttribute.Location.ProjectFolder)]
+	[FilePath("ProjectSettings/PTGTool.asset", FilePathAttribute.Location.ProjectFolder)]
 	public class PTGToolSettings : ScriptableSingleton<PTGToolSettings>
 	{
 		public Model_PTGTool viewData = new Model_PTGTool();

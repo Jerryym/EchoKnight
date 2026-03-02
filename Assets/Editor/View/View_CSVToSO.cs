@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -13,7 +14,7 @@ namespace Echo.Editor
 		#region 组件
 		private ScrollView m_scrollView = null;
 
-		private PathField m_filePathField = null;
+		private ObjectField m_csvObjectField = null;
 		private PopupField<string> m_popupField = null;
 		private TableWidget m_table = null;
 
@@ -22,19 +23,46 @@ namespace Echo.Editor
 		#endregion
 
 		#region 事件
+		public event Action<TextAsset> OnCSVFileChanged;
+		public event Action<Type> OnConfigChanged;
 		public event Action OnGenerateClicked;
 		public event Action OnUpdateClicked;
 		#endregion
 
 		private List<Type> m_SOConfigTypes = null;
+		public IReadOnlyList<Type> SOCofigTypes => m_SOConfigTypes;
+
 		private List<string> m_SOConfigNames = null;
-		private int m_SOConfigIndex = -1;
+		private int m_SOConfigIndex = 0;
 
 		public View_CSVToSO()
 		{
 			m_SOConfigTypes = new List<Type>();
 			m_SOConfigNames = new List<string>();
 			InitWidget();
+		}
+
+		public void InitData(Model_CSVToSO model)
+		{
+			m_csvObjectField.value = model.csvfileAsset;
+			m_SOConfigIndex = model.configIndex;
+		}
+
+		public void UpdateTable(List<string> headers)
+		{
+			m_table.SetTableSize(4, headers.Count);
+			m_table.SetHeaderLabels(headers);
+
+			Type configType = m_SOConfigTypes[m_SOConfigIndex];
+			if (configType == typeof(CharacterPhysicsConfigSO))
+			{
+				for (int i = 0; i < m_table.ColumnCount; i++)
+				{
+					TableWidget.ColumnItem item = new TableWidget.ColumnItem();
+					item.Type = TableWidget.ColumnType.Edit;
+					m_table.SetColumnType(i, item);
+				}
+			}
 		}
 
 		private void InitWidget()
@@ -45,17 +73,20 @@ namespace Echo.Editor
 			m_scrollView = new ScrollView(ScrollViewMode.Vertical);
 			this.Add(m_scrollView);
 
-			//文件路径
-			m_filePathField = new PathField("配置文件(.csv)", PathMode.OpenFile, "csv");
-			m_scrollView.Add(m_filePathField);
 			//下拉框
 			InitCombo();
+			
+			//CSV文件
+			m_csvObjectField = new ObjectField("配置文件");
+			m_csvObjectField.objectType = typeof(TextAsset);
+			m_csvObjectField.RegisterCallback<ChangeEvent<UnityEngine.Object>>(OnCSVAssetChanged);
+			m_scrollView.Add(m_csvObjectField);
+			
 			//表格
 			InitTable();
+
 			//按钮
 			InitButton();
-
-			UpdateTableByConfigType(0);
 		}
 
 		private void InitTitleBar()
@@ -98,7 +129,7 @@ namespace Echo.Editor
 				m_SOConfigNames.Add(configAttr.ConfigName);
 			}
 
-			m_popupField = new PopupField<string>("配置类型", m_SOConfigNames.Count > 0 ? m_SOConfigNames : new List<string> { "无可用配置" }, 0);
+			m_popupField = new PopupField<string>("配置类型", m_SOConfigNames.Count > 0 ? m_SOConfigNames : new List<string>(), m_SOConfigIndex);
 			m_popupField.RegisterCallback<ChangeEvent<string>>(OnConfigTypeChanged);
 			m_scrollView.Add(m_popupField);
 		}
@@ -121,33 +152,23 @@ namespace Echo.Editor
 			buttonPanel.Add(m_updateBtn);
 		}
 
-		private void OnConfigTypeChanged(ChangeEvent<string> evt)
+		private void OnCSVAssetChanged(ChangeEvent<UnityEngine.Object> evt)
 		{
-			m_SOConfigIndex = m_SOConfigNames.IndexOf(evt.newValue);
-			UpdateTableByConfigType(m_SOConfigIndex);
+			var csvAsset = evt.newValue as TextAsset;
+			if (csvAsset == null)
+				return;
+
+			OnCSVFileChanged?.Invoke(csvAsset);
 		}
 
-		/// <summary>
-		/// 根据配置类型刷新表格
-		/// </summary>
-		private void UpdateTableByConfigType(int index)
+		private void OnConfigTypeChanged(ChangeEvent<string> evt)
 		{
-			if (index < 0 || index >= m_SOConfigTypes.Count)
+			string selectedName = evt.newValue;
+			m_SOConfigIndex = m_SOConfigNames.IndexOf(selectedName);
+			if (m_SOConfigIndex < 0)
 				return;
 
-			var configType = m_SOConfigTypes[index];
-			var fields = configType.GetFields(BindingFlags.Public | BindingFlags.Instance);
-
-			List<string> headers = new List<string>();
-			foreach (var field in fields)
-			{
-				headers.Add(field.Name);
-			}
-			if (headers.Count == 0)
-				return;
-
-			m_table.SetTableSize(4, headers.Count);
-			m_table.SetHeaderLabels(headers);
+			OnConfigChanged?.Invoke(m_SOConfigTypes[m_SOConfigIndex]);
 		}
 	}
 }

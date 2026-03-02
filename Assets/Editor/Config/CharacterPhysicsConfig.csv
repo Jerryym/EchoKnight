@@ -1,2 +1,2 @@
-"ID",gravity,groundGravity,rotationFactorPerFrame,maxJumpHeight,maxJumpTime
+characterType,gravity,groundGravity,rotationFactorPerFrame,maxJumpHeight,maxJumpTime
 Knight, -9.8,-2, 15, 2.0, 0.6

@@ -81,7 +81,7 @@ public class PlayerPhysicsConfigImportTool : EditorWindow
 				AssetDatabase.CreateAsset(config, assetPath);
 			}
 
-			config.id = id;//ID
+			config.characterType = id;//ID
 			if (!float.TryParse(tokens[1], out config.gravity))//重力
 			{ 
 				Debug.LogError($"gravity 解析失败, ID={id}"); 
