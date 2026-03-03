@@ -14,8 +14,9 @@ namespace Echo.Editor
 		#region 组件
 		private ScrollView m_scrollView = null;
 
-		private ObjectField m_csvObjectField = null;
 		private PopupField<string> m_popupField = null;
+		private ObjectField m_csvObjectField = null;
+		private PathField m_configSavePath = null;
 		private TableWidget m_table = null;
 
 		private Button m_generateBtn = null;
@@ -29,11 +30,15 @@ namespace Echo.Editor
 		public event Action OnUpdateClicked;
 		#endregion
 
+		private readonly RPGEditorToolWindow activeWindow = RPGEditorToolWindow.ActiveWindow;
+
 		private List<Type> m_SOConfigTypes = null;
 		public IReadOnlyList<Type> SOCofigTypes => m_SOConfigTypes;
 
 		private List<string> m_SOConfigNames = null;
 		private int m_SOConfigIndex = 0;
+
+		public string ConfigSavePath => m_configSavePath.Path;
 
 		public View_CSVToSO()
 		{
@@ -45,24 +50,39 @@ namespace Echo.Editor
 		public void InitData(Model_CSVToSO model)
 		{
 			m_csvObjectField.value = model.csvfileAsset;
+			m_configSavePath.Path = model.configSavePath;
 			m_SOConfigIndex = model.configIndex;
 		}
 
-		public void UpdateTable(List<string> headers)
+		public Model_CSVToSO GetData()
 		{
-			m_table.SetTableSize(4, headers.Count);
-			m_table.SetHeaderLabels(headers);
-
-			Type configType = m_SOConfigTypes[m_SOConfigIndex];
-			if (configType == typeof(CharacterPhysicsConfigSO))
+			return new Model_CSVToSO
 			{
-				for (int i = 0; i < m_table.ColumnCount; i++)
-				{
-					TableWidget.ColumnItem item = new TableWidget.ColumnItem();
-					item.Type = TableWidget.ColumnType.Edit;
-					m_table.SetColumnType(i, item);
-				}
-			}
+				csvfileAsset = m_csvObjectField.value as TextAsset,
+				configSavePath = m_configSavePath.Path,
+				configIndex = m_SOConfigIndex
+			};
+		}
+
+		public void ClearTable()
+		{
+			m_table.Reset();
+			m_table.style.display = DisplayStyle.None;
+		}
+
+		public void UpdateTable(List<TableWidget.ColumnItem> columnItems, TableModel model)
+		{
+			m_table.Reset();
+			m_table.SetColumns(columnItems);
+			m_table.SetModel(model);
+
+			//显示表格
+			m_table.style.display = DisplayStyle.Flex;
+		}
+
+		public void GetTableData(out TableModel model)
+		{
+			model = m_table.Model;
 		}
 
 		private void InitWidget()
@@ -75,15 +95,22 @@ namespace Echo.Editor
 
 			//下拉框
 			InitCombo();
-			
+
+			//SO保存路径
+			m_configSavePath = new PathField("SO存储路径");
+			m_scrollView.Add(m_configSavePath);
+
 			//CSV文件
 			m_csvObjectField = new ObjectField("配置文件");
 			m_csvObjectField.objectType = typeof(TextAsset);
 			m_csvObjectField.RegisterCallback<ChangeEvent<UnityEngine.Object>>(OnCSVAssetChanged);
 			m_scrollView.Add(m_csvObjectField);
-			
+
 			//表格
-			InitTable();
+			m_table = new TableWidget();
+			m_table.style.display = DisplayStyle.None;// 默认隐藏
+			m_table.style.flexGrow = 1;
+			m_scrollView.Add(m_table);
 
 			//按钮
 			InitButton();
@@ -105,15 +132,6 @@ namespace Echo.Editor
 
 			titleBar.Add(titleLabel);
 			this.Add(titleBar);
-		}
-
-		private void InitTable()
-		{
-			m_table = new TableWidget(4, 4);
-			m_scrollView.Add(m_table);
-
-			string[] tableTiltles = new string[] { "字段1", "字段2", "字段3", "字段4" };
-			m_table.SetHeaderLabels(tableTiltles);
 		}
 
 		private void InitCombo()
@@ -156,8 +174,20 @@ namespace Echo.Editor
 		{
 			var csvAsset = evt.newValue as TextAsset;
 			if (csvAsset == null)
+			{
+				ClearTable();
 				return;
+			}
 
+			//文件类型检测
+			string fileName = AssetDatabase.GetAssetPath(csvAsset);
+			if (!fileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
+			{
+				RPGEditorToolWindow.ShowTip($"所选文件 \"{csvAsset.name}\" 不是.csv 文件，请重新选择。", StatusBar.TipLevel.Warning);
+				
+				m_csvObjectField.SetValueWithoutNotify(null);
+				return;
+			}
 			OnCSVFileChanged?.Invoke(csvAsset);
 		}
 

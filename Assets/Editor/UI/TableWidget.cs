@@ -26,14 +26,6 @@ namespace Echo.Editor.UI
 		}
 
 		/// <summary>
-		/// 行数据
-		/// </summary>
-		private class RowData
-		{
-			public List<object> Cells = new List<object>();
-		}
-
-		/// <summary>
 		/// 列项配置
 		/// </summary>
 		public class ColumnItem
@@ -61,35 +53,6 @@ namespace Echo.Editor.UI
 			public Type ObjectType;
 		}
 
-		private MultiColumnListView m_listView = null;
-		
-		/// <summary>
-		/// 行数
-		/// </summary>
-		private int m_rowCount = 0;
-		public int RowCount => m_rowCount;
-
-		/// <summary>
-		/// 列数
-		/// </summary>
-		private int m_columnCount = 0;
-		public int ColumnCount => m_columnCount;
-
-		/// <summary>
-		/// 表头
-		/// </summary>
-		private List<string> m_headerLabels = null;
-		public IReadOnlyList<string> HeaderLabels => m_headerLabels;
-
-		/// <summary>
-		/// 表格行数据
-		/// </summary>
-		private List<RowData> m_rowDatas = null;
-		/// <summary>
-		/// 表格列项
-		/// </summary>
-		private List<ColumnItem> m_columnItems = null;
-
 		/// <summary>
 		/// 单元格上下文: 用于事件回调中识别单元格位置
 		/// </summary>
@@ -99,78 +62,70 @@ namespace Echo.Editor.UI
 			public int Column;
 		}
 
+		private MultiColumnListView m_listView = null;
+
+		/// <summary>
+		/// 数据表
+		/// </summary>
+		private TableModel m_model = null;
+		public TableModel Model => m_model;
+
+		/// <summary>
+		/// 表格列项
+		/// </summary>
+		private List<ColumnItem> m_columnItems = null;
+
+		/// <summary>
+		/// 行数
+		/// </summary>
+		public int RowCount => m_model.RowCount;
+		/// <summary>
+		/// 列数
+		/// </summary>
+		public int ColumnCount => m_model.ColumnCount;
+
 		public TableWidget()
 		{
-			m_headerLabels = new List<string>();
-			m_rowDatas = new List<RowData>();
 			m_columnItems = new List<ColumnItem>();
-			
 			InitWidget();
 		}
 
-		public TableWidget(int row, int column)
+		public TableWidget(TableModel model)
 		{
-			m_rowCount = row;
-			m_columnCount = column;
-			m_headerLabels = new List<string>();
-			m_rowDatas = new List<RowData>();
-			m_columnItems = new List<ColumnItem>();
-
 			InitWidget();
-			InitColumns();
-			InitRows();
-
-			//绑定数据
-			m_listView.itemsSource = m_rowDatas;
-			m_listView.RefreshItems();
+			SetModel(model);
 		}
 
 		#region Public Funcs
 		/// <summary>
-		/// 设置表格大小
+		/// 设置表格数据源
 		/// </summary>
-		/// <param name="rows">行数</param>
-		/// <param name="columns">列数</param>
-		public void SetTableSize(int rows, int columns)
+		/// <param name="model">表格数据源</param>
+		public void SetModel(TableModel model)
 		{
-			if (rows < 0)
-				throw new ArgumentException("行数不可小于0!");
-			if (columns < 0)
-				throw new ArgumentException("列数不可小于0!");
+			if (model == null) 
+				throw new ArgumentNullException(nameof(model));
+			m_model = model;
 
-			if (columns != m_columnCount)
+			//初始化表格列项
+			if (m_columnItems.Count == 0)
 			{
-				m_columnCount = columns;
+				m_columnItems = new List<ColumnItem>(model.ColumnCount);
+				for (int i = 0; i < model.ColumnCount; i++)
+				{
+					m_columnItems.Add(new ColumnItem { Type = ColumnType.None });
+				}
 			}
-
-			m_rowCount = rows;
-			InitRows();
+			InitTable();
 
 			//绑定数据
-			m_listView.itemsSource = m_rowDatas;
+			m_listView.itemsSource = m_model.Rows;
 			m_listView.RefreshItems();
 		}
 
-		/// <summary>
-		/// 设置表头
-		/// </summary>
-		public void SetHeaderLabels(IEnumerable<string> labels)
+		public void SetColumns(List<ColumnItem> columnItems)
 		{
-			if (labels == null)
-				throw new ArgumentNullException(nameof(labels));
-
-			var list = new List<string>(labels);
-			if (m_columnCount == 0)
-			{
-				m_columnCount = list.Count;
-			}
-			else if (list.Count != m_columnCount)
-			{
-				throw new ArgumentException($"表头数量({list.Count})必须等于列数({m_columnCount})!");
-			}
-
-			m_headerLabels = list;
-			InitColumns();
+			m_columnItems = columnItems;
 		}
 
 		/// <summary>
@@ -180,18 +135,13 @@ namespace Echo.Editor.UI
 		/// <param name="item">列项配置</param>
 		public void SetColumnType(int index, ColumnItem item)
 		{
-			if (index < 0 || index >= m_columnCount)
-				throw new ArgumentOutOfRangeException(nameof(index), $"列索引越界: {index}，当前列数为 {m_columnCount}");
+			if (index < 0 || index >= ColumnCount)
+				throw new ArgumentOutOfRangeException(nameof(index), $"列索引越界: {index}，当前列数为 {ColumnCount}");
 			if (item == null)
 				throw new ArgumentNullException(nameof(item), "ColumnItem 参数不能为空，必须传入有效的列项配置!");
 
-			if (m_columnItems == null)
-			{
-				m_columnItems = new List<ColumnItem>(new ColumnItem[m_columnCount]);
-			}
-			m_columnItems[index] = item;
-
 			//初始化
+			m_columnItems[index] = item;
 			InitColumn(index);
 			m_listView.RefreshItems();
 		}
@@ -201,63 +151,39 @@ namespace Echo.Editor.UI
 		/// </summary>
 		/// <param name="rowIndex">行索引</param>
 		/// <param name="colIndex">列索引</param>
-		/// <param name="value">值</param>
+		/// <param name="value">单元格值</param>
 		public void SetCellValue(int rowIndex, int colIndex, object value)
 		{
-			if (rowIndex < 0 || rowIndex >= m_rowCount)
-				return;
-			if (colIndex < 0 || colIndex >= m_columnCount)
+			if (m_model == null)
 				return;
 
-			m_rowDatas[rowIndex].Cells[colIndex] = value;
-
-			//刷新
+			m_model.SetValue(rowIndex, colIndex, value);
 			m_listView.RefreshItem(rowIndex);
 		}
 
 		/// <summary>
-		/// 获取制定单元格值
+		/// 获取指定单元格值
 		/// </summary>
 		/// <param name="rowIndex">行索引</param>
 		/// <param name="colIndex">列索引</param>
-		/// <returns></returns>
+		/// <returns>单元格值</returns>
 		public object GetCellValue(int rowIndex, int colIndex)
 		{
-			if (rowIndex < 0 || rowIndex >= m_rowCount)
-				return null;
-			if (colIndex < 0 || colIndex >= m_columnCount)
+			if (m_model == null)
 				return null;
 
-			return m_rowDatas[rowIndex].Cells[colIndex];
+			return m_model.GetValue(rowIndex, colIndex);
 		}
 
-		/// <summary>
-		/// 设置整行数据
-		/// </summary>
-		public void SetRow(int rowIndex, IEnumerable<object> values)
+		public void Reset()
 		{
-			if (rowIndex < 0 || rowIndex >= m_rowCount)
-				return;
+			m_model = null;
 
-			var list = values.ToList();
-			for (int i = 0; i < Math.Min(list.Count, m_columnCount); i++)
-			{
-				m_rowDatas[rowIndex].Cells[i] = list[i];
-			}
+			m_columnItems?.Clear();
+			m_listView.itemsSource = null;
+			m_listView.columns.Clear();
 
-			//刷新
-			m_listView.RefreshItem(rowIndex);
-		}
-
-		/// <summary>
-		/// 获取整行数据
-		/// </summary>
-		public IReadOnlyList<object> GetRow(int rowIndex)
-		{
-			if (rowIndex < 0 || rowIndex >= m_rowCount)
-				return null;
-
-			return m_rowDatas[rowIndex].Cells.AsReadOnly();
+			m_listView.RefreshItems();
 		}
 		#endregion
 
@@ -272,81 +198,43 @@ namespace Echo.Editor.UI
 			m_listView.selectionType = SelectionType.None;
 		}
 
-		private void InitRows()
+		private void InitTable()
 		{
-			m_rowDatas.Clear();
-			for (int i = 0; i < m_rowCount; i++)
-			{
-				var row = new RowData();
-				for (int j = 0; j < m_columnCount; j++)
-				{
-					row.Cells.Add(null);
-				}
-				m_rowDatas.Add(row);
-			}
-		}
-
-		private void InitColumns()
-		{
-			m_columnItems.Clear();
-			for (int i = 0; i < m_columnCount; i++)
-				m_columnItems.Add(new ColumnItem());
+			if (m_model == null)
+				return;
 
 			m_listView.columns.Clear();
-			for (int i = 0; i < m_columnCount; i++)
+			for (int i = 0; i < ColumnCount; ++i)
 			{
 				int colIndex = i;
-				var column = new Column
-				{
-					title = GetHeaderLabel(colIndex),
-					width = 80
-				};
+				var column = new Column { title = m_model.Columns[colIndex].Name };
 				m_listView.columns.Add(column);
-				InitColumn(colIndex, false);
+				InitColumn(colIndex);
 			}
 
-			//刷新
 			m_listView.RefreshItems();
 		}
 
-		/// <summary>
-		/// 初始化指定列
-		/// </summary>
-		/// <param name="colIndex">列索引</param>
-		/// <param name="refresh">是否立刻刷新列表</param>
-		private void InitColumn(int colIndex, bool refresh = true)
+		private void InitColumn(int colIndex)
 		{
-			if (colIndex >= m_listView.columns.Count)
+			var colItem = m_columnItems[colIndex];
+			if (colItem == null)
 				return;
 
-			var colItem = m_columnItems[colIndex];
 			Action<VisualElement, int> unbindCell = (element, rowIndex) =>
 			{
 				element.userData = null;
 			};
 
-			var result = CreateColumnFactory(colItem, colIndex);
+			var result = CreateColumn(colItem, colIndex);
 			var column = m_listView.columns[colIndex];
 			column.makeCell = result.Item1;
 			column.bindCell = result.Item2;
 			column.unbindCell = unbindCell;
 			column.width = colItem.Width;
-
-			//刷新
-			if (refresh)
-				m_listView.RefreshItems();
 		}
 
-		private string GetHeaderLabel(int index)
-		{
-			if (m_headerLabels.Count == 0 || index >= m_headerLabels.Count)
-			{
-				return string.Empty;
-			}
-			return m_headerLabels[index];
-		}
-
-		private (Func<VisualElement>, Action<VisualElement, int>) CreateColumnFactory(ColumnItem colItem, int colIndex)
+		private (Func<VisualElement>, Action<VisualElement, int>) CreateColumn(ColumnItem colItem, int colIndex)
 		{
 			switch (colItem.Type)
 			{
@@ -363,9 +251,8 @@ namespace Echo.Editor.UI
 				case ColumnType.Object:
 					return CreateObjectColumn(colItem, colIndex);
 				default:
-					break;
+					return CreateDefaultColumn(colIndex);
 			}
-			return (null, null);
 		}
 
 		/// <summary>
@@ -373,11 +260,11 @@ namespace Echo.Editor.UI
 		/// </summary>
 		private (Func<VisualElement>, Action<VisualElement, int>) CreateDefaultColumn(int colIndex)
 		{
-			Func<VisualElement>  makeCell = () => new Label();
-			Action<VisualElement, int>  bindCell = (element, rowIndex) =>
+			Func<VisualElement> makeCell = () => new Label();
+			Action<VisualElement, int> bindCell = (element, rowIndex) =>
 			{
 				var label = element as Label;
-				label.text = m_rowDatas[rowIndex].Cells[colIndex]?.ToString();
+				label.text = m_model.Rows[rowIndex][colIndex]?.ToString();
 			};
 
 			return (makeCell, bindCell);
@@ -400,7 +287,7 @@ namespace Echo.Editor.UI
 			{
 				var field = element as TextField;
 				field.userData = new CellContext { Row = rowIndex, Column = colIndex };
-				field.SetValueWithoutNotify(m_rowDatas[rowIndex].Cells[colIndex]?.ToString());
+				field.SetValueWithoutNotify(m_model.Rows[rowIndex][colIndex]?.ToString());
 			};
 
 			return (makeCell, bindCell);
@@ -423,7 +310,7 @@ namespace Echo.Editor.UI
 				var field = element as PopupField<string>;
 				field.userData = new CellContext { Row = rowIndex, Column = colIndex };
 
-				var value = m_rowDatas[rowIndex].Cells[colIndex] as string;
+				var value = m_model.Rows[rowIndex][colIndex] as string;
 				field.SetValueWithoutNotify(value);
 			};
 
@@ -448,14 +335,14 @@ namespace Echo.Editor.UI
 				var field = element as EnumField;
 				field.userData = new CellContext { Row = rowIndex, Column = colIndex };
 
-				var value = m_rowDatas[rowIndex].Cells[colIndex] as Enum;
+				var value = m_model.Rows[rowIndex][colIndex] as Enum;
 				if (value != null)
 					field.SetValueWithoutNotify(value);
 			};
 
 			return (makeCell, bindCell);
 		}
-		
+
 		/// <summary>
 		/// 创建开关列
 		/// </summary>
@@ -473,7 +360,7 @@ namespace Echo.Editor.UI
 				var toggle = element as Toggle;
 				toggle.userData = new CellContext { Row = rowIndex, Column = colIndex };
 
-				var cellValue = m_rowDatas[rowIndex].Cells[colIndex];
+				var cellValue = m_model.Rows[rowIndex][colIndex];
 				bool value = cellValue is bool boolVal ? boolVal : false;
 				toggle.SetValueWithoutNotify(value);
 			};
@@ -498,7 +385,7 @@ namespace Echo.Editor.UI
 				var field = element as ObjectField;
 				field.userData = new CellContext { Row = rowIndex, Column = colIndex };
 
-				var value = m_rowDatas[rowIndex].Cells[colIndex] as UnityEngine.Object;
+				var value = m_model.Rows[rowIndex][colIndex] as UnityEngine.Object;
 				field.SetValueWithoutNotify(value);
 			};
 
@@ -513,17 +400,17 @@ namespace Echo.Editor.UI
 			if (ctx == null)
 				return;
 
-			m_rowDatas[ctx.Row].Cells[ctx.Column] = evt.newValue;
+			m_model.SetValue(ctx.Row, ctx.Column, evt.newValue);
 		}
 
 		private void OnToggleChanged(ChangeEvent<bool> evt)
 		{
 			var toggle = evt.target as Toggle;
 			var ctx = (CellContext)toggle.userData;
-			if (ctx == null) 
+			if (ctx == null)
 				return;
 
-			m_rowDatas[ctx.Row].Cells[ctx.Column] = evt.newValue;
+			m_model.SetValue(ctx.Row, ctx.Column, evt.newValue);
 		}
 
 		private void OnCurrentTextChanged(ChangeEvent<string> evt)
@@ -533,7 +420,7 @@ namespace Echo.Editor.UI
 			if (ctx == null)
 				return;
 
-			m_rowDatas[ctx.Row].Cells[ctx.Column] = evt.newValue;
+			m_model.SetValue(ctx.Row, ctx.Column, evt.newValue);
 		}
 
 		private void OnCurrentIndexChanged(ChangeEvent<Enum> evt)
@@ -543,7 +430,7 @@ namespace Echo.Editor.UI
 			if (ctx == null)
 				return;
 
-			m_rowDatas[ctx.Row].Cells[ctx.Column] = evt.newValue;
+			m_model.SetValue(ctx.Row, ctx.Column, evt.newValue);
 		}
 
 		private void OnObjectChanged(ChangeEvent<UnityEngine.Object> evt)
@@ -553,7 +440,7 @@ namespace Echo.Editor.UI
 			if (ctx == null)
 				return;
 
-			m_rowDatas[ctx.Row].Cells[ctx.Column] = evt.newValue;
+			m_model.SetValue(ctx.Row, ctx.Column, evt.newValue);
 		}
 		#endregion
 	}

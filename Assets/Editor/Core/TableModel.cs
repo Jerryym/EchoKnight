@@ -9,18 +9,28 @@ namespace Echo.Editor
 	/// </summary>
 	public class TableModel
 	{
-		/// <summary>
-		/// 行定义
-		/// </summary>
 		public class DataRow
 		{
-			private readonly List<object> m_cells;
-			public List<object> Cells => m_cells;
+			private object[] m_cells = null;
+			public object[] Cells => m_cells;
+
+			public DataRow(int columnCount)
+			{
+				m_cells = new object[columnCount];
+			}
+
+			public void SetCells(object[] newCells)
+			{
+				m_cells = newCells;
+			}
+
+			public object this[int index]
+			{
+				get { return m_cells[index]; }
+				set { m_cells[index] = value; }
+			}
 		}
 
-		/// <summary>
-		/// 列定义
-		/// </summary>
 		public class DataColumn
 		{
 			/// <summary>
@@ -28,10 +38,11 @@ namespace Echo.Editor
 			/// </summary>
 			private readonly string m_name;
 			public string Name => m_name;
+
 			/// <summary>
 			/// 数据类型
 			/// </summary>
-			private Type m_dataType;
+			private readonly Type m_dataType;
 			public Type DataType => m_dataType;
 
 			public DataColumn(string name, Type dataType)
@@ -45,13 +56,13 @@ namespace Echo.Editor
 		/// 列数据
 		/// </summary>
 		private readonly List<DataColumn> m_columns = null;
-		public IReadOnlyList<DataColumn> Columns => m_columns;
+		public List<DataColumn> Columns => m_columns;
 
 		/// <summary>
 		/// 行数据
 		/// </summary>
 		private readonly List<DataRow> m_rows = null;
-		public IReadOnlyList<DataRow> Rows => m_rows;
+		public List<DataRow> Rows => m_rows;
 
 		/// <summary>
 		/// 列名字典
@@ -74,11 +85,6 @@ namespace Echo.Editor
 			m_columnNameMap = new Dictionary<string, int>();
 		}
 
-		/// <summary>
-		/// 添加列
-		/// </summary>
-		/// <param name="columnName">列名</param>
-		/// <param name="dataType">列对应的数据类型</param>
 		public void AddColumn(string columnName, Type dataType)
 		{
 			if (string.IsNullOrEmpty(columnName))
@@ -88,18 +94,19 @@ namespace Echo.Editor
 
 			var column = new DataColumn(columnName, dataType);
 			m_columns.Add(column);
-			m_columnNameMap[columnName] = m_columns.Count - 1;
+			int newColumnCount = m_columns.Count;
+			m_columnNameMap[columnName] = newColumnCount - 1;
 
-			//补齐
-			foreach (var row in m_rows)
+			for (int i = 0; i < m_rows.Count; i++)
 			{
-				row.Cells.Add(null);
+				var cells = m_rows[i].Cells;
+				var newCells = new object[newColumnCount];
+
+				Array.Copy(cells, newCells, cells.Length);
+				m_rows[i].SetCells(newCells);
 			}
 		}
 
-		/// <summary>
-		/// 移除指定列
-		/// </summary>
 		public void RemoveColumn(string columnName)
 		{
 			if (!m_columnNameMap.TryGetValue(columnName, out int columnIndex))
@@ -108,57 +115,51 @@ namespace Echo.Editor
 			m_columns.RemoveAt(columnIndex);
 			m_columnNameMap.Remove(columnName);
 
-			foreach (var row in m_rows)
-			{ 
-				row.Cells.RemoveAt(columnIndex);
+			//删除对应单元格
+			for (int i = 0; i < m_rows.Count; i++)
+			{
+				var cells = m_rows[i].Cells;
+				var newCells = new object[cells.Length - 1];
+
+				if (columnIndex > 0)
+					Array.Copy(cells, 0, newCells, 0, columnIndex);
+				if (columnIndex < cells.Length - 1)
+					Array.Copy(cells, columnIndex + 1, newCells, columnIndex, cells.Length - columnIndex - 1);
+
+				m_rows[i].SetCells(newCells);
 			}
 
+			//更新索引映射
 			for (int i = columnIndex; i < m_columns.Count; i++)
 			{
 				m_columnNameMap[m_columns[i].Name] = i;
 			}
 		}
 
-		/// <summary>
-		/// 添加行
-		/// </summary>
-		public void AddRow()
+		public void AddRow(object[] values)
 		{
-			var row = new DataRow();
-			for (int i = 0; i < ColumnCount; i++)
-			{
-				row.Cells.Add(null);
-			}
+			if (values == null)
+				throw new ArgumentNullException(nameof(values));
+
+			if (values.Length != ColumnCount)
+				throw new ArgumentException($"数据列数不匹配: {values.Length} != {ColumnCount}");	
+
+			var row = new DataRow(ColumnCount);
+			Array.Copy(values, row.Cells, ColumnCount);
 			m_rows.Add(row);
 		}
 
-		/// <summary>
-		/// 移除指定行
-		/// </summary>
-		/// <param name="rowIndex">行索引</param>
 		public void RemoveRow(int rowIndex)
 		{
 			if (rowIndex < 0 || rowIndex >= RowCount)
 				throw new ArgumentOutOfRangeException(nameof(rowIndex));
-
+			
 			m_rows.RemoveAt(rowIndex);
-		}
-
-		/// <summary>
-		/// 获取列名
-		/// </summary>
-		/// <returns></returns>
-		public IEnumerable<string> GetHeaders()
-		{
-			return Columns.Select(col => col.Name);
 		}
 
 		/// <summary>
 		/// 设置指定单元格值
 		/// </summary>
-		/// <param name="rowIndex">行索引</param>
-		/// <param name="columnIndex">列索引</param>
-		/// <param name="value"></param>
 		public void SetValue(int rowIndex, int columnIndex, object value)
 		{
 			if (rowIndex < 0 || rowIndex >= RowCount)
@@ -166,22 +167,19 @@ namespace Echo.Editor
 			if (columnIndex < 0 || columnIndex >= ColumnCount)
 				throw new ArgumentOutOfRangeException(nameof(columnIndex));
 
-			if (value == null)
-				return;
+			if (value != null)
+			{
+				Type type = m_columns[columnIndex].DataType;
+				if (!type.IsAssignableFrom(value.GetType()))
+					throw new InvalidOperationException("数据类型不匹配");
+			}
 
-			Type type = m_columns[columnIndex].DataType;
-			if (!type.IsAssignableFrom(value.GetType()))
-				throw new InvalidOperationException("数据类型不匹配");
-
-			m_rows[rowIndex].Cells[columnIndex] = value;
+			m_rows[rowIndex][columnIndex] = value;
 		}
 
 		/// <summary>
 		/// 设置指定单元格值
 		/// </summary>
-		/// <param name="rowIndex">行索引</param>
-		/// <param name="columnName">列名</param>
-		/// <param name="value"></param>
 		public void SetValue(int rowIndex, string columnName, object value)
 		{
 			if (string.IsNullOrEmpty(columnName))
@@ -196,9 +194,6 @@ namespace Echo.Editor
 		/// <summary>
 		/// 获取指定单元格值
 		/// </summary>
-		/// <param name="rowIndex">行索引</param>
-		/// <param name="columnIndex">列索引</param>
-		/// <returns></returns>
 		public object GetValue(int rowIndex, int columnIndex)
 		{
 			if (rowIndex < 0 || rowIndex >= RowCount)
@@ -210,29 +205,12 @@ namespace Echo.Editor
 		}
 
 		/// <summary>
-		/// 设置行数据
+		/// 获取列名
 		/// </summary>
-		public void SetRowValue(int rowIndex, IEnumerable<object> values)
+		/// <returns></returns>
+		public IEnumerable<string> GetHeaders()
 		{
-			if (rowIndex < 0 || rowIndex >= RowCount)
-				throw new ArgumentOutOfRangeException(nameof(rowIndex));
-
-			var list = values.ToList();
-			for (int i = 0; i < Math.Min(list.Count, ColumnCount); i++)
-			{
-				SetValue(rowIndex, i, list[i]);
-			}
-		}
-
-		/// <summary>
-		/// 获取行数据
-		/// </summary>
-		public IReadOnlyList<object> GetRowValue(int rowIndex)
-		{
-			if (rowIndex < 0 || rowIndex >= RowCount)
-				throw new ArgumentOutOfRangeException(nameof(rowIndex));
-
-			return m_rows[rowIndex].Cells.AsReadOnly();
+			return Columns.Select(col => col.Name);
 		}
 
 		/// <summary>
@@ -241,6 +219,8 @@ namespace Echo.Editor
 		public void Clear()
 		{
 			m_rows.Clear();
+			m_columns.Clear();
+			m_columnNameMap.Clear();
 		}
 	}
 }

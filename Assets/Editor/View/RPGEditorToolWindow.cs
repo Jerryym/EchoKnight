@@ -106,9 +106,12 @@ namespace Echo.Editor
 			m_rightPanel.Clear();
 		}
 
-		public void SetStatusBarText(string text, StatusBar.TipLevel level)
+		/// <summary>
+		/// 显示提示
+		/// </summary>
+		public static void ShowTip(string text, StatusBar.TipLevel level = StatusBar.TipLevel.Info)
 		{
-			m_statusBar.SetText(text, level);
+			ActiveWindow.SetStatusBarText(text, level);
 		}
 
 		private void OnDestroy()
@@ -193,8 +196,13 @@ namespace Echo.Editor
 			label.text = m_commandList[index].name;
 		}
 
+		private void SetStatusBarText(string text, StatusBar.TipLevel level)
+		{
+			m_statusBar.SetText(text, level);
+		}
+
 		#region setter & getter
-		
+
 		#endregion
 
 		#region Event Funcs

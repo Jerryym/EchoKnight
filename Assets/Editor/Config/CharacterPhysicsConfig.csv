@@ -1,2 +1,2 @@
-characterType,gravity,groundGravity,rotationFactorPerFrame,maxJumpHeight,maxJumpTime
-Knight, -9.8,-2, 15, 2.0, 0.6
+﻿角色类型,重力,地面重力,每帧旋转速度,最大跳跃高度,最大跳跃时间
+Knight, -9.8,-3, 15, 2.0, 0.6

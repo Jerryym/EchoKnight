@@ -8,7 +8,6 @@ namespace Echo.Editor
 {
 	public class Controller_PTGTool : IDisposable
 	{
-		private readonly RPGEditorToolWindow activeWindow = RPGEditorToolWindow.ActiveWindow;
 		private View_PTGTool m_view = null;
 		
 		private TerrainSetting m_terrainSetting = null;
@@ -73,13 +72,13 @@ namespace Echo.Editor
 				EditorUtility.SetDirty(m_terrainSetting);
 				AssetDatabase.SaveAssets();
 
-				ShowTip($"更新{m_terrainSetting.name}配置成功!");
+				RPGEditorToolWindow.ShowTip($"更新{m_terrainSetting.name}配置成功!");
 			}
 			else//保存配置
 			{
 				if (string.IsNullOrEmpty(m_view.ConfigSavePath))
 				{
-					ShowTip("地形配置文件路径为空!", StatusBar.TipLevel.Warning);
+					RPGEditorToolWindow.ShowTip("地形配置文件路径为空!", StatusBar.TipLevel.Warning);
 					return;
 				}
 				string path = $"{m_view.ConfigSavePath}/{param.terrainName}.asset";
@@ -89,7 +88,7 @@ namespace Echo.Editor
 				AssetDatabase.SaveAssets();
 				AssetDatabase.Refresh();
 
-				ShowTip($"保存{m_terrainSetting.name}配置成功!");
+				RPGEditorToolWindow.ShowTip($"保存{m_terrainSetting.name}配置成功!");
 			}
 
 			//保存界面数据
@@ -156,7 +155,7 @@ namespace Echo.Editor
 			
 			if (string.IsNullOrEmpty(m_view.TerrainSavePath))
 			{
-				ShowTip("地形输出路径为空!", StatusBar.TipLevel.Warning);
+				RPGEditorToolWindow.ShowTip("地形输出路径为空!", StatusBar.TipLevel.Warning);
 				return;
 			}
 
@@ -181,7 +180,7 @@ namespace Echo.Editor
 				PrefabUtility.SaveAsPrefabAsset(TerrainGO, prefabPath);
 				AssetDatabase.SaveAssets();
 				AssetDatabase.Refresh();
-				ShowTip($"保存{TerrainGO.name}成功!");
+				RPGEditorToolWindow.ShowTip($"保存{TerrainGO.name}成功!");
 
 				Undo.DestroyObjectImmediate(TerrainGO);
 				
@@ -221,14 +220,6 @@ namespace Echo.Editor
 			//LOD
 			m_terrainSetting.enableLOD = param.enableLOD;
 			m_terrainSetting.lodLevel = param.lodLevel + 1;
-		}
-
-		/// <summary>
-		/// 显示提示
-		/// </summary>
-		private void ShowTip(string msg, StatusBar.TipLevel level = StatusBar.TipLevel.Info)
-		{
-			activeWindow.SetStatusBarText(msg, level);
 		}
 
 		private void CleanInvalidPreview()
