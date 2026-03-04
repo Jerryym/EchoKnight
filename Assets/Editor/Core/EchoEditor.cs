@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Echo.Editor
 {
 	public enum TerrainType
@@ -9,14 +11,22 @@ namespace Echo.Editor
 	}
 
 	/// <summary>
-	/// 命令信息
+	/// 命令组
 	/// </summary>
-	public class CommandInfo
+	public class CommandGroup
 	{
 		/// <summary>
 		/// 命令组名
 		/// </summary>
-		public string group;
+		public string name;
+		public List<CommandInfo> commands = new List<CommandInfo>();
+	}
+
+	/// <summary>
+	/// 命令信息
+	/// </summary>
+	public class CommandInfo
+	{
 		/// <summary>
 		/// 命令ID
 		/// </summary>

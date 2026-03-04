@@ -42,7 +42,7 @@ namespace Echo.Editor
 		/// <summary>
 		/// 命令列表控件
 		/// </summary>
-		private ListView m_commandListView = null;
+		private TreeView m_commandTree = null;
 		#endregion
 
 		/// <summary>
@@ -52,7 +52,19 @@ namespace Echo.Editor
 		/// <summary>
 		/// 命令列表
 		/// </summary>
-		private List<CommandInfo> m_commandList;
+		private List<CommandGroup> m_commandGrouops;
+		/// <summary>
+		/// 命令数节点
+		/// </summary>
+		private List<TreeNode> m_treeNodes = new List<TreeNode>();
+
+		public class TreeNode
+		{
+			public string label;
+			public bool isGroup;
+			public CommandInfo command;
+			public List<TreeNode> children = new List<TreeNode>();
+		}
 
 		[MenuItem("Tools/RPG Editor Tool")]
 		public static void ShowWindow()
@@ -67,7 +79,8 @@ namespace Echo.Editor
 			//Scene View
 			m_sceneView = SceneView.lastActiveSceneView;
 			//加载命令XML
-			m_commandList = EditorDataLoader.LoadCommandXML("Assets/Editor/Config/Command.xml");
+			m_commandGrouops = EditorDataLoader.LoadCommandXML("Assets/Editor/Config/Command.xml");
+			BuildTreeNodes();
 
 			//初始化布局
 			InitLayout();
@@ -169,31 +182,87 @@ namespace Echo.Editor
 		/// </summary>
 		private void InitToolBox()
 		{
-			//创建列表控件
-			m_commandListView = new ListView();
-			m_commandListView.style.flexGrow = 1;
-			m_commandListView.itemsSource = m_commandList;
-			m_commandListView.makeItem = MakeItem;
-			m_commandListView.bindItem = BindItem;
-			m_commandListView.selectionType = SelectionType.Single;//单选
-			m_commandListView.selectionChanged += OnListSelectionChange;
+			//创建树控件
+			m_commandTree = new TreeView();
+			m_commandTree.style.flexGrow = 1;
+			m_commandTree.SetRootItems(BuildTreeData());
 
-			m_toolBox.SetContent(m_commandListView);
+			m_commandTree.makeItem = MakeItem;
+			m_commandTree.bindItem = BindItem;
+
+			m_commandTree.selectionType = SelectionType.Single;//单选
+			m_commandTree.selectionChanged += OnNodeSelectionChange;
+
+			m_toolBox.SetContent(m_commandTree);
 		}
 
 		private VisualElement MakeItem()
 		{
-			Label cmdLabel = new Label();
-			cmdLabel.style.fontSize = 12;
-			cmdLabel.style.unityTextAlign = TextAnchor.MiddleLeft;
+			Label label = new Label();
+			label.style.fontSize = 12;
+			label.style.unityTextAlign = TextAnchor.MiddleLeft;
 
-			return cmdLabel;
+			return label;
 		}
 
 		private void BindItem(VisualElement element, int index)
 		{
 			Label label = element as Label;
-			label.text = m_commandList[index].name;
+			var item = m_commandTree.GetItemDataForIndex<object>(index);
+			if (item is string groupName)
+			{
+				label.text = groupName;
+				label.style.unityFontStyleAndWeight = FontStyle.Bold;
+				label.style.fontSize = 13;
+			}
+			else if (item is CommandInfo cmd)
+			{
+				label.text = cmd.name;
+				label.style.unityFontStyleAndWeight = FontStyle.Normal;
+				label.style.fontSize = 12;
+			}
+		}
+
+		private void BuildTreeNodes()
+		{
+			m_treeNodes.Clear();
+			foreach (var group in m_commandGrouops)
+			{
+				var groupNode = new TreeNode
+				{
+					label = group.name,
+					isGroup = true
+				};
+
+				foreach (var cmd in group.commands)
+				{
+					var cmdNode = new TreeNode
+					{
+						label = cmd.name,
+						isGroup = false,
+						command = cmd
+					};
+					groupNode.children.Add(cmdNode);
+				}
+				m_treeNodes.Add(groupNode);
+			}
+		}
+
+		private List<TreeViewItemData<object>> BuildTreeData()
+		{
+			var result = new List<TreeViewItemData<object>>();
+			int idCounter = 0;
+
+			foreach (var group in m_commandGrouops)
+			{
+				var treeItem = new List<TreeViewItemData<object>>();
+				foreach (var cmd in group.commands)
+				{
+					treeItem.Add(new TreeViewItemData<object>(idCounter++,cmd));
+				}
+				result.Add(new TreeViewItemData<object>(idCounter++, group.name, treeItem));
+			}
+			return result;
 		}
 
 		private void SetStatusBarText(string text, StatusBar.TipLevel level)
@@ -201,12 +270,8 @@ namespace Echo.Editor
 			m_statusBar.SetText(text, level);
 		}
 
-		#region setter & getter
-
-		#endregion
-
 		#region Event Funcs
-		private void OnListSelectionChange(IEnumerable<object> selectedItems)
+		private void OnNodeSelectionChange(IEnumerable<object> selectedItems)
 		{
 			foreach (var item in selectedItems)
 			{
@@ -219,7 +284,7 @@ namespace Echo.Editor
 			}
 			
 			//取消当前选中
-			m_commandListView.ClearSelection();
+			m_commandTree.ClearSelection();
 		}
 		#endregion
 	}
