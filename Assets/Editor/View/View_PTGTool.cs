@@ -96,7 +96,7 @@ namespace Echo.Editor
 		/// 获取界面数据
 		/// </summary>
 		/// <returns></returns>
-		public Model_PTGTool GetParams()
+		public Model_PTGTool GetData()
 		{
 			return new Model_PTGTool
 			{
@@ -134,6 +134,7 @@ namespace Echo.Editor
 			//地形配置文件
 			m_terrainCfgField = new ObjectField("地形配置文件");
 			m_terrainCfgField.objectType = typeof(TerrainSetting);
+			m_terrainCfgField.RegisterCallback<ChangeEvent<UnityEngine.Object>>(OnTerrainSOChanged);
 			m_scrollView.Add(m_terrainCfgField);
 
 			//配置文件保存路径
@@ -330,6 +331,38 @@ namespace Echo.Editor
 				default:
 					break;
 			}
+		}
+
+		private void OnTerrainSOChanged(ChangeEvent<UnityEngine.Object> evt)
+		{
+			var terrainSO = evt.newValue as TerrainSetting;
+			if (terrainSO == null)
+				return;
+
+			UpdateData(terrainSO);
+		}
+
+		private void UpdateData(TerrainSetting terrainSO)
+		{
+			//地形尺寸
+			m_terrainWidthField.value = terrainSO.terrainWidth;
+			m_terrainLengthField.value = terrainSO.terrainLength;
+			m_chunkSizeField.value = terrainSO.chunkSize;
+
+			//高度设置
+			m_minHeightField.value = terrainSO.minHeight;
+			m_maxHeightField.value = terrainSO.maxHeight;
+			m_heightCurveField.value = terrainSO.heightCurve;
+
+			//噪声参数
+			m_noiseScaleFied.value = terrainSO.noiseScale;
+			m_octavesField.value = terrainSO.octaves;
+			m_persistanceSilder.value = terrainSO.persistence;
+			m_lacunaritySilder.value = terrainSO.lacunarity;
+
+			//LOD
+			m_toggleLOD.value = terrainSO.enableLOD;
+			m_lodLevelField.index = terrainSO.lodLevel - 1;
 		}
 	}
 }

@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using Unity.VisualScripting.FullSerializer;
 using UnityEditor;
 using UnityEngine;
 
@@ -36,7 +35,11 @@ namespace Echo.Editor
 			m_view.OnGenerateClicked += GenerateSO;
 			m_view.OnUpdateClicked += UpdateCSVFile;
 
-			UpdateTable();
+			int index = CSVToSOSettings.instance.viewData.configIndex;
+			TextAsset csvAsset = CSVToSOSettings.instance.viewData.csvfileAsset;
+			InitTable(m_view.SOCofigTypes[index]);
+			if (csvAsset != null)
+				ReadCSVFile(csvAsset);
 		}
 
 		public void Dispose()
@@ -52,12 +55,6 @@ namespace Echo.Editor
 			m_view.OnUpdateClicked -= UpdateCSVFile;
 			
 			m_isDisposed = true;
-		}
-
-		private void UpdateTable()
-		{
-			int index = CSVToSOSettings.instance.viewData.configIndex;
-			InitTable(m_view.SOCofigTypes[index]);
 		}
 
 		private void InitTable(Type configType)
@@ -114,7 +111,12 @@ namespace Echo.Editor
 				if (configSO == null)
 				{
 					configSO = ScriptableObject.CreateInstance<CharacterPhysicsConfigSO>();
+					Undo.RegisterCreatedObjectUndo(configSO, "Create SO");
 					AssetDatabase.CreateAsset(configSO, assetPath);
+				}
+				else
+				{
+					Undo.RecordObject(configSO, "Modify SO");
 				}
 
 				//赋值

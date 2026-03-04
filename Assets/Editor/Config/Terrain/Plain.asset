@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 077b3f63801517343abef71692fed54a, type: 3}
   m_Name: Plain
   m_EditorClassIdentifier: 
+  material: {fileID: 0}
   terrainWidth: 256
   terrainLength: 256
   chunkSize: 32
@@ -72,3 +73,5 @@ MonoBehaviour:
   octaves: 2
   persistence: 0.4
   lacunarity: 1.8
+  enableLOD: 1
+  lodLevel: 1

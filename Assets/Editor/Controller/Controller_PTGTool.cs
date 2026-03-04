@@ -62,7 +62,7 @@ namespace Echo.Editor
 		/// </summary>
 		private void UpdateSetting()
 		{
-			var param = m_view.GetParams();
+			var param = m_view.GetData();
 			if (param.terrainSetting != null)//更新配置
 			{
 				m_terrainSetting = param.terrainSetting;
@@ -114,7 +114,7 @@ namespace Echo.Editor
 				m_terrainGOList.Clear();
 			}
 
-			var param = m_view.GetParams();
+			var param = m_view.GetData();
 			CreateSettingData(param);
 			if (!m_terrainSetting.enableLOD)
 			{

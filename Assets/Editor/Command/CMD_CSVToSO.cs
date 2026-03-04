@@ -18,6 +18,15 @@ namespace Echo.Editor.Command
 
 		public void Undo()
 		{
+			var activeWindow = RPGEditorToolWindow.ActiveWindow;
+			if (activeWindow == null)
+				return;
+
+			m_controller?.Dispose();
+			activeWindow.RemoveElement();
+
+			m_controller = null;
+			m_view = null;
 		}
 	}
 }

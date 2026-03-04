@@ -69,7 +69,7 @@ namespace Echo.Editor
 		/// <summary>
 		/// LOD等级
 		/// </summary>
-		public int lodLevel;
+		public int lodLevel = 1;
 		#endregion
 	}
 }
