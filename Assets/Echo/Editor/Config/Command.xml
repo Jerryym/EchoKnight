@@ -1,0 +1,14 @@
+<ToolBox>
+	<Group name="绘制工具">
+		<Command id="DrawPolyLine" name="绘制多段线"/>
+	</Group>
+	<Group name="场景编辑">
+		<Command id="GenerateTerrain" name="地形生成"/>
+		<Command id="LinePlacement" name="沿线布设"/>
+		<Command id="AreaPlacement" name="区域布设"/>
+		<Command id="HeightColorPlacement" name="高度/颜色布设"/>
+	</Group>
+	<Group name="配置数据">
+		<Command id="CSVToSO" name="CSV转ScriptableObject"/>
+	</Group>
+</ToolBox>
