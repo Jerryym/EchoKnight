@@ -59,7 +59,7 @@ namespace Echo.Editor
 		public View_PTGTool()
 		{
 			//加载uss
-			StyleSheet uss_GroupBox = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Editor/View/Styles/GroupBox.uss");
+			StyleSheet uss_GroupBox = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Echo/Editor/View/Styles/GroupBox.uss");
 			this.styleSheets.Add(uss_GroupBox);
 			this.style.fontSize = 12;
 
@@ -101,6 +101,8 @@ namespace Echo.Editor
 			return new Model_PTGTool
 			{
 				terrainSetting = m_terrainCfgField.value as TerrainSetting,
+				configSavePath = m_configSavePath.Path,
+				terrainSavePath = m_terrainPath.Path,
 
 				terrainName = m_terrainNameField.value,
 				terrainType = (TerrainType)m_terrainTypeField.value,
@@ -344,6 +346,9 @@ namespace Echo.Editor
 
 		private void UpdateData(TerrainSetting terrainSO)
 		{
+			m_terrainNameField.value = terrainSO.name;
+			m_terrainMatField.value = terrainSO.material;
+
 			//地形尺寸
 			m_terrainWidthField.value = terrainSO.terrainWidth;
 			m_terrainLengthField.value = terrainSO.terrainLength;

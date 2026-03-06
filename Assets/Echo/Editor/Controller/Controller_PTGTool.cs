@@ -159,34 +159,38 @@ namespace Echo.Editor
 				return;
 			}
 
+			bool enableLOD = m_terrainSetting.enableLOD;
+			List<GameObject> terrainGOList = new List<GameObject>();
 			foreach (var item in m_terrainGOList)
 			{
+				if (!item)
+					continue;
+
 				var TerrainGO = Utils.TerrainGenerator.CombineChunkMeshes(item, m_terrainSetting.material);
 				Undo.RegisterCreatedObjectUndo(TerrainGO, "Create Prefab");
 
-				//保存mesh
-				string meshName = $"{TerrainGO.name}_Mesh";
-				var mesh = UnityEngine.Object.Instantiate(TerrainGO.GetComponent<MeshFilter>().sharedMesh);
-				mesh.name = meshName;
+				terrainGOList.Add(TerrainGO);
+			}
+			if (terrainGOList.Count == 0)
+				return;
 
-				string meshPath = $"{m_view.TerrainSavePath}/{meshName}.asset";
-				meshPath = AssetDatabase.GenerateUniqueAssetPath(meshPath);
-				TerrainGO.GetComponent<MeshFilter>().sharedMesh = mesh;
-				AssetDatabase.CreateAsset(mesh, meshPath);
+			//保存Mesh
+			SaveMesh(terrainGOList);
 
-				//保存prefab
-				string prefabPath = $"{m_view.TerrainSavePath}/{TerrainGO.name}.prefab";
-				prefabPath = AssetDatabase.GenerateUniqueAssetPath(prefabPath);
-				PrefabUtility.SaveAsPrefabAsset(TerrainGO, prefabPath);
-				AssetDatabase.SaveAssets();
-				AssetDatabase.Refresh();
-				RPGEditorToolWindow.ShowTip($"保存{TerrainGO.name}成功!");
+			//创建LODGroup
+			GameObject terrainGO = enableLOD ? CreateLODGroup(terrainGOList) : terrainGOList[0];
+			terrainGO.name = m_terrainSetting.terrainName;
 
-				Undo.DestroyObjectImmediate(TerrainGO);
-				
-				//加载prefab
-				GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
-				PrefabUtility.InstantiatePrefab(prefab);
+			//保存prefab
+			SavePrefab(terrainGO);
+
+			//删除
+			foreach (var terrain in terrainGOList)
+			{
+				if (terrain)
+				{
+					Undo.DestroyObjectImmediate(terrain);
+				}
 			}
 
 			//删除预览
@@ -199,8 +203,75 @@ namespace Echo.Editor
 			}
 		}
 
+		/// <summary>
+		/// 保存mesh
+		/// </summary>
+		private void SaveMesh(List<GameObject> terrainGOList)
+		{
+			foreach (var terrainGO in terrainGOList)
+			{
+				var meshFilter = terrainGO.GetComponent<MeshFilter>();
+				if (!meshFilter)
+					continue;
+
+				string meshName = $"{terrainGO.name}_Mesh";
+				var mesh = UnityEngine.Object.Instantiate(meshFilter.sharedMesh);
+				mesh.name = meshName;
+
+				string meshPath = $"{m_view.TerrainSavePath}/{meshName}.asset";
+				meshPath = AssetDatabase.GenerateUniqueAssetPath(meshPath);
+				terrainGO.GetComponent<MeshFilter>().sharedMesh = mesh;
+				AssetDatabase.CreateAsset(mesh, meshPath);
+
+				RPGEditorToolWindow.ShowTip($"保存{terrainGO.name}Mesh成功!");
+			}
+		}
+
+		/// <summary>
+		/// 创建LODGroup
+		/// </summary>
+		private GameObject CreateLODGroup(List<GameObject> terrainGOList)
+		{
+			GameObject terrainGO = new GameObject();
+			var lodPercent = GetLODPercents(m_terrainSetting.lodLevel);
+
+			//添加LODGroup
+			var lodGroup = terrainGO.AddComponent<LODGroup>();
+			List<LOD> lods = new List<LOD>();
+			for (int i = 0; i < terrainGOList.Count; i++)
+			{
+				var go = terrainGOList[i];
+				go.transform.SetParent(terrainGO.transform);
+
+				var renderer = go.GetComponent<MeshRenderer>();
+				lods.Add(new LOD(lodPercent[i], new Renderer[] { renderer }));
+			}
+			lodGroup.SetLODs(lods.ToArray());
+			lodGroup.RecalculateBounds();
+
+			return terrainGO;
+		}
+
+		private void SavePrefab(GameObject terrainGO)
+		{
+			//保存prefab
+			string prefabPath = $"{m_view.TerrainSavePath}/{terrainGO.name}.prefab";
+			prefabPath = AssetDatabase.GenerateUniqueAssetPath(prefabPath);
+			PrefabUtility.SaveAsPrefabAsset(terrainGO, prefabPath);
+			AssetDatabase.SaveAssets();
+			AssetDatabase.Refresh();
+			RPGEditorToolWindow.ShowTip($"保存{terrainGO.name}成功!");
+
+			Undo.DestroyObjectImmediate(terrainGO);
+
+			//加载prefab
+			GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+			PrefabUtility.InstantiatePrefab(prefab);
+		}
+
 		private void CreateSettingData(Model_PTGTool param)
 		{
+			m_terrainSetting.terrainName = param.terrainName;
 			m_terrainSetting.material = param.terrainMaterial;
 
 			//地形参数
@@ -234,6 +305,22 @@ namespace Echo.Editor
 					m_terrainGOList.RemoveAt(i);
 				}
 			}
+		}
+
+		private float[] GetLODPercents(int lodLevel)
+		{
+			float start = 0.6f;
+			float factor = 0.5f;
+
+			float[] result = new float[lodLevel];
+			float current = start;
+			for (int i = 0; i < lodLevel; i++)
+			{
+				result[i] = current;
+				current *= factor;
+			}
+
+			return result;
 		}
 	}
 }

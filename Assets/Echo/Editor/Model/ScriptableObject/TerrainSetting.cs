@@ -5,6 +5,7 @@ namespace Echo.Editor
 	[CreateAssetMenu(menuName = "PTG/Terrain Setting")]
 	public class TerrainSetting : ScriptableObject
 	{
+		public string terrainName = "Terrain";
 		public Material material;
 
 		#region 地形尺寸

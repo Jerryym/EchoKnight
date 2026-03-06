@@ -131,7 +131,7 @@ namespace Echo.Editor.Utils
 
 				CombineInstance combineInstance = new CombineInstance();
 				combineInstance.mesh = meshFilter.sharedMesh;
-				combineInstance.transform = meshFilter.transform.localToWorldMatrix;
+				combineInstance.transform = meshFilter.transform.localToWorldMatrix * terrainGO.transform.worldToLocalMatrix;
 				combineInstances.Add(combineInstance);
 			}
 
@@ -153,6 +153,7 @@ namespace Echo.Editor.Utils
 			newMeshRenderer.sharedMaterial = terrainMat;
 			meshCollider.sharedMesh = combinedMesh;
 
+			newTerrainGO.transform.position = Vector3.zero;
 			return newTerrainGO;
 		}
 
