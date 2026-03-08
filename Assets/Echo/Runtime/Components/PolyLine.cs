@@ -7,7 +7,7 @@ namespace Echo.Component
 	/// <summary>
 	/// 多段线组件
 	/// </summary>
-	public class PolyLine : MonoBehaviour
+	public class PolyLine : MonoBehaviour, ISnapPoint, ISelection
 	{
 		/// <summary>
 		/// 多段线的所有顶点坐标列表
@@ -17,14 +17,25 @@ namespace Echo.Component
 		public IReadOnlyList<Vector3> Points => m_points;
 
 		/// <summary>
+		/// 线宽
+		/// </summary>
+		[SerializeField]
+		private float m_width = 1.5f;
+		public float Width
+		{
+			get { return m_width; }
+			set { m_width = value; }
+		}
+
+		/// <summary>
 		/// 颜色
 		/// </summary>
 		[SerializeField]
 		private Color m_color = Color.white;
 		public Color Color
 		{
-			get => m_color;
-			set => m_color = value;
+			get { return m_color; }
+			set { m_color = value; }
 		}
 
 		/// <summary>
@@ -34,14 +45,13 @@ namespace Echo.Component
 		private bool m_isClosed = false;
 		public bool Closed
 		{
-			get => m_isClosed;
-			set => m_isClosed = value;
+			get { return m_isClosed; }
+			set { m_isClosed = value; }
 		}
 
 		/// <summary>
 		/// 添加点
 		/// </summary>
-		/// <param name="point"></param>
 		public void AddPoint(Vector3 point)
 		{
 			m_points.Add(point);
@@ -50,21 +60,12 @@ namespace Echo.Component
 		/// <summary>
 		/// 设置指定索引处的顶点坐标。
 		/// </summary>
-		/// <param name="index"></param>
-		/// <param name="point"></param>
 		public void SetPointAt(int index, Vector3 point)
 		{
-			if (index < 0 || index > m_points.Count)
+			if (index < 0 || index >= m_points.Count)
 				return;
 
 			m_points[index] = point;
-			if (m_isClosed)
-			{
-				if (index == 0)
-					m_points[m_points.Count - 1] = point;
-				if (index == m_points.Count - 1)
-					m_points[0] = point;
-			}
 		}
 
 		/// <summary>
@@ -83,7 +84,7 @@ namespace Echo.Component
 		/// </summary>
 		public void RemovePoint(int index)
 		{
-			if (index < 0 || index > m_points.Count)
+			if (index < 0 || index >= m_points.Count)
 				return;
 
 			m_points.RemoveAt(index);
@@ -106,12 +107,37 @@ namespace Echo.Component
 		{
 			if (m_points.Count < 2)
 			{
-				m_isClosed = false;
 				Debug.LogWarning("PolyLine: 点数量不足，无法实现闭合。");
+				m_isClosed = false;
 				return;
 			}
 
 			m_isClosed = isClosed;
+		}
+
+		public void GetSnapPoints(List<Vector3> points)
+		{
+			//模型坐标转世界坐标
+			foreach (var pt in m_points)
+			{
+				points.Add(transform.TransformPoint(pt));
+			}
+		}
+
+		public bool Raycast(Ray ray, out float distance)
+		{
+			distance = float.MaxValue;
+			if (m_points == null || m_points.Count < 2)
+				return false;
+
+			//TODO: 探测算法
+
+			return true;
+		}
+
+		public Object GetObject()
+		{
+			return this.gameObject;
 		}
 
 		private void OnDrawGizmos()
@@ -119,12 +145,10 @@ namespace Echo.Component
 			DrawPolyLine();
 		}
 
-		private void OnDrawGizmosSelected()
-		{
-			DrawPolyLine(true);
-		}
-
-		private void DrawPolyLine(bool isSelect = false)
+		/// <summary>
+		/// 绘制多段线
+		/// </summary>
+		private void DrawPolyLine()
 		{
 			if (m_points == null || m_points.Count < 2)
 				return;
@@ -133,16 +157,19 @@ namespace Echo.Component
 			Vector3[] worldPoints = new Vector3[m_points.Count];
 			for (int i = 0; i < m_points.Count; i++)
 			{
-				worldPoints[i] = transform.position + m_points[i];
+				worldPoints[i] = transform.TransformPoint(m_points[i]);
 			}
 
 			//绘制多段线
-			float width = isSelect ? 2f : 1f;
-			Handles.color = isSelect ? Color.cyan : m_color;
-			Handles.DrawAAPolyLine(width, worldPoints);
+			Handles.color = m_color;
+			Handles.DrawAAPolyLine(m_width, worldPoints);
 
-			var lineRender = this.gameObject.GetComponent<LineRenderer>();
-			lineRender.material = new Material(Shader.Find("Unlit/Color")) { color = Handles.color };
+			if (m_isClosed)
+			{
+				Vector3 pt1 = worldPoints[worldPoints.Length - 1];
+				Vector3 pt2 = worldPoints[0];
+				Handles.DrawAAPolyLine(m_width, pt1, pt2);
+			}
 		}
 	}
 }

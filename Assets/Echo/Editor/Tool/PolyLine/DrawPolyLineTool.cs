@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Echo.Editor.Utils
+namespace Echo.Editor.Tool
 {
 	/// <summary>
 	/// 多段线绘制工具
@@ -134,36 +134,29 @@ namespace Echo.Editor.Utils
 		/// </summary>
 		private void Finish()
 		{
-			Debug.Log("DrawPolyLineTool: Finish");
 			if (m_points.Count < 2)
 			{
 				ResetTool();
 				return;
 			}
 
-			if (!EditorTool.TagExist("Polyline"))
-				EditorTool.AddTag("Polyline");
+			if (!Utils.EditorTool.TagExist("Polyline"))
+				Utils.EditorTool.AddTag("Polyline");
 
 			GameObject polyLineGO = new GameObject("多段线");
 			polyLineGO.tag = "Polyline";
 			Undo.RegisterCreatedObjectUndo(polyLineGO, "Draw PolyLine");
 
-			Vector3 center = GetPolyLineCenterPt();
-			polyLineGO.transform.position = center;
+			Vector3 startPt = m_points[0];
+			polyLineGO.transform.position = startPt;
 
 			//创建多段线组件
 			var polyline = polyLineGO.AddComponent<PolyLine>();
+			//转为局部坐标
 			foreach (var pt in m_points)
 			{
-				polyline.AddPoint(pt - center);
+				polyline.AddPoint(pt - startPt);
 			}
-
-			//创建LineRender组件
-			var lineRender = polyLineGO.AddComponent<LineRenderer>();
-			lineRender.positionCount = m_points.Count;
-			lineRender.SetPositions(m_points.ToArray());
-			lineRender.widthCurve = AnimationCurve.Constant(0, 1f, 0.025f);
-			lineRender.material = new Material(Shader.Find("Unlit/Color")) { color = polyline.Color };
 
 			DeActivate();
 		}
@@ -173,7 +166,6 @@ namespace Echo.Editor.Utils
 		/// </summary>
 		private void Cancel()
 		{
-			Debug.Log("DrawPolyLineTool: Cancel");
 			DeActivate();
 		}
 
@@ -184,16 +176,6 @@ namespace Echo.Editor.Utils
 		{
 			m_points.Clear();
 			m_currentState = DrawState.Idle;
-		}
-
-		private Vector3 GetPolyLineCenterPt()
-		{
-			Vector3 sum = Vector3.zero;
-			foreach (var pt in m_points)
-			{
-				sum += pt;
-			}
-			return sum / m_points.Count;
 		}
 	}
 }
