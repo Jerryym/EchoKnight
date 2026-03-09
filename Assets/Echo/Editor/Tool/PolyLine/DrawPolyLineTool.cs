@@ -1,3 +1,4 @@
+using BehaviorDesigner.Runtime.Formations.Tasks;
 using Echo.Component;
 using System.Collections.Generic;
 using UnityEditor;
@@ -157,6 +158,8 @@ namespace Echo.Editor.Tool
 			{
 				polyline.AddPoint(pt - startPt);
 			}
+			//注册到选择集中
+			SelectionRegistry.Register(polyLineGO, polyline);
 
 			DeActivate();
 		}

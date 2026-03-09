@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -124,20 +125,27 @@ namespace Echo.Component
 			}
 		}
 
-		public bool Raycast(Ray ray, out float distance)
+		public float HitObject(Vector2 hitPt)
 		{
-			distance = float.MaxValue;
 			if (m_points == null || m_points.Count < 2)
-				return false;
+				return float.MaxValue;
 
-			//TODO: 探测算法
-
-			return true;
+			List<Vector3> points = new List<Vector3>();
+			foreach (var pt in m_points)
+			{
+				points.Add(transform.TransformPoint(pt));
+			}
+			return HandleUtility.DistanceToPolyLine(points.ToArray());
 		}
 
-		public Object GetObject()
+		public GameObject GetGameObject()
 		{
 			return this.gameObject;
+		}
+
+		private void OnDestroy()
+		{
+			SelectionRegistry.Unregister(this.gameObject);
 		}
 
 		private void OnDrawGizmos()

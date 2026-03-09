@@ -1,11 +1,15 @@
 using Echo.Component;
+using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.Sprites;
 using UnityEngine;
 
 namespace Echo.Editor
 {
 	public static class SelectionManager
 	{
+		private const float PICK_THRESHOLD = 10f;
+
 		[InitializeOnLoadMethod]
 		private static void Init()
 		{
@@ -19,15 +23,35 @@ namespace Echo.Editor
 			if (e.type != EventType.MouseDown || e.button != 0)
 				return;
 
-			Vector2 mousePos = Event.current.mousePosition;
-			mousePos.y = SceneView.currentDrawingSceneView.camera.pixelHeight - mousePos.y;
-			GameObject pickedGO = PickGameObjectWithComponent<PolyLine>(mousePos);
+			Vector2 mousePos = e.mousePosition;
+			GameObject pickedGO = PickSelectable(mousePos);
 			if (pickedGO != null)
 			{
 				Selection.activeGameObject = pickedGO;
 				e.Use();
-				Debug.Log("选中了 PolyLine: " + pickedGO.name);
 			}
+		}
+
+		private static GameObject PickSelectable(Vector2 mousePos)
+		{
+			var selections = SelectionRegistry.Selections;
+
+			float minDist = float.MaxValue;
+			ISelection selectionGO = null;
+			foreach (var selection in selections)
+			{
+				float dist = selection.sel.HitObject(mousePos);
+				if (dist < minDist)
+				{
+					minDist = dist;
+					selectionGO = selection.sel;
+				}
+			}
+
+			if (selectionGO != null && minDist < PICK_THRESHOLD)
+				return selectionGO.GetGameObject();
+
+			return null;
 		}
 
 		/// <summary>

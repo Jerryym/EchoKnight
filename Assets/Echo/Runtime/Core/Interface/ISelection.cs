@@ -8,13 +8,15 @@ namespace Echo
 	public interface ISelection
 	{
 		/// <summary>
-		/// 射线检测
+		/// 探测对象
 		/// </summary>
-		bool Raycast(Ray ray, out float distance);
+		/// <param name="hitPt">探测点</param>
+		/// <returns></returns>
+		float HitObject(Vector2 hitPt);
 
 		/// <summary>
 		/// 获取选中对象
 		/// </summary>
-		Object GetObject();
+		GameObject GetGameObject();
 	}
 }
