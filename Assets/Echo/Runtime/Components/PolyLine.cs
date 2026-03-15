@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,7 +7,7 @@ namespace Echo.Component
 	/// <summary>
 	/// 多段线组件
 	/// </summary>
-	public class PolyLine : MonoBehaviour, ISnapPoint, ISelection
+	public class PolyLine : MonoBehaviour, ISelection
 	{
 		/// <summary>
 		/// 多段线的所有顶点坐标列表
@@ -116,15 +115,6 @@ namespace Echo.Component
 			m_isClosed = isClosed;
 		}
 
-		public void GetSnapPoints(List<Vector3> points)
-		{
-			//模型坐标转世界坐标
-			foreach (var pt in m_points)
-			{
-				points.Add(transform.TransformPoint(pt));
-			}
-		}
-
 		public float HitObject(Vector2 hitPt)
 		{
 			if (m_points == null || m_points.Count < 2)
@@ -145,7 +135,7 @@ namespace Echo.Component
 
 		private void OnDestroy()
 		{
-			SelectionRegistry.Unregister(this.gameObject);
+			SelectionManager.Unregister(this.gameObject);
 		}
 
 		private void OnDrawGizmos()

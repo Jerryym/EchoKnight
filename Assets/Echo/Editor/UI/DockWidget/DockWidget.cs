@@ -134,8 +134,6 @@ namespace Echo.Editor.UI
 
 		private void OnElementDetach(DetachFromPanelEvent evt)
 		{
-			Debug.Log("DockWidget: OnElementDetach");
-
 			//解绑事件
 			m_floatingBtn.clicked -= OnFloatingButtonClicked;
 			m_closeBtn.clicked -= OnCloseButtonClicked;

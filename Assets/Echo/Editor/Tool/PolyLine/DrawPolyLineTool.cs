@@ -28,6 +28,8 @@ namespace Echo.Editor.Tool
 		/// </summary>
 		private SceneView m_sceneView = null;
 
+		private const string m_tag = "Polyline";
+
 		public DrawPolyLineTool()
 		{
 			m_points = new List<Vector3>();
@@ -137,29 +139,22 @@ namespace Echo.Editor.Tool
 		{
 			if (m_points.Count < 2)
 			{
-				ResetTool();
+				DeActivate();
 				return;
 			}
 
-			if (!Utils.EditorTool.TagExist("Polyline"))
-				Utils.EditorTool.AddTag("Polyline");
+			if (!Utils.EditorTool.TagExist(m_tag))
+				Utils.EditorTool.AddTag(m_tag);
 
 			GameObject polyLineGO = new GameObject("多段线");
-			polyLineGO.tag = "Polyline";
+			polyLineGO.tag = m_tag;
 			Undo.RegisterCreatedObjectUndo(polyLineGO, "Draw PolyLine");
 
-			Vector3 startPt = m_points[0];
-			polyLineGO.transform.position = startPt;
-
+			
 			//创建多段线组件
-			var polyline = polyLineGO.AddComponent<PolyLine>();
-			//转为局部坐标
-			foreach (var pt in m_points)
-			{
-				polyline.AddPoint(pt - startPt);
-			}
+			var polyline = CreatePolyLine(polyLineGO);
 			//注册到选择集中
-			SelectionRegistry.Register(polyLineGO, polyline);
+			SelectionManager.Register(polyLineGO, polyline);
 
 			DeActivate();
 		}
@@ -179,6 +174,32 @@ namespace Echo.Editor.Tool
 		{
 			m_points.Clear();
 			m_currentState = DrawState.Idle;
+		}
+
+		/// <summary>
+		/// 创建多段线组件
+		/// </summary>
+		private PolyLine CreatePolyLine(GameObject polyLineGO)
+		{
+			//创建多段线组件
+			var polyline = polyLineGO.AddComponent<PolyLine>();
+			
+			//转为局部坐标
+			Vector3 startPt = m_points[0];
+			polyLineGO.transform.position = startPt;
+			foreach (var pt in m_points)
+			{
+				polyline.AddPoint(pt - startPt);
+			}
+
+			//判断是否闭合
+			if (Utils.EditorTool.IsPolyLineClosed(m_points))
+			{
+				m_points.RemoveAt(m_points.Count - 1);
+				polyline.SetClosed(true);
+			}
+
+			return polyline;
 		}
 	}
 }

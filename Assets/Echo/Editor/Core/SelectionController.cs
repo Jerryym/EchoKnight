@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Echo.Editor
 {
-	public static class SelectionManager
+	public static class SelectionController
 	{
 		private const float PICK_THRESHOLD = 10f;
 
@@ -34,12 +34,15 @@ namespace Echo.Editor
 
 		private static GameObject PickSelectable(Vector2 mousePos)
 		{
-			var selections = SelectionRegistry.Selections;
+			var selections = SelectionManager.Selections;
 
 			float minDist = float.MaxValue;
 			ISelection selectionGO = null;
 			foreach (var selection in selections)
 			{
+				if (selection.go == null)
+					continue;
+
 				float dist = selection.sel.HitObject(mousePos);
 				if (dist < minDist)
 				{
