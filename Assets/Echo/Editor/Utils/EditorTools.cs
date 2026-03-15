@@ -102,6 +102,56 @@ namespace Echo.Editor.Utils
 			Vector3 lastPt = points[points.Count - 1];
 			return Vector3.Distance(firstPt, lastPt) < 1e-3;
 		}
+
+		/// <summary>
+		/// 根据GUI屏幕坐标检测与世界空间中的交点位置
+		/// </summary>
+		public static bool HitPosition(in Plane plane, Vector2 guiPt, out Vector3 hitPt)
+		{
+			Ray ray = HandleUtility.GUIPointToWorldRay(guiPt);
+			
+			//Step 1: 与场景中对象进行射线探测
+			if (Physics.Raycast(ray, out RaycastHit hit))
+			{
+				hitPt = hit.point;
+				return true;
+			}
+
+			//Step 2: 与目标平面探测
+			if (plane.Raycast(ray, out float distance))
+			{
+				hitPt = ray.GetPoint(distance);
+				return true;
+			}
+
+			hitPt = Vector3.zero;
+			return false;
+		}
+
+		/// <summary>
+		/// 根据世界空间坐标检测与世界空间中的交点位置
+		/// </summary>
+		public static bool HitPosition(in Plane plane, Vector3 worldPt, Vector3 direction, out Vector3 hitPt)
+		{
+			Ray ray = new Ray(worldPt, direction.normalized);
+
+			//Step 1: 与场景中对象进行射线探测
+			if (Physics.Raycast(ray, out RaycastHit hit))
+			{
+				hitPt = hit.point;
+				return true;
+			}
+
+			//Step 2: 与目标平面探测
+			if (plane.Raycast(ray, out float distance))
+			{
+				hitPt = ray.GetPoint(distance);
+				return true;
+			}
+
+			hitPt = Vector3.zero;
+			return false;
+		}
 		#endregion
 	}
 }

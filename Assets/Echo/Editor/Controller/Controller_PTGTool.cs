@@ -221,6 +221,7 @@ namespace Echo.Editor
 				string meshPath = $"{m_view.TerrainSavePath}/{meshName}.asset";
 				meshPath = AssetDatabase.GenerateUniqueAssetPath(meshPath);
 				terrainGO.GetComponent<MeshFilter>().sharedMesh = mesh;
+				terrainGO.GetComponent<MeshCollider>().sharedMesh = mesh;
 				AssetDatabase.CreateAsset(mesh, meshPath);
 
 				RPGEditorToolWindow.ShowTip($"保存{terrainGO.name}Mesh成功!");

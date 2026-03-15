@@ -1,5 +1,6 @@
 using BehaviorDesigner.Runtime.Formations.Tasks;
 using Echo.Component;
+using Echo.Editor.Utils;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -124,11 +125,14 @@ namespace Echo.Editor.Tool
 
 		private void UpdatePreview(Vector2 position)
 		{
-			Ray ray = HandleUtility.GUIPointToWorldRay(position);
 			Plane plane = new Plane(Vector3.up, Vector3.zero);
-			if (plane.Raycast(ray, out float enter))
+			if (EditorTool.HitPosition(plane, position, out Vector3 hitPt))
 			{
-				m_lastPt = ray.GetPoint(enter);
+				m_lastPt = hitPt;
+			}
+			else
+			{
+				m_lastPt = new Vector3(position.x, 0f, position.y);
 			}
 		}
 
