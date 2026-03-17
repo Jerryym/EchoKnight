@@ -7,7 +7,7 @@ namespace Echo.Component
 	/// <summary>
 	/// 多段线组件
 	/// </summary>
-	public class PolyLine : MonoBehaviour, ISelection
+	public class PolyLine : MonoBehaviour, IPickable
 	{
 		/// <summary>
 		/// 多段线的所有顶点坐标列表
@@ -135,7 +135,7 @@ namespace Echo.Component
 
 		private void OnDestroy()
 		{
-			SelectionManager.Unregister(this.gameObject);
+			PickManager.Unregister(this.gameObject);
 		}
 
 		private void OnDrawGizmos()

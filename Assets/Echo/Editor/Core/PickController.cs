@@ -1,12 +1,9 @@
-using Echo.Component;
-using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.Sprites;
 using UnityEngine;
 
 namespace Echo.Editor
 {
-	public static class SelectionController
+	public static class PickController
 	{
 		private const float PICK_THRESHOLD = 10f;
 
@@ -34,10 +31,10 @@ namespace Echo.Editor
 
 		private static GameObject PickSelectable(Vector2 mousePos)
 		{
-			var selections = SelectionManager.Selections;
+			var selections = PickManager.Pickables;
 
 			float minDist = float.MaxValue;
-			ISelection selectionGO = null;
+			IPickable selectionGO = null;
 			foreach (var selection in selections)
 			{
 				if (selection.go == null)
@@ -53,24 +50,6 @@ namespace Echo.Editor
 
 			if (selectionGO != null && minDist < PICK_THRESHOLD)
 				return selectionGO.GetGameObject();
-
-			return null;
-		}
-
-		/// <summary>
-		/// 获取根据鼠标位置选中带指定组件的GameObject
-		/// </summary>
-		/// <typeparam name="T">目标组件类型</typeparam>
-		/// <param name="mousePosition">Event.current.mousePosition</param>
-		/// <returns>被选中的GameObject，如果没有选中返回 null</returns>
-		private static GameObject PickGameObjectWithComponent<T>(Vector2 mousePosition) where T : UnityEngine.Component
-		{
-			GameObject pickedGO = HandleUtility.PickGameObject(mousePosition, false);
-			if (pickedGO == null)
-				return null;
-
-			if (pickedGO.GetComponent<T>() != null)
-				return pickedGO;
 
 			return null;
 		}

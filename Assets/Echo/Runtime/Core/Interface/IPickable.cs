@@ -5,7 +5,7 @@ namespace Echo
 	/// <summary>
 	/// 选中接口类
 	/// </summary>
-	public interface ISelection
+	public interface IPickable
 	{
 		/// <summary>
 		/// 探测对象

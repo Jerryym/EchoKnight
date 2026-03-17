@@ -1,4 +1,3 @@
-using BehaviorDesigner.Runtime.Formations.Tasks;
 using Echo.Component;
 using Echo.Editor.Utils;
 using System.Collections.Generic;
@@ -158,7 +157,7 @@ namespace Echo.Editor.Tool
 			//创建多段线组件
 			var polyline = CreatePolyLine(polyLineGO);
 			//注册到选择集中
-			SelectionManager.Register(polyLineGO, polyline);
+			PickManager.Register(polyLineGO, polyline);
 
 			DeActivate();
 		}

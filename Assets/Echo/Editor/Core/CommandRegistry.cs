@@ -50,6 +50,7 @@ namespace Echo.Editor
 
 			//场景编辑
 			m_commandDic.Add("GenerateTerrain", () => new CMD_GenerateTerrain());
+			m_commandDic.Add("LinePlacement", () => new CMD_LinePlacement());
 
 			//配置数据
 			m_commandDic.Add("CSVToSO", () => new CMD_CSVToSO());
