@@ -9,8 +9,7 @@ namespace Echo.Editor.Command
 	{
 		public void Execute()
 		{
-			DrawPolyLineTool tool = new DrawPolyLineTool();
-			tool.Activate();
+			EditorToolManager.SetTool(new DrawPolyLineTool());
 		}
 
 		public void Undo()

@@ -9,12 +9,12 @@ namespace Echo.Editor.Tool
 	/// <summary>
 	/// 多段线绘制工具
 	/// </summary>
-	public class DrawPolyLineTool
+	public class DrawPolyLineTool : IEditorTool
 	{
 		/// <summary>
 		/// 当前工具状态
 		/// </summary>
-		private DrawState m_currentState = DrawState.Idle;
+		private ToolState m_state = ToolState.Idle;
 
 		/// <summary>
 		/// 多段线点数组
@@ -36,31 +36,28 @@ namespace Echo.Editor.Tool
 			m_sceneView = RPGEditorToolWindow.ActiveWindow.SceneView;
 		}
 
-		public void Activate()
+		void IEditorTool.Activate()
 		{
-			SceneView.duringSceneGui += OnSceneGUI;
-			m_currentState = DrawState.Drawing;
+			m_state = ToolState.Running;
 		}
 
-		public void DeActivate()
+		void IEditorTool.DeActivate()
 		{
-			SceneView.duringSceneGui -= OnSceneGUI;
 			ResetTool();
 		}
 
-		private void OnSceneGUI(SceneView view)
+		void IEditorTool.OnSceneGUI(SceneView sceneView)
 		{
+			if (m_state != ToolState.Running)
+				return;
+
 			Event e = Event.current;
 			HandleInput(e);
 			DrawPreview();
-			m_sceneView.Repaint();
 		}
 
 		private void HandleInput(Event e)
 		{
-			if (m_currentState != DrawState.Drawing)
-				return;
-
 			switch (e.type)
 			{
 				case EventType.MouseDown://鼠标按下
@@ -120,6 +117,8 @@ namespace Echo.Editor.Tool
 
 			//预览线
 			Handles.DrawLine(m_points[m_points.Count - 1], m_lastPt, 1f);
+
+			m_sceneView.Repaint();
 		}
 
 		private void UpdatePreview(Vector2 position)
@@ -140,9 +139,10 @@ namespace Echo.Editor.Tool
 		/// </summary>
 		private void Finish()
 		{
+			m_state = ToolState.Completed;
 			if (m_points.Count < 2)
 			{
-				DeActivate();
+				EditorToolManager.ClearTool();
 				return;
 			}
 
@@ -152,14 +152,13 @@ namespace Echo.Editor.Tool
 			GameObject polyLineGO = new GameObject("多段线");
 			polyLineGO.tag = m_tag;
 			Undo.RegisterCreatedObjectUndo(polyLineGO, "Draw PolyLine");
-
 			
 			//创建多段线组件
 			var polyline = CreatePolyLine(polyLineGO);
 			//注册到选择集中
 			PickManager.Register(polyLineGO, polyline);
 
-			DeActivate();
+			EditorToolManager.ClearTool();
 		}
 
 		/// <summary>
@@ -167,7 +166,8 @@ namespace Echo.Editor.Tool
 		/// </summary>
 		private void Cancel()
 		{
-			DeActivate();
+			m_state = ToolState.Cancelled;
+			EditorToolManager.ClearTool();
 		}
 
 		/// <summary>
@@ -176,7 +176,7 @@ namespace Echo.Editor.Tool
 		private void ResetTool()
 		{
 			m_points.Clear();
-			m_currentState = DrawState.Idle;
+			m_state = ToolState.Idle;
 		}
 
 		/// <summary>

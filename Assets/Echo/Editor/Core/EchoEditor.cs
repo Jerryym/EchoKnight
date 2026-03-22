@@ -11,12 +11,14 @@ namespace Echo.Editor
 	}
 
 	/// <summary>
-	/// 绘制状态
+	/// 工具状态
 	/// </summary>
-	public enum DrawState
+	public enum ToolState
 	{
 		Idle,
-		Drawing
+		Running,
+		Completed,
+		Cancelled
 	}
 
 	/// <summary>

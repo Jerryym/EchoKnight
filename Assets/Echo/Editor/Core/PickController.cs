@@ -7,29 +7,31 @@ namespace Echo.Editor
 	{
 		private const float PICK_THRESHOLD = 10f;
 
-		[InitializeOnLoadMethod]
-		private static void Init()
+		public static GameObject Pick(Vector2 mousePt, bool selPrefabRoot = true)
 		{
-			// 注册全局 SceneView GUI 回调
-			SceneView.duringSceneGui += OnSceneGUI;
-		}
+			GameObject targetGO = null;
 
-		private static void OnSceneGUI(SceneView view)
-		{
-			Event e = Event.current;
-			if (e.type != EventType.MouseDown || e.button != 0)
-				return;
-
-			Vector2 mousePos = e.mousePosition;
-			GameObject pickedGO = PickSelectable(mousePos);
-			if (pickedGO != null)
+			//可拾取对象
+			GameObject pickableGO = PickSelectable(mousePt);
+			if (pickableGO != null)
 			{
-				Selection.activeGameObject = pickedGO;
-				e.Use();
+				targetGO = pickableGO;
 			}
+
+			//默认拾取
+			GameObject unityPickGO = HandleUtility.PickGameObject(mousePt, selPrefabRoot);
+			if (unityPickGO != null)
+			{
+				if (targetGO == null)
+				{
+					targetGO = unityPickGO;
+				}
+			}
+
+			return targetGO;
 		}
 
-		private static GameObject PickSelectable(Vector2 mousePos)
+		private static GameObject PickSelectable(Vector2 mousePt)
 		{
 			var selections = PickManager.Pickables;
 
@@ -40,7 +42,10 @@ namespace Echo.Editor
 				if (selection.go == null)
 					continue;
 
-				float dist = selection.sel.HitObject(mousePos);
+				float dist = selection.sel.HitObject(mousePt);
+				if (dist >= PICK_THRESHOLD)
+					continue;
+
 				if (dist < minDist)
 				{
 					minDist = dist;
@@ -48,10 +53,7 @@ namespace Echo.Editor
 				}
 			}
 
-			if (selectionGO != null && minDist < PICK_THRESHOLD)
-				return selectionGO.GetGameObject();
-
-			return null;
+			return selectionGO?.GetGameObject();
 		}
 	}
 }
