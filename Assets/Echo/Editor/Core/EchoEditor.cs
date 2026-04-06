@@ -21,6 +21,7 @@ namespace Echo.Editor
 		Cancelled
 	}
 
+	#region Command
 	/// <summary>
 	/// 命令组
 	/// </summary>
@@ -47,4 +48,5 @@ namespace Echo.Editor
 		/// </summary>
 		public string name;
 	}
+	#endregion
 }

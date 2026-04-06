@@ -1,6 +1,7 @@
 using Echo.Editor.Tool;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem.XR;
 
 namespace Echo.Editor.Command
 {
@@ -9,17 +10,27 @@ namespace Echo.Editor.Command
 	/// </summary>
 	public class CMD_LinePlacement : ICommand
 	{
+		private View_SceneLayout m_view;
+		private Controller_SceneLayout m_controller;
+
 		public void Execute()
 		{
 			var activeWindow = RPGEditorToolWindow.ActiveWindow;
 			if (activeWindow == null)
 				return;
 
-			List<GameObject> curveGOs = new List<GameObject>();
-			EditorToolManager.SetTool(new SelectionTool("请选择曲线", true, result =>
-			{
-				Debug.Log(result.Count);
-			}));
+			m_controller?.Dispose();
+			activeWindow.RemoveElement();
+
+			m_view = new View_SceneLayout();
+			m_controller = new Controller_SceneLayout(m_view);
+			activeWindow.AddElement(m_view);
+
+			//List<GameObject> curveGOs = new List<GameObject>();
+			//EditorToolManager.SetTool(new SelectionTool("请选择曲线", true, result =>
+			//{
+			//	Debug.Log(result.Count);
+			//}));
 		}
 
 		public void Undo()
@@ -27,6 +38,12 @@ namespace Echo.Editor.Command
 			var activeWindow = RPGEditorToolWindow.ActiveWindow;
 			if (activeWindow == null)
 				return;
+
+			m_controller?.Dispose();
+			activeWindow.RemoveElement();
+
+			m_controller = null;
+			m_view = null;
 		}
 	}
 }
