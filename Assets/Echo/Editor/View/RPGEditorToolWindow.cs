@@ -54,18 +54,6 @@ namespace Echo.Editor
 		/// 命令列表
 		/// </summary>
 		private List<CommandGroup> m_commandGrouops;
-		/// <summary>
-		/// 命令数节点
-		/// </summary>
-		private List<TreeNode> m_treeNodes = new List<TreeNode>();
-
-		public class TreeNode
-		{
-			public string label;
-			public bool isGroup;
-			public CommandInfo command;
-			public List<TreeNode> children = new List<TreeNode>();
-		}
 
 		[MenuItem("Tools/RPG Editor Tool")]
 		public static void ShowWindow()
@@ -81,7 +69,6 @@ namespace Echo.Editor
 			m_sceneView = SceneView.lastActiveSceneView;
 			//加载命令XML
 			m_commandGrouops = EditorDataLoader.LoadCommandXML("Assets/Echo/Editor/Config/Command.xml");
-			BuildTreeNodes();
 
 			//初始化布局
 			InitLayout();
@@ -109,7 +96,7 @@ namespace Echo.Editor
 
 		public void AddElement(VisualElement element)
 		{
-			m_rightPanel.Clear();
+			RemoveElement();
 
 			element.style.flexGrow = 1;
 			m_rightPanel.Add(element);
@@ -221,31 +208,6 @@ namespace Echo.Editor
 				label.text = cmd.name;
 				label.style.unityFontStyleAndWeight = FontStyle.Normal;
 				label.style.fontSize = 12;
-			}
-		}
-
-		private void BuildTreeNodes()
-		{
-			m_treeNodes.Clear();
-			foreach (var group in m_commandGrouops)
-			{
-				var groupNode = new TreeNode
-				{
-					label = group.name,
-					isGroup = true
-				};
-
-				foreach (var cmd in group.commands)
-				{
-					var cmdNode = new TreeNode
-					{
-						label = cmd.name,
-						isGroup = false,
-						command = cmd
-					};
-					groupNode.children.Add(cmdNode);
-				}
-				m_treeNodes.Add(groupNode);
 			}
 		}
 

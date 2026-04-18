@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -13,6 +15,8 @@ namespace Echo.Editor
 	{
 		#region 组件
 		private ScrollView m_scrollView = null;
+		private GroupBox m_paramGroupBox = null;
+		private VisualElement m_currentElement = null;
 		#endregion
 
 		#region 事件
@@ -26,12 +30,23 @@ namespace Echo.Editor
 
 		public View_SceneLayout()
 		{
+			//加载uss
+			StyleSheet uss_GroupBox = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Echo/Editor/View/Styles/GroupBox.uss");
+			this.styleSheets.Add(uss_GroupBox);
+
 			m_toolBtnMap = new Dictionary<ToolbarButton, PlacementMode>();
 			InitWidget();
 		}
 
-		public void InitData()
-		{ 
+		public void SetElement(VisualElement element)
+		{
+			if (m_currentElement != null)
+			{
+				m_paramGroupBox.Remove(m_currentElement);
+			}
+
+			m_currentElement = element;
+			m_paramGroupBox.Add(element);
 		}
 
 		private void InitWidget()
@@ -39,11 +54,19 @@ namespace Echo.Editor
 			//标题栏
 			InitTitleBar();
 
+			//工具栏
+			InitToolBar();
+
 			m_scrollView = new ScrollView(ScrollViewMode.Vertical);
 			this.Add(m_scrollView);
 
-			//工具栏
-			InitToolBar();
+			GroupBox prefabList = new GroupBox("预制体列表");
+			prefabList.AddToClassList("group-box");
+			m_scrollView.Add(prefabList);
+
+			m_paramGroupBox = new GroupBox("布设参数");
+			m_paramGroupBox.AddToClassList("group-box");
+			m_scrollView.Add(m_paramGroupBox);
 		}
 
 		private void InitTitleBar()
@@ -90,6 +113,11 @@ namespace Echo.Editor
 			ToolbarButton shaderPlacementBtn = CreateToolButton(PlacementMode.Shader, "Shader布设");
 			shaderPlacementBtn.clicked += () => SetPlacementMode(PlacementMode.Shader);
 			toolBar.Add(shaderPlacementBtn);
+		}
+
+		private void InitPrefabList()
+		{
+			
 		}
 
 		private ToolbarButton CreateToolButton(PlacementMode placementMode, string text)

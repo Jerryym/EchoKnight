@@ -54,6 +54,7 @@ namespace Echo.Editor
 		private void CreateLinePlacementView()
 		{
 			Debug.Log("沿线布设");
+			m_view.SetElement(new View_LinePlacement());
 		}
 
 		private void CreateAreaPlacementView()
