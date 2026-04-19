@@ -11,7 +11,7 @@ namespace Echo.Editor
 	/// <summary>
 	/// PTG工具窗口
 	/// </summary>
-	public class View_PTGTool : VisualElement
+	public class View_PTGTool : EchoElement
 	{
 		private readonly List<string> m_LODOptions = new List<string> { "1级（仅 LOD0）", "2级（LOD0 ~ LOD1）", "3级（LOD0 ~ LOD2）" };
 		private int m_LODOptionsIndex = 0;
@@ -56,13 +56,14 @@ namespace Echo.Editor
 		public event Action OnSaveClicked;
 		#endregion
 
-		public View_PTGTool()
+		public View_PTGTool() : base()
 		{
 			//加载uss
 			StyleSheet uss_GroupBox = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Echo/Editor/View/Styles/GroupBox.uss");
 			this.styleSheets.Add(uss_GroupBox);
 			this.style.fontSize = 12;
 
+			SetElementTitle("程序化生成地形");
 			InitWidget();
 		}
 
@@ -127,9 +128,6 @@ namespace Echo.Editor
 
 		private void InitWidget()
 		{
-			//初始化标题栏
-			InitTitleBar();
-
 			m_scrollView = new ScrollView(ScrollViewMode.VerticalAndHorizontal);
 			this.Add(m_scrollView);
 
@@ -165,24 +163,6 @@ namespace Echo.Editor
 			
 			//按钮
 			InitButton();
-		}
-
-		private void InitTitleBar()
-		{
-			VisualElement titleBar = new VisualElement();
-			titleBar.style.height = 26;
-			titleBar.style.justifyContent = Justify.FlexStart;
-			titleBar.style.backgroundColor = new Color(0.15f, 0.15f, 0.15f);
-			titleBar.style.paddingLeft = 8;
-			titleBar.style.flexDirection = FlexDirection.Row;
-			titleBar.style.alignItems = Align.Center;
-
-			Label titleLabel = new Label("程序化生成地形工具");
-			titleLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-			titleLabel.style.fontSize = 14;
-
-			titleBar.Add(titleLabel);
-			this.Add(titleBar);
 		}
 
 		private void InitBaseParam(GroupBox groupBox)

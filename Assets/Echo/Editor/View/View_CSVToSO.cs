@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 
 namespace Echo.Editor
 {
-	public class View_CSVToSO : VisualElement
+	public class View_CSVToSO : EchoElement
 	{
 		#region 组件
 		private ScrollView m_scrollView = null;
@@ -40,10 +40,11 @@ namespace Echo.Editor
 
 		public string ConfigSavePath => m_configSavePath.Path;
 
-		public View_CSVToSO()
+		public View_CSVToSO() : base()
 		{
 			m_SOConfigTypes = new List<Type>();
 			m_SOConfigNames = new List<string>();
+			SetElementTitle("CSV转SO");
 			InitWidget();
 		}
 
@@ -87,9 +88,6 @@ namespace Echo.Editor
 
 		private void InitWidget()
 		{
-			//初始化标题栏
-			InitTitleBar();
-
 			m_scrollView = new ScrollView(ScrollViewMode.Vertical);
 			this.Add(m_scrollView);
 
@@ -114,24 +112,6 @@ namespace Echo.Editor
 
 			//按钮
 			InitButton();
-		}
-
-		private void InitTitleBar()
-		{
-			VisualElement titleBar = new VisualElement();
-			titleBar.style.height = 26;
-			titleBar.style.justifyContent = Justify.FlexStart;
-			titleBar.style.backgroundColor = new Color(0.15f, 0.15f, 0.15f);
-			titleBar.style.paddingLeft = 8;
-			titleBar.style.flexDirection = FlexDirection.Row;
-			titleBar.style.alignItems = Align.Center;
-
-			Label titleLabel = new Label("CSV转SO");
-			titleLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-			titleLabel.style.fontSize = 14;
-
-			titleBar.Add(titleLabel);
-			this.Add(titleBar);
 		}
 
 		private void InitCombo()

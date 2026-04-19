@@ -1,16 +1,11 @@
-using Echo.Editor.Tool;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.InputSystem.XR;
-
 namespace Echo.Editor.Command
 {
 	/// <summary>
-	/// 沿线布设命令
+	/// 沿线布设
 	/// </summary>
 	public class CMD_LinePlacement : ICommand
 	{
-		private View_SceneLayout m_view;
+		private View_LinePlacement m_view;
 		private Controller_SceneLayout m_controller;
 
 		public void Execute()
@@ -22,7 +17,7 @@ namespace Echo.Editor.Command
 			m_controller?.Dispose();
 			activeWindow.RemoveElement();
 
-			m_view = new View_SceneLayout();
+			m_view = new View_LinePlacement();
 			m_controller = new Controller_SceneLayout(m_view);
 			activeWindow.AddElement(m_view);
 
