@@ -6,7 +6,7 @@ namespace Echo.Editor.Command
 	public class CMD_LinePlacement : ICommand
 	{
 		private View_LinePlacement m_view;
-		private Controller_SceneLayout m_controller;
+		private Controller_LinePlacement m_controller;
 
 		public void Execute()
 		{
@@ -18,7 +18,7 @@ namespace Echo.Editor.Command
 			activeWindow.RemoveElement();
 
 			m_view = new View_LinePlacement();
-			m_controller = new Controller_SceneLayout(m_view);
+			m_controller = new Controller_LinePlacement(m_view);
 			activeWindow.AddElement(m_view);
 
 			//List<GameObject> curveGOs = new List<GameObject>();

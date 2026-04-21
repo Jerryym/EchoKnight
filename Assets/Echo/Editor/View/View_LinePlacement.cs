@@ -1,3 +1,4 @@
+using System;
 using Echo.Editor.UI;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -26,6 +27,12 @@ namespace Echo.Editor
 		private Button m_previewBtn = null;
 		private Button m_okBtn = null;
 		private	Button m_cancelButton = null;
+		#endregion
+
+		#region 事件
+		public event Action onPreviewBtnClick;
+		public event Action onOkClick;
+		public event Action onCancelClick;
 		#endregion
 
 		public View_LinePlacement() : base()
@@ -84,14 +91,17 @@ namespace Echo.Editor
 
 			m_previewBtn = new Button();
 			m_previewBtn.text = "预览";
+			m_previewBtn.clicked += () => onPreviewBtnClick?.Invoke();
 			buttonPanel.Add(m_previewBtn);
 
 			m_okBtn = new Button();
 			m_okBtn.text = "确定";
+			m_okBtn.clicked += () => onOkClick?.Invoke();
 			buttonPanel.Add(m_okBtn);
 
 			m_cancelButton = new Button();
 			m_cancelButton.text = "取消";
+			m_cancelButton.clicked += () => onCancelClick?.Invoke();
 			buttonPanel.Add(m_cancelButton);
 		}
 
