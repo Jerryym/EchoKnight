@@ -24,12 +24,14 @@ namespace Echo.Editor
 		private Vector2Field m_rotationRangeField = null;
 
 		//按钮
+		private ButtonField m_selCurve = null;
 		private Button m_previewBtn = null;
 		private Button m_okBtn = null;
 		private	Button m_cancelButton = null;
 		#endregion
 
 		#region 事件
+		public event Action SelCurves;
 		public event Action PreviewBtnClick;
 		public event Action OkClick;
 		public event Action CancelClick;
@@ -45,6 +47,11 @@ namespace Echo.Editor
 		{
 			m_scrollView = new ScrollView(ScrollViewMode.Vertical);
 			this.Add(m_scrollView);
+
+			//选择曲线
+			m_selCurve = new ButtonField("选择曲线", "选择曲线");
+			m_selCurve.button.clicked += () => SelCurves?.Invoke();
+			m_scrollView.Add(m_selCurve);
 
 			InitParams();
 			InitButton();
