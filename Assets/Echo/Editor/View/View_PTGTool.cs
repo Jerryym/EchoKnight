@@ -51,9 +51,9 @@ namespace Echo.Editor
 		public string TerrainSavePath => m_terrainPath.Path;
 
 		#region 事件
-		public event Action OnUpdateClicked;
-		public event Action OnRefreshClicked;
-		public event Action OnSaveClicked;
+		public event Action UpdateClicked;
+		public event Action RefreshClicked;
+		public event Action SaveClicked;
 		#endregion
 
 		public View_PTGTool() : base()
@@ -264,17 +264,17 @@ namespace Echo.Editor
 
 			m_updateBtn = new Button();
 			m_updateBtn.text = "保存/更新设置";
-			m_updateBtn.clicked += () => OnUpdateClicked?.Invoke();
+			m_updateBtn.clicked += () => UpdateClicked?.Invoke();
 			buttonPanel.Add(m_updateBtn);
 
 			m_refreshBtn = new Button();
 			m_refreshBtn.text = "生成/刷新";
-			m_refreshBtn.clicked += () => OnRefreshClicked?.Invoke();
+			m_refreshBtn.clicked += () => RefreshClicked?.Invoke();
 			buttonPanel.Add(m_refreshBtn);
 
 			m_saveBtn = new Button();
 			m_saveBtn.text = "保存";
-			m_saveBtn.clicked += () => OnSaveClicked?.Invoke();
+			m_saveBtn.clicked += () => SaveClicked?.Invoke();
 			buttonPanel.Add(m_saveBtn);
 		}
 

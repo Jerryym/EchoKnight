@@ -30,9 +30,9 @@ namespace Echo.Editor
 		#endregion
 
 		#region 事件
-		public event Action onPreviewBtnClick;
-		public event Action onOkClick;
-		public event Action onCancelClick;
+		public event Action PreviewBtnClick;
+		public event Action OkClick;
+		public event Action CancelClick;
 		#endregion
 
 		public View_LinePlacement() : base()
@@ -91,17 +91,17 @@ namespace Echo.Editor
 
 			m_previewBtn = new Button();
 			m_previewBtn.text = "预览";
-			m_previewBtn.clicked += () => onPreviewBtnClick?.Invoke();
+			m_previewBtn.clicked += () => PreviewBtnClick?.Invoke();
 			buttonPanel.Add(m_previewBtn);
 
 			m_okBtn = new Button();
 			m_okBtn.text = "确定";
-			m_okBtn.clicked += () => onOkClick?.Invoke();
+			m_okBtn.clicked += () => OkClick?.Invoke();
 			buttonPanel.Add(m_okBtn);
 
 			m_cancelButton = new Button();
 			m_cancelButton.text = "取消";
-			m_cancelButton.clicked += () => onCancelClick?.Invoke();
+			m_cancelButton.clicked += () => CancelClick?.Invoke();
 			buttonPanel.Add(m_cancelButton);
 		}
 

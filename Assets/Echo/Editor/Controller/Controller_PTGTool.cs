@@ -27,9 +27,9 @@ namespace Echo.Editor
 			m_terrainGOList = new List<GameObject>();
 
 			//订阅事件
-			m_view.OnUpdateClicked += UpdateSetting;
-			m_view.OnRefreshClicked += GenerateTerrain;
-			m_view.OnSaveClicked += SaveTerrain;
+			m_view.UpdateClicked += UpdateSetting;
+			m_view.RefreshClicked += GenerateTerrain;
+			m_view.SaveClicked += SaveTerrain;
 		}
 
 		public void Dispose()
@@ -39,9 +39,9 @@ namespace Echo.Editor
 			Debug.Log("PTGToolController Dispose");
 
 			//事件解绑
-			m_view.OnUpdateClicked -= UpdateSetting;
-			m_view.OnRefreshClicked -= GenerateTerrain;
-			m_view.OnSaveClicked -= SaveTerrain;
+			m_view.UpdateClicked -= UpdateSetting;
+			m_view.RefreshClicked -= GenerateTerrain;
+			m_view.SaveClicked -= SaveTerrain;
 
 			//删除预览
 			CleanInvalidPreview();

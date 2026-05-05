@@ -30,10 +30,10 @@ namespace Echo.Editor
 			m_tableModel = new TableModel();
 
 			//订阅事件
-			m_view.OnConfigChanged += InitTable;
-			m_view.OnCSVFileChanged += ReadCSVFile;
-			m_view.OnGenerateClicked += GenerateSO;
-			m_view.OnUpdateClicked += UpdateCSVFile;
+			m_view.ConfigChanged += InitTable;
+			m_view.CSVFileChanged += ReadCSVFile;
+			m_view.GenerateClicked += GenerateSO;
+			m_view.UpdateClicked += UpdateCSVFile;
 
 			int index = CSVToSOSettings.instance.viewData.configIndex;
 			TextAsset csvAsset = CSVToSOSettings.instance.viewData.csvfileAsset;
@@ -49,10 +49,10 @@ namespace Echo.Editor
 			Debug.Log("Controller_CSVToSO Dispose");
 
 			//事件解绑
-			m_view.OnConfigChanged -= InitTable;
-			m_view.OnCSVFileChanged -= ReadCSVFile;
-			m_view.OnGenerateClicked -= GenerateSO;
-			m_view.OnUpdateClicked -= UpdateCSVFile;
+			m_view.ConfigChanged -= InitTable;
+			m_view.CSVFileChanged -= ReadCSVFile;
+			m_view.GenerateClicked -= GenerateSO;
+			m_view.UpdateClicked -= UpdateCSVFile;
 			
 			m_isDisposed = true;
 		}

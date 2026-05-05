@@ -17,9 +17,9 @@ namespace Echo.Editor
 			m_view = view;
 
 			//订阅事件
-			m_view.onPreviewBtnClick += OnPreviewBtnClick;
-			m_view.onOkClick += OnOkClick;
-			m_view.onCancelClick += OnCancelClick;
+			m_view.PreviewBtnClick += OnPreviewBtnClick;
+			m_view.OkClick += OnOkClick;
+			m_view.CancelClick += OnCancelClick;
 		}
 
 		public void Dispose()
@@ -29,9 +29,9 @@ namespace Echo.Editor
 			Debug.Log("LinePlacement Controller Dispose");
 
 			//事件解绑
-			m_view.onPreviewBtnClick -= OnPreviewBtnClick;
-			m_view.onOkClick -= OnOkClick;
-			m_view.onCancelClick -= OnCancelClick;
+			m_view.PreviewBtnClick -= OnPreviewBtnClick;
+			m_view.OkClick -= OnOkClick;
+			m_view.CancelClick -= OnCancelClick;
 
 			m_isDisposed = true;
 		}

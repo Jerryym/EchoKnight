@@ -24,10 +24,10 @@ namespace Echo.Editor
 		#endregion
 
 		#region 事件
-		public event Action<TextAsset> OnCSVFileChanged;
-		public event Action<Type> OnConfigChanged;
-		public event Action OnGenerateClicked;
-		public event Action OnUpdateClicked;
+		public event Action<TextAsset> CSVFileChanged;
+		public event Action<Type> ConfigChanged;
+		public event Action GenerateClicked;
+		public event Action UpdateClicked;
 		#endregion
 
 		private readonly RPGEditorToolWindow activeWindow = RPGEditorToolWindow.ActiveWindow;
@@ -141,12 +141,12 @@ namespace Echo.Editor
 
 			m_generateBtn = new Button();
 			m_generateBtn.text = "生成";
-			m_generateBtn.clicked += () => OnGenerateClicked?.Invoke();
+			m_generateBtn.clicked += () => GenerateClicked?.Invoke();
 			buttonPanel.Add(m_generateBtn);
 
 			m_updateBtn = new Button();
 			m_updateBtn.text = "更新配置";
-			m_updateBtn.clicked += () => OnUpdateClicked?.Invoke();
+			m_updateBtn.clicked += () => UpdateClicked?.Invoke();
 			buttonPanel.Add(m_updateBtn);
 		}
 
@@ -168,7 +168,7 @@ namespace Echo.Editor
 				m_csvObjectField.SetValueWithoutNotify(null);
 				return;
 			}
-			OnCSVFileChanged?.Invoke(csvAsset);
+			CSVFileChanged?.Invoke(csvAsset);
 		}
 
 		private void OnConfigTypeChanged(ChangeEvent<string> evt)
@@ -178,7 +178,7 @@ namespace Echo.Editor
 			if (m_SOConfigIndex < 0)
 				return;
 
-			OnConfigChanged?.Invoke(m_SOConfigTypes[m_SOConfigIndex]);
+			ConfigChanged?.Invoke(m_SOConfigTypes[m_SOConfigIndex]);
 		}
 	}
 }
