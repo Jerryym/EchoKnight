@@ -1,3 +1,4 @@
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Echo.Editor.UI
@@ -12,8 +13,12 @@ namespace Echo.Editor.UI
 		{
 			//水平布设
 			this.style.flexDirection = FlexDirection.Row;
+			this.style.alignItems = Align.Center;
 
 			m_label = new Label(labelText);
+			m_label.style.minWidth = 120;
+			m_label.style.unityTextAlign = TextAnchor.MiddleLeft;
+
 			m_button = new Button
 			{
 				text = btnText
