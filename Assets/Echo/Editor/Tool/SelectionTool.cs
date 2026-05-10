@@ -15,11 +15,19 @@ namespace Echo.Editor.Tool
 		/// </summary>
 		private string m_prompt;
 		/// <summary>
-		/// 
+		/// 是否选择预制体根节点
 		/// </summary>
 		private bool m_selectPrefabRoot = false;
 
+		/// <summary>
+		/// 完成回调
+		/// </summary>
 		private Action<IReadOnlyList<GameObject>> m_onComplete = null;
+
+		/// <summary>
+		/// 目标类型
+		/// </summary>
+		private Type m_targetType = null;
 
 		/// <summary>
 		/// 当前工具状态
@@ -27,16 +35,17 @@ namespace Echo.Editor.Tool
 		private ToolState m_state = ToolState.Idle;
 
 		/// <summary>
-		/// 选中的物体
+		/// 选中的物体列表
 		/// </summary>
 		private List<GameObject> m_selectedObjs = new List<GameObject>();
 		public IReadOnlyList<GameObject> SelectedObjs => m_selectedObjs;
 
-		public SelectionTool(string prompt, bool selPrefabRoot, Action<IReadOnlyList<GameObject>> onComplete)
+		public SelectionTool(string prompt, bool selPrefabRoot, Action<IReadOnlyList<GameObject>> onComplete, Type targetType = null)
 		{
 			m_prompt = prompt;
 			m_selectPrefabRoot = selPrefabRoot;
 			m_onComplete = onComplete;
+			m_targetType = targetType;
 		}
 
 		void IEditorTool.Activate()
@@ -68,7 +77,7 @@ namespace Echo.Editor.Tool
 		private void ShowPrompt()
 		{
 			SceneView sceneView = RPGEditorToolWindow.ActiveWindow.SceneView;
-			string text = $"{m_prompt}  |  已选择: {m_selectedObjs.Count}";
+			string text = $"{m_prompt} | 已选择: {m_selectedObjs.Count}\n按下空格键完成";
 
 			Handles.BeginGUI();
 
@@ -98,8 +107,8 @@ namespace Echo.Editor.Tool
 					{
 						if (e.button == 0)//左键
 						{
-							TryPick(e.mousePosition);
-							e.Use();
+							if (TryPick(e.mousePosition))
+								e.Use();
 						}
 						else if (e.button == 1)//右键
 						{
@@ -127,19 +136,28 @@ namespace Echo.Editor.Tool
 			}
 		}
 
-		private void TryPick(Vector2 mousePt)
+		private bool TryPick(Vector2 mousePt)
 		{
 			GameObject targeGO = PickController.Pick(mousePt);
 			if (targeGO == null)
-				return;
+				return false;
+
+			if (m_selectedObjs.Contains(targeGO))
+				return false;
+
+			//目标类型过滤
+			if (m_targetType != null)
+			{
+				bool hasTarget = targeGO.GetComponent(m_targetType) != null;
+				if (!hasTarget)
+					return false;
+			}
 
 			Debug.Log($"selected objetName: {targeGO.name}");
 			Selection.activeGameObject = targeGO;
 
-			if (m_selectedObjs.Contains(targeGO))
-				return;
-
 			m_selectedObjs.Add(targeGO);
+			return true;
 		}
 
 		/// <summary>
@@ -158,7 +176,6 @@ namespace Echo.Editor.Tool
 		private void Cancel()
 		{
 			m_state = ToolState.Cancelled;
-			m_onComplete?.Invoke(null);
 			EditorToolManager.ClearTool();
 		}
 	}

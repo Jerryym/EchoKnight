@@ -1,4 +1,6 @@
 using System;
+using Echo.Component;
+using Echo.Editor.Tool;
 using UnityEngine;
 
 namespace Echo.Editor
@@ -17,6 +19,7 @@ namespace Echo.Editor
 			m_view = view;
 
 			//订阅事件
+			m_view.SelCurves += OnSelCurves;
 			m_view.PreviewBtnClick += OnPreviewBtnClick;
 			m_view.OkClick += OnOkClick;
 			m_view.CancelClick += OnCancelClick;
@@ -29,11 +32,22 @@ namespace Echo.Editor
 			Debug.Log("LinePlacement Controller Dispose");
 
 			//事件解绑
+			m_view.SelCurves -= OnSelCurves;
 			m_view.PreviewBtnClick -= OnPreviewBtnClick;
 			m_view.OkClick -= OnOkClick;
 			m_view.CancelClick -= OnCancelClick;
 
 			m_isDisposed = true;
+		}
+
+		private void OnSelCurves()
+		{
+			Debug.Log("选择曲线");
+
+			EditorToolManager.SetTool(new SelectionTool("请选择曲线", true, result =>
+			{
+				Debug.Log($"已选中曲线数：{result.Count}");
+			}, typeof(PolyLine)));
 		}
 
 		private void OnPreviewBtnClick()
