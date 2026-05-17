@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Echo.Component;
 using Echo.Editor.Tool;
 using UnityEngine;
@@ -14,12 +15,19 @@ namespace Echo.Editor
 		/// </summary>
 		private bool m_isDisposed = false;
 
+		/// <summary>
+		/// 已选曲线
+		/// </summary>
+		private List<GameObject> m_selectedCurves = null;
+
 		public Controller_LinePlacement(View_LinePlacement view)
 		{
 			m_view = view;
+			m_selectedCurves = new List<GameObject>();
 
 			//订阅事件
 			m_view.SelCurves += OnSelCurves;
+			m_view.DrawAndPlaceBtnClick += OnDrawAndPlaceBtnClick;
 			m_view.PreviewBtnClick += OnPreviewBtnClick;
 			m_view.OkClick += OnOkClick;
 			m_view.CancelClick += OnCancelClick;
@@ -33,6 +41,7 @@ namespace Echo.Editor
 
 			//事件解绑
 			m_view.SelCurves -= OnSelCurves;
+			m_view.DrawAndPlaceBtnClick -= OnDrawAndPlaceBtnClick;
 			m_view.PreviewBtnClick -= OnPreviewBtnClick;
 			m_view.OkClick -= OnOkClick;
 			m_view.CancelClick -= OnCancelClick;
@@ -40,19 +49,26 @@ namespace Echo.Editor
 			m_isDisposed = true;
 		}
 
+		#region Event Functions
 		private void OnSelCurves()
 		{
-			Debug.Log("选择曲线");
-
 			EditorToolManager.SetTool(new SelectionTool("请选择曲线", true, result =>
 			{
-				Debug.Log($"已选中曲线数：{result.Count}");
+				m_selectedCurves.Clear();
+				m_selectedCurves.AddRange(result);
+				m_view.Label.text = $"已选曲线：{m_selectedCurves.Count}";
 			}, typeof(PolyLine)));
+		}
+
+		private void OnDrawAndPlaceBtnClick()
+		{
+			throw new NotImplementedException();
 		}
 
 		private void OnPreviewBtnClick()
 		{
-			throw new NotImplementedException();
+			if (m_selectedCurves.Count == 0)
+				return;
 		}
 
 		private void OnOkClick()
@@ -64,5 +80,6 @@ namespace Echo.Editor
 		{
 			throw new NotImplementedException();
 		}
+		#endregion
 	}
 }
