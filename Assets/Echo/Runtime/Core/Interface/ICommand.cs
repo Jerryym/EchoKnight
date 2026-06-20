@@ -1,4 +1,4 @@
-namespace Echo.Command
+namespace Echo
 {
 	/// <summary>
 	/// 命令接口类

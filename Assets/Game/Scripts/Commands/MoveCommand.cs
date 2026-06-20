@@ -1,4 +1,4 @@
-using Echo.Command;
+using Echo;
 using UnityEngine;
 
 public class MoveCommand : ICommand

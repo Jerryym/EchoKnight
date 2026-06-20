@@ -7,7 +7,7 @@ namespace Echo.Component
 	/// <summary>
 	/// 多段线组件
 	/// </summary>
-	public class PolyLine : MonoBehaviour, IPickable
+	public class PolyLine : Curve, IPickable
 	{
 		/// <summary>
 		/// 多段线的所有顶点坐标列表
@@ -15,28 +15,6 @@ namespace Echo.Component
 		[SerializeField]
 		private List<Vector3> m_points = new List<Vector3>();
 		public IReadOnlyList<Vector3> Points => m_points;
-
-		/// <summary>
-		/// 线宽
-		/// </summary>
-		[SerializeField]
-		private float m_width = 1.5f;
-		public float Width
-		{
-			get { return m_width; }
-			set { m_width = value; }
-		}
-
-		/// <summary>
-		/// 颜色
-		/// </summary>
-		[SerializeField]
-		private Color m_color = Color.white;
-		public Color Color
-		{
-			get { return m_color; }
-			set { m_color = value; }
-		}
 
 		/// <summary>
 		/// 是否闭合
@@ -48,6 +26,10 @@ namespace Echo.Component
 			get { return m_isClosed; }
 			set { m_isClosed = value; }
 		}
+
+		public override CurveType Type => CurveType.PolyLine;
+		public override float Width { get; set; } = 1.5f;
+		public override Color Color { get; set; } = Color.cyan;
 
 		/// <summary>
 		/// 添加点
@@ -159,15 +141,125 @@ namespace Echo.Component
 			}
 
 			//绘制多段线
-			Handles.color = m_color;
-			Handles.DrawAAPolyLine(m_width, worldPoints);
+			Handles.color = Color;
+			Handles.DrawAAPolyLine(Width, worldPoints);
 
 			if (m_isClosed)
 			{
 				Vector3 pt1 = worldPoints[worldPoints.Length - 1];
 				Vector3 pt2 = worldPoints[0];
-				Handles.DrawAAPolyLine(m_width, pt1, pt2);
+				Handles.DrawAAPolyLine(Width, pt1, pt2);
 			}
+		}
+
+		public override float GetLength()
+		{
+			if (m_points == null || m_points.Count < 2)
+				return 0.0f;
+
+			float length = 0.0f;
+			for (int i = 0; i < m_points.Count - 1; i++)
+			{
+				length += Vector3.Distance(m_points[i], m_points[i + 1]);
+			}
+
+			//闭合，计算多计算一段
+			if (m_isClosed)
+				length += Vector3.Distance(m_points[0], m_points[m_points.Count - 1]);
+
+			return length;
+		}
+
+		public override Vector3 StartPoint()
+		{
+			return m_points[0];
+		}
+
+		public override Vector3 EndPoint()
+		{
+			return m_points[m_points.Count - 1];
+		}
+
+		public override Vector3 GetPoint(float t)
+		{
+			if (m_points == null || m_points.Count < 2)
+				return Vector3.zero;
+
+			//归一化
+			t = Mathf.Clamp01(t);
+
+			//获取曲线长度
+			float length = GetLength();
+			float targetLength = length * t;
+
+			float sum = 0.0f;
+			for (int i = 0; i < m_points.Count - 1; i++)
+			{
+				Vector3	pt0 = m_points[i];
+				Vector3 pt1 = m_points[i + 1];
+
+				float distance = Vector3.Distance(pt0, pt1);
+				if (distance <= 0)
+					continue;
+
+				if (sum + distance >= targetLength)
+				{
+					float lerpT = (targetLength - sum) / distance;
+					return Vector3.Lerp(pt0, pt1, lerpT);
+				}
+				sum += distance;
+			}
+			return m_points[m_points.Count - 1];
+		}
+
+		public override IReadOnlyList<Vector3> GetPoints(float spacing = -1)
+		{
+			if (spacing == -1)
+				return m_points;
+
+			List<Vector3> result = new List<Vector3>();
+			if (m_points == null || m_points.Count == 0)
+				return result;
+
+			if (m_points.Count == 1)
+			{
+				result.Add(m_points[0]);
+				return result;
+			}
+
+			float sum = 0.0f;
+			float sampleDistance = 0.0f;
+
+			result.Add(m_points[0]);
+			for (int i = 0; i < m_points.Count - 1; i++)
+			{
+				Vector3 pt0 = m_points[i];
+				Vector3 pt1 = m_points[i + 1];
+
+				float distance = Vector3.Distance(pt0, pt1);
+				if (distance <= 0)
+					continue;
+
+				while (sum + distance >= sampleDistance)
+				{
+					float remain = sampleDistance - sum;
+					float lerpT = remain / distance;
+
+					Vector3 point = Vector3.Lerp(pt0, pt1, lerpT);
+					result.Add(point);
+
+					sampleDistance += spacing;
+				}
+
+				sum += distance;
+			}
+
+			//添加终点
+			Vector3 endPt = m_points[m_points.Count - 1];
+			if (result[result.Count - 1].Equals(endPt) != true)
+				result.Add(endPt);
+
+			return result;
 		}
 	}
 }
