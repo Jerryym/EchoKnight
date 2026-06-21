@@ -13,6 +13,6 @@ public class JumpCommand : ICommand
 
     public void Execute()
     {
-		m_player.Jump();
+		  m_player.Jump();
     }
 }

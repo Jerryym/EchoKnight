@@ -46,7 +46,8 @@ namespace Echo.Editor
 		private void RegistryCommands()
 		{
 			//绘制工具
-			m_commandDic.Add("DrawPolyLine", () => new CMD_DrawPolyline());
+			m_commandDic.Add("DrawArc", () => new CMD_DrawArc());
+			m_commandDic.Add("DrawPolyline", () => new CMD_DrawPolyline());
 
 			//场景编辑
 			m_commandDic.Add("GenerateTerrain", () => new CMD_GenerateTerrain());
