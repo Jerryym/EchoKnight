@@ -1,23 +1,17 @@
+using System.Collections.Generic;
 using Echo.Component;
 using Echo.Editor.Utils;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
 namespace Echo.Editor.Tool
 {
-	/// <summary>
-	/// 多段线绘制工具
-	/// </summary>
-	public class DrawPolyLineTool : IEditorTool
+	public class DrawArcTool : IEditorTool
 	{
-		/// <summary>
-		/// 当前工具状态
-		/// </summary>
 		private ToolState m_state = ToolState.Idle;
 
 		/// <summary>
-		/// 多段线点数组
+		/// 圆弧点数组: 0-圆心 1-起始点 2-结束点
 		/// </summary>
 		private List<Vector3> m_points = null;
 		/// <summary>
@@ -30,9 +24,9 @@ namespace Echo.Editor.Tool
 		/// </summary>
 		private SceneView m_sceneView = null;
 
-		private const string m_tag = "Polyline";
+		private const string m_tag = "Arc";
 
-		public DrawPolyLineTool()
+		public DrawArcTool()
 		{
 			m_points = new List<Vector3>();
 			m_sceneView = RPGEditorToolWindow.ActiveWindow.SceneView;
@@ -72,12 +66,11 @@ namespace Echo.Editor.Tool
 						}
 						else if (e.button == 1)//右键
 						{
-							//显示菜单栏
-							ShowContextMenu();
+							Cancel();
 							e.Use();
 						}
-						break;
 					}
+					break;
 				case EventType.MouseMove://鼠标移动
 					{
 						UpdatePreview(e.mousePosition);
@@ -97,31 +90,49 @@ namespace Echo.Editor.Tool
 			}
 		}
 
-		private void AddPoint()
-		{
-			m_points.Add(m_previewPt);
-		}
-
-		private void ShowContextMenu()
-		{
-			GenericMenu menu = new GenericMenu();
-			menu.AddItem(new GUIContent("确定"), false, Finish);
-			menu.AddItem(new GUIContent("取消"), false, Cancel);
-			menu.ShowAsContext();
-		}
-
 		private void DrawPreview()
 		{
 			if (m_points.Count == 0)
 				return;
 
-			Handles.color = Color.white;
-			Handles.DrawAAPolyLine(1f, m_points.ToArray());
+			Handles.color = Color.yellow;
+			//绘制控制点
+			for (int i = 0; i < m_points.Count; i++)
+			{
+				Vector3 pt = m_points[i];
+				Handles.DrawSolidDisc(pt, Vector3.up, 0.1f);
+			}
 
-			//预览线
-			Handles.DrawLine(m_points[m_points.Count - 1], m_previewPt, 1f);
+			if (m_points.Count == 1)//绘制半径预览线
+			{
+				Vector3 centerPt = m_points[0];
+				Handles.DrawLine(centerPt, m_previewPt);
+			}
+			else if (m_points.Count == 2)//绘制圆弧预览
+			{
+				Vector3 centerPt = m_points[0];
+				Vector3 startPt = m_points[1];
+				Vector3 endPt = m_previewPt;
 
+				Vector3 startDir = (startPt - centerPt).normalized;
+				Vector3 endDir = (endPt - centerPt).normalized;
+
+				float radius = Vector3.Distance(centerPt, startPt);
+				float sweepAngle = Vector3.SignedAngle(startDir, endDir, Vector3.up);
+				Handles.DrawLine(centerPt, startPt);
+				Handles.DrawWireArc(centerPt, Vector3.up, startDir, sweepAngle, radius);
+			}
 			m_sceneView.Repaint();
+		}
+
+		private void AddPoint()
+		{
+			if (m_points.Count >= 3)
+				return;
+
+			m_points.Add(m_previewPt);
+			if (m_points.Count == 3)
+				Finish();
 		}
 
 		private void UpdatePreview(Vector2 position)
@@ -143,7 +154,7 @@ namespace Echo.Editor.Tool
 		private void Finish()
 		{
 			m_state = ToolState.Completed;
-			if (m_points.Count < 2)
+			if (m_points.Count < 3)
 			{
 				EditorToolManager.ClearTool();
 				return;
@@ -152,14 +163,13 @@ namespace Echo.Editor.Tool
 			if (!Utils.EditorTool.TagExist(m_tag))
 				Utils.EditorTool.AddTag(m_tag);
 
-			GameObject polyLineGO = new GameObject("多段线");
-			polyLineGO.tag = m_tag;
-			Undo.RegisterCreatedObjectUndo(polyLineGO, "Draw PolyLine");
-			
-			//创建多段线组件
-			var polyline = CreatePolyLine(polyLineGO);
-			//注册到选择集中
-			PickManager.Register(polyLineGO, polyline);
+			GameObject go = new GameObject("圆弧");
+			go.tag = m_tag;
+			Undo.RegisterCreatedObjectUndo(go, "Draw Arc");
+
+			//创建圆弧组件
+			var arc = CreateArc(go);
+			PickManager.Register(go, arc);
 
 			EditorToolManager.ClearTool();
 		}
@@ -173,30 +183,11 @@ namespace Echo.Editor.Tool
 			EditorToolManager.ClearTool();
 		}
 
-		/// <summary>
-		/// 创建多段线组件
-		/// </summary>
-		private PolyLine CreatePolyLine(GameObject polyLineGO)
+		private IPickable CreateArc(GameObject go)
 		{
-			//创建多段线组件
-			var polyline = polyLineGO.AddComponent<PolyLine>();
-			
-			//转为局部坐标
-			Vector3 startPt = m_points[0];
-			polyLineGO.transform.position = startPt;
-			foreach (var pt in m_points)
-			{
-				polyline.AddPoint(pt - startPt);
-			}
-
-			//判断是否闭合
-			if (Utils.EditorTool.IsPolyLineClosed(m_points))
-			{
-				m_points.RemoveAt(m_points.Count - 1);
-				polyline.SetClosed(true);
-			}
-
-			return polyline;
+			var arcComponent = go.AddComponent<Arc>();
+			arcComponent.SetFromPoints(m_points[0], m_points[1], m_points[2]);
+			return arcComponent;
 		}
 	}
 }

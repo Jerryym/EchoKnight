@@ -33,6 +33,14 @@ namespace Echo.Editor
 
 		private static GameObject PickSelectable(Vector2 mousePt)
 		{
+			//设置拾取平面
+			Plane plane = new Plane(Vector3.up, Vector3.zero);
+			Ray ray = HandleUtility.GUIPointToWorldRay(mousePt);
+			if (!plane.Raycast(ray, out float enter))
+				return null;
+
+			Vector3 mouseWorld = ray.GetPoint(enter);
+
 			var selections = PickManager.Pickables;
 
 			float minDist = float.MaxValue;
@@ -42,7 +50,7 @@ namespace Echo.Editor
 				if (selection.go == null)
 					continue;
 
-				float dist = selection.sel.HitObject(mousePt);
+				float dist = selection.sel.HitObject(mouseWorld);
 				if (dist >= PICK_THRESHOLD)
 					continue;
 

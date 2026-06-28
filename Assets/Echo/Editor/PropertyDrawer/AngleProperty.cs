@@ -23,6 +23,8 @@ namespace Echo.Editor
 			// 角度 -> 弧度
 			if (EditorGUI.EndChangeCheck())
 			{
+				var angleAttr = (AngleAttribute)attribute;
+				degrees = Mathf.Clamp(degrees, angleAttr.MinAngle, angleAttr.MaxAngle);
 				property.floatValue = degrees * Mathf.Deg2Rad;
 			}
 		}

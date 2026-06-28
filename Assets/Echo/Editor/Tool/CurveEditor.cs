@@ -1,5 +1,5 @@
-using Echo.Component;
 using System;
+using Echo.Component;
 using UnityEditor;
 using UnityEngine;
 
@@ -11,6 +11,8 @@ namespace Echo.Editor.Tool
 	{
 		private Curve m_curve = null;
 
+		private static readonly Color SELECT_COLOR = Color.red;
+
 		private void OnSceneGUI()
 		{
 			m_curve = (Curve)target;
@@ -20,6 +22,10 @@ namespace Echo.Editor.Tool
 			switch (m_curve.Type)
 			{
 				case CurveType.Arc:
+					//绘制弧线
+					DrawArc();
+					//绘制控制点
+					DrawArcCtrlPoint();
 					break;
 				case CurveType.PolyLine:
 					//绘制多段线
@@ -34,6 +40,43 @@ namespace Echo.Editor.Tool
 			}
 		}
 
+		private void DrawArc()
+		{
+			Arc arc = (Arc)m_curve;
+			if (arc == null)
+				return;
+
+			var transform = arc.transform;
+			Vector3 centerPt = arc.WorldCenterPoint;
+			Vector3 startDir = arc.WorldStartDirection;
+			float radius = arc.Radius;
+			float sweepAngle = Mathf.Abs(arc.SweepAngle) * Mathf.Rad2Deg;
+
+			Handles.color = SELECT_COLOR;
+			Handles.DrawSolidDisc(centerPt, transform.up, 0.08f);
+			Handles.DrawWireArc(centerPt, transform.up, startDir, sweepAngle, radius);
+		}
+
+		private void DrawArcCtrlPoint()
+		{
+			Arc arc = (Arc)m_curve;
+			if (arc == null)
+				return;
+
+			var transform = arc.transform;
+			Vector3 centerPt = arc.WorldCenterPoint;
+			float size = HandleUtility.GetHandleSize(centerPt) * 0.08f;
+
+			Handles.color = SELECT_COLOR;
+			Handles.DrawSolidDisc(centerPt, transform.up, size);
+
+			Vector3 startPt = arc.WorldStartPoint();
+			Handles.DrawSolidDisc(startPt, transform.up, size);
+
+			Vector3 endPt = arc.WorldEndPoint();
+			Handles.DrawSolidDisc(endPt, transform.up, size);
+		}
+
 		/// <summary>
 		/// 绘制多段线
 		/// </summary>
@@ -44,7 +87,7 @@ namespace Echo.Editor.Tool
 				return;
 
 			int count = polyLine.Points.Count;
-			Handles.color = Color.cyan;
+			Handles.color = SELECT_COLOR;
 			for (int i = 0; i < count - 1; i++)
 			{
 				Vector3 pt1 = polyLine.transform.TransformPoint(polyLine.Points[i]);
@@ -71,10 +114,11 @@ namespace Echo.Editor.Tool
 			if (polyLine.Points == null || polyLine.Points.Count < 2)
 				return;
 
-			for (int i = 0; i < polyLine.Points.Count; i++)
+			var worldPoints = polyLine.GetWorldPoints();
+			for (int i = 0; i < worldPoints.Count; i++)
 			{
 				//转成世界坐标
-				Vector3 worldPos = polyLine.transform.TransformPoint(polyLine.Points[i]);
+				Vector3 worldPos = worldPoints[i];
 				float size = HandleUtility.GetHandleSize(worldPos) * 0.08f;
 				Vector3 snap = Vector3.one * 0.5f;
 
@@ -86,6 +130,7 @@ namespace Echo.Editor.Tool
 					//转成模型坐标
 					Vector3 pt = polyLine.transform.InverseTransformPoint(newWorldPos);
 					polyLine.SetPointAt(i, pt);
+					
 					EditorUtility.SetDirty(polyLine);
 				}
 			}

@@ -97,7 +97,8 @@ namespace Echo.Component
 			m_isClosed = isClosed;
 		}
 
-		public float HitObject(Vector2 hitPt)
+		#region IPickable Interface
+		public float HitObject(Vector3 hitPt)
 		{
 			if (m_points == null || m_points.Count < 2)
 				return float.MaxValue;
@@ -114,6 +115,7 @@ namespace Echo.Component
 		{
 			return this.gameObject;
 		}
+		#endregion
 
 		private void OnDestroy()
 		{
@@ -121,14 +123,6 @@ namespace Echo.Component
 		}
 
 		private void OnDrawGizmos()
-		{
-			DrawPolyLine();
-		}
-
-		/// <summary>
-		/// 绘制多段线
-		/// </summary>
-		private void DrawPolyLine()
 		{
 			if (m_points == null || m_points.Count < 2)
 				return;

@@ -9,6 +9,7 @@ namespace Echo.Editor.Command
 	{
 		public void Execute()
 		{
+			EditorToolManager.SetTool(new DrawArcTool());
 		}
 		
 		public void Undo()
