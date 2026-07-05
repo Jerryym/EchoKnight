@@ -71,8 +71,13 @@ namespace Echo.Component
 		public float EndAngle => m_startAngle + m_sweepAngle;
 
 		public override CurveType Type => CurveType.Arc;
-		public override float Width { get; set; } = 1.5f;
-		public override Color Color { get; set; } = Color.yellow;
+
+		public Arc()
+			: base()
+		{
+			width = 1.5f;
+			color = Color.yellow;
+		}
 
 		public override Vector3 StartPoint()
 		{
@@ -177,7 +182,7 @@ namespace Echo.Component
 
 		private void OnDrawGizmos()
 		{
-			Handles.color = Color;
+			Handles.color = color;
 			Vector3 center = transform.TransformPoint(m_centerPoint);
 			Vector3 from = transform.TransformDirection(new Vector3(Mathf.Cos(m_startAngle), 0.0f, Mathf.Sin(m_startAngle)));
 			float sweepAngle = Mathf.Abs(m_sweepAngle) * Mathf.Rad2Deg;

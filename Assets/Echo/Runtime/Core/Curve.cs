@@ -8,10 +8,18 @@ namespace Echo
 	/// </summary>
 	public abstract class Curve : MonoBehaviour, ICurve
 	{
-		public abstract CurveType Type { get; }
+		/// <summary>
+		/// 线宽
+		/// </summary>
+		[Min(1.0f)]
+		public float width = 1.0f;
 
-		public abstract float Width { get; set; }
-		public abstract Color Color { get; set; }
+		/// <summary>
+		/// 颜色
+		/// </summary>
+		public Color color = Color.white;
+
+		public abstract CurveType Type { get; }
 
 		public abstract float GetLength();
 		public abstract Vector3 StartPoint();

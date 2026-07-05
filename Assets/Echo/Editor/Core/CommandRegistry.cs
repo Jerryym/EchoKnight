@@ -47,6 +47,7 @@ namespace Echo.Editor
 		{
 			//绘制工具
 			m_commandDic.Add("DrawArc", () => new CMD_DrawArc());
+			m_commandDic.Add("DrawCircle", () => new CMD_DrawCircle());
 			m_commandDic.Add("DrawPolyline", () => new CMD_DrawPolyline());
 
 			//场景编辑

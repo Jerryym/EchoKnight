@@ -1,6 +1,7 @@
 <ToolBox>
 	<Group name="绘制工具">
 		<Command id="DrawArc" name="绘制圆弧"/>
+		<Command id="DrawCircle" name="绘制圆"/>
 		<Command id="DrawPolyline" name="绘制多段线"/>
 	</Group>
 	<Group name="场景编辑">

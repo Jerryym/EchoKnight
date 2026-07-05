@@ -17,6 +17,18 @@ namespace Echo.Editor.Command
 		}
 	}
 
+	public class CMD_DrawCircle : ICommand
+	{
+		public void Execute()
+		{
+			EditorToolManager.SetTool(new DrawCircleTool());
+		}
+
+		public void Undo()
+		{
+		}
+	}
+
 	/// <summary>
 	/// 绘制多段线
 	/// </summary>

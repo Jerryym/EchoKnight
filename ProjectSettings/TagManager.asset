@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Polyline
   - Arc
+  - Circle
   layers:
   - Default
   - TransparentFX

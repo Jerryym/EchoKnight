@@ -69,8 +69,8 @@ namespace Echo.Editor.Tool
 							Cancel();
 							e.Use();
 						}
+						break;
 					}
-					break;
 				case EventType.MouseMove://鼠标移动
 					{
 						UpdatePreview(e.mousePosition);
@@ -160,8 +160,8 @@ namespace Echo.Editor.Tool
 				return;
 			}
 
-			if (!Utils.EditorTool.TagExist(m_tag))
-				Utils.EditorTool.AddTag(m_tag);
+			if (!EditorTool.TagExist(m_tag))
+				EditorTool.AddTag(m_tag);
 
 			GameObject go = new GameObject("圆弧");
 			go.tag = m_tag;

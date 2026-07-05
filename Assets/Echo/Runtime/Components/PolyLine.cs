@@ -28,8 +28,13 @@ namespace Echo.Component
 		}
 
 		public override CurveType Type => CurveType.PolyLine;
-		public override float Width { get; set; } = 1.5f;
-		public override Color Color { get; set; } = Color.cyan;
+
+		public PolyLine()
+			: base()
+		{
+			width = 1.5f;
+			color = Color.cyan;
+		}
 
 		/// <summary>
 		/// 添加点
@@ -135,14 +140,14 @@ namespace Echo.Component
 			}
 
 			//绘制多段线
-			Handles.color = Color;
-			Handles.DrawAAPolyLine(Width, worldPoints);
+			Handles.color = color;
+			Handles.DrawAAPolyLine(width, worldPoints);
 
 			if (m_isClosed)
 			{
 				Vector3 pt1 = worldPoints[worldPoints.Length - 1];
 				Vector3 pt2 = worldPoints[0];
-				Handles.DrawAAPolyLine(Width, pt1, pt2);
+				Handles.DrawAAPolyLine(width, pt1, pt2);
 			}
 		}
 

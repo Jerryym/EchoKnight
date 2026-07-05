@@ -14,15 +14,6 @@ namespace Echo
 		CurveType Type { get; }
 
 		/// <summary>
-		/// 线宽
-		/// </summary>
-		float Width { get; set; }
-		/// <summary>
-		/// 颜色
-		/// </summary>
-		Color Color { get; set; }
-
-		/// <summary>
 		/// 获取曲线长度
 		/// </summary>
 		float GetLength();

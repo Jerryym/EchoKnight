@@ -34,6 +34,8 @@ namespace Echo.Editor.Tool
 					DrawPolyLineCtrlPoint();
 					break;
 				case CurveType.Circle:
+					DrawCircle();
+					DrawCircleCtrlPoint();
 					break;
 				default:
 					break;
@@ -93,7 +95,7 @@ namespace Echo.Editor.Tool
 				Vector3 pt1 = polyLine.transform.TransformPoint(polyLine.Points[i]);
 				Vector3 pt2 = polyLine.transform.TransformPoint(polyLine.Points[i + 1]);
 
-				Handles.DrawAAPolyLine(m_curve.Width + 1.0f, pt1, pt2);
+				Handles.DrawAAPolyLine(m_curve.width + 1.0f, pt1, pt2);
 			}
 
 			if (polyLine.Closed)
@@ -101,7 +103,7 @@ namespace Echo.Editor.Tool
 				Vector3 pt1 = polyLine.transform.TransformPoint(polyLine.Points[count - 1]);
 				Vector3 pt2 = polyLine.transform.TransformPoint(polyLine.Points[0]);
 
-				Handles.DrawAAPolyLine(polyLine.Width + 1.0f, pt1, pt2);
+				Handles.DrawAAPolyLine(polyLine.width + 1.0f, pt1, pt2);
 			}
 		}
 
@@ -134,6 +136,30 @@ namespace Echo.Editor.Tool
 					EditorUtility.SetDirty(polyLine);
 				}
 			}
+		}
+
+		private void DrawCircle()
+		{
+			Circle circle = (Circle)m_curve;
+			if (circle == null)
+				return;
+
+			Handles.color = SELECT_COLOR;
+			Vector3 centerPt = circle.WorldCenterPoint;
+			Handles.DrawWireDisc(centerPt, Vector3.up, circle.Radius);
+		}
+
+		private void DrawCircleCtrlPoint()
+		{
+			Circle circle = (Circle)m_curve;
+			if (circle == null)
+				return;
+
+			Vector3 centerPt = circle.WorldCenterPoint;
+			float size = HandleUtility.GetHandleSize(centerPt) * 0.08f;
+
+			Handles.color = SELECT_COLOR;
+			Handles.DrawSolidDisc(centerPt, circle.transform.up, size);
 		}
 	}
 }
