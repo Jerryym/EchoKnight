@@ -1,3 +1,4 @@
+using Echo.Editor.UI;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
@@ -63,6 +64,9 @@ namespace Echo.Editor.Tool
 		{
 			if (m_state != ToolState.Running)
 				return;
+
+			//显示拾取光标
+			PickCursor.Enabled = true;
 
 			//显示提示词
 			ShowPrompt();
@@ -154,9 +158,10 @@ namespace Echo.Editor.Tool
 			}
 
 			Debug.Log($"selected objetName: {targeGO.name}");
-			Selection.activeGameObject = targeGO;
-
 			m_selectedObjs.Add(targeGO);
+
+			//高亮选中的对象
+			Selection.objects = m_selectedObjs.ToArray();
 			return true;
 		}
 
@@ -168,6 +173,13 @@ namespace Echo.Editor.Tool
 			m_state = ToolState.Completed;
 			m_onComplete?.Invoke(m_selectedObjs);
 			EditorToolManager.ClearTool();
+
+			//取消高亮显示
+			Selection.objects = null;
+
+			//取消拾取光标显示
+			PickCursor.Enabled = false;
+			SceneView.RepaintAll();
 		}
 
 		/// <summary>
@@ -177,6 +189,13 @@ namespace Echo.Editor.Tool
 		{
 			m_state = ToolState.Cancelled;
 			EditorToolManager.ClearTool();
+
+			//取消高亮显示
+			Selection.objects = null;
+
+			//取消拾取光标显示
+			PickCursor.Enabled = false;
+			SceneView.RepaintAll();
 		}
 	}
 }

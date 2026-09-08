@@ -1,7 +1,7 @@
-using System;
-using System.Collections.Generic;
 using Echo.Component;
 using Echo.Editor.Tool;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Echo.Editor

@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace Echo.Editor
 {
+	/// <summary>
+	/// 拾取控制器
+	/// </summary>
 	public static class PickController
 	{
 		private const float PICK_THRESHOLD = 10f;
