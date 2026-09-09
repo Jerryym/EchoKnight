@@ -1,4 +1,3 @@
-using System;
 using Echo.Component;
 using UnityEditor;
 using UnityEngine;
@@ -11,7 +10,7 @@ namespace Echo.Editor.Tool
 	{
 		private Curve m_curve = null;
 
-		private static readonly Color SELECT_COLOR = Color.red;
+		private static readonly Color SELECT_COLOR = Color.cyan;
 
 		private void OnSceneGUI()
 		{

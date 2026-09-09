@@ -1,6 +1,7 @@
+using System.Collections.Generic;
 using Echo.Component;
 using Echo.Editor.Utils;
-using System.Collections.Generic;
+using Echo.Utils;
 using UnityEditor;
 using UnityEngine;
 
@@ -155,7 +156,7 @@ namespace Echo.Editor.Tool
 			GameObject polyLineGO = new GameObject("多段线");
 			polyLineGO.tag = m_tag;
 			Undo.RegisterCreatedObjectUndo(polyLineGO, "Draw PolyLine");
-			
+
 			//创建多段线组件
 			var polyline = CreatePolyLine(polyLineGO);
 			//注册到选择集中
@@ -181,6 +182,11 @@ namespace Echo.Editor.Tool
 			//创建多段线组件
 			var polyline = polyLineGO.AddComponent<PolyLine>();
 			
+			//判断是否闭合
+			bool isClosed = GeometryTool.IsPolyLineClosed(m_points);
+			if (isClosed)
+				m_points.RemoveAt(m_points.Count - 1);
+			
 			//转为局部坐标
 			Vector3 startPt = m_points[0];
 			polyLineGO.transform.position = startPt;
@@ -188,14 +194,9 @@ namespace Echo.Editor.Tool
 			{
 				polyline.AddPoint(pt - startPt);
 			}
-
-			//判断是否闭合
-			if (Utils.EditorTool.IsPolyLineClosed(m_points))
-			{
-				m_points.RemoveAt(m_points.Count - 1);
-				polyline.SetClosed(true);
-			}
-
+			
+			//设置闭合状态
+			polyline.SetClosed(isClosed);
 			return polyline;
 		}
 	}

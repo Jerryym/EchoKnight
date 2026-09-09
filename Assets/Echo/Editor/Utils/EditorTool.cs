@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -68,41 +67,6 @@ namespace Echo.Editor.Utils
 		#endregion
 
 		#region Math
-		/// <summary>
-		/// 获取最接近的点
-		/// </summary>
-		public static bool GetClosestPoint(List<Vector3> points, in Vector3 basePt, out Vector3 targetPt)
-		{
-			targetPt = Vector3.zero;
-			float minDistance = float.MaxValue;
-			bool isFind = false;
-
-			foreach (var pt in points)
-			{
-				float distance = Vector3.Distance(pt, basePt);
-				if (distance < minDistance)
-				{
-					minDistance = distance;
-					targetPt = pt;
-					isFind = true;
-				}
-			}
-			return isFind;
-		}
-
-		/// <summary>
-		/// 判断多段线是否闭合
-		/// </summary>
-		public static bool IsPolyLineClosed(List<Vector3> points)
-		{
-			if (points == null || points.Count < 3)
-				return false;
-
-			Vector3 firstPt = points[0];
-			Vector3 lastPt = points[points.Count - 1];
-			return Vector3.Distance(firstPt, lastPt) < 1e-3;
-		}
-
 		/// <summary>
 		/// 根据GUI屏幕坐标检测与世界空间中的交点位置
 		/// </summary>

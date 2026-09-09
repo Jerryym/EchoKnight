@@ -20,12 +20,6 @@ namespace Echo.Editor.Command
 			m_view = new View_LinePlacement();
 			m_controller = new Controller_LinePlacement(m_view);
 			activeWindow.AddElement(m_view);
-
-			//List<GameObject> curveGOs = new List<GameObject>();
-			//EditorToolManager.SetTool(new SelectionTool("请选择曲线", true, result =>
-			//{
-			//	Debug.Log(result.Count);
-			//}));
 		}
 
 		public void Undo()

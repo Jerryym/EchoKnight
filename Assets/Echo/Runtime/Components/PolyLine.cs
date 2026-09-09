@@ -33,7 +33,7 @@ namespace Echo.Component
 			: base()
 		{
 			width = 1.5f;
-			color = Color.cyan;
+			color = Color.white;
 		}
 
 		/// <summary>
@@ -62,7 +62,7 @@ namespace Echo.Component
 		{
 			if (index < 0 || index > m_points.Count)
 				return;
-			
+
 			m_points.Insert(index, point);
 		}
 
@@ -145,7 +145,7 @@ namespace Echo.Component
 
 			if (m_isClosed)
 			{
-				Vector3 pt1 = worldPoints[worldPoints.Length - 1];
+				Vector3 pt1 = worldPoints[^1];
 				Vector3 pt2 = worldPoints[0];
 				Handles.DrawAAPolyLine(width, pt1, pt2);
 			}
@@ -176,13 +176,24 @@ namespace Echo.Component
 
 		public override Vector3 EndPoint()
 		{
-			return m_points[m_points.Count - 1];
+			return m_points[^1];
 		}
 
 		public override Vector3 GetPoint(float t)
 		{
 			if (m_points == null || m_points.Count < 2)
 				return Vector3.zero;
+
+			List<Vector3> points = new List<Vector3>();
+			if (m_isClosed)
+			{
+				points.AddRange(m_points);
+				points.Add(m_points[0]);
+			}
+			else
+			{
+				points.AddRange(m_points);
+			}
 
 			//归一化
 			t = Mathf.Clamp01(t);
@@ -192,11 +203,10 @@ namespace Echo.Component
 			float targetLength = length * t;
 
 			float sum = 0.0f;
-			for (int i = 0; i < m_points.Count - 1; i++)
+			for (int i = 0; i < points.Count - 1; i++)
 			{
-				Vector3	pt0 = m_points[i];
-				Vector3 pt1 = m_points[i + 1];
-
+				Vector3 pt0 = points[i];
+				Vector3 pt1 = points[i + 1];
 				float distance = Vector3.Distance(pt0, pt1);
 				if (distance <= 0)
 					continue;
@@ -208,12 +218,13 @@ namespace Echo.Component
 				}
 				sum += distance;
 			}
-			return m_points[m_points.Count - 1];
+			return points[^1];
 		}
 
 		public override IReadOnlyList<Vector3> GetPoints(float spacing = -1)
 		{
-			if (spacing == -1)
+			//spacing <= 0，返回多段线控制点
+			if (spacing <= 0)
 				return m_points;
 
 			List<Vector3> result = new List<Vector3>();
@@ -226,20 +237,28 @@ namespace Echo.Component
 				return result;
 			}
 
+			List<Vector3> points = new List<Vector3>();
+			if (m_isClosed)
+			{
+				points.AddRange(m_points);
+				points.Add(m_points[0]);
+			}
+			else
+			{
+				points.AddRange(m_points);
+			}
+
 			float sum = 0.0f;
 			float sampleDistance = 0.0f;
-
-			result.Add(m_points[0]);
-			for (int i = 0; i < m_points.Count - 1; i++)
+			for (int i = 0; i < points.Count - 1; i++)
 			{
-				Vector3 pt0 = m_points[i];
-				Vector3 pt1 = m_points[i + 1];
-
+				Vector3 pt0 = points[i];
+				Vector3 pt1 = points[i + 1];
 				float distance = Vector3.Distance(pt0, pt1);
 				if (distance <= 0)
 					continue;
 
-				while (sum + distance >= sampleDistance)
+				while (sum + distance > sampleDistance)
 				{
 					float remain = sampleDistance - sum;
 					float lerpT = remain / distance;
@@ -249,14 +268,16 @@ namespace Echo.Component
 
 					sampleDistance += spacing;
 				}
-
 				sum += distance;
 			}
 
 			//添加终点
-			Vector3 endPt = m_points[m_points.Count - 1];
-			if (result[result.Count - 1].Equals(endPt) != true)
-				result.Add(endPt);
+			Vector3 endPt = points[^1];
+			if (result.Count != 0 && !m_isClosed)
+			{
+				if (result[^1].Equals(endPt) != true)
+					result.Add(endPt);
+			}
 
 			return result;
 		}
