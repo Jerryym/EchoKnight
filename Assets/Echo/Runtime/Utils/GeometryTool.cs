@@ -51,16 +51,28 @@ namespace Echo.Utils
 			if (points == null || points.Count < 2)
 				return;
 
-			for (int i = 0; i < points.Count - 1; i++)
+			int count = 0;
+			for (int i = 0; i < points.Count; i++)
 			{
-				Vector3 pt1 = points[i];
-				Vector3 Pt3 = points[i + 1];
-				if (Vector3.Distance(pt1, Pt3) < threshold)
+				Vector3 pt = points[i];
+				bool isFind = false;
+				for (int j = 0; j < count; j++)
 				{
-					points.RemoveAt(i + 1);
-					i--;
+					if ((pt - points[j]).sqrMagnitude < threshold * threshold)
+					{
+						isFind = true;
+						break;
+					}
+				}
+
+				if (!isFind)
+				{
+					points[count] = pt;
+					count++;
 				}
 			}
+
+			points.RemoveRange(count, points.Count - count);
 		}
 	}
 }
