@@ -1,7 +1,10 @@
 using Echo.Component;
 using Echo.Editor.Tool;
+using Echo.Editor.UI;
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Echo.Editor
@@ -23,6 +26,8 @@ namespace Echo.Editor
 		public Controller_LinePlacement(View_LinePlacement view)
 		{
 			m_view = view;
+			//m_view.InitData(LinePlacementSettings.instance.viewData);
+
 			m_selectedCurves = new List<GameObject>();
 
 			//订阅事件
@@ -67,8 +72,20 @@ namespace Echo.Editor
 
 		private void OnPreviewBtnClick()
 		{
-			if (m_selectedCurves.Count == 0)
+			var viewModel = m_view.GetData();
+			if (viewModel.placeModel == null)
+			{
+				RPGEditorToolWindow.ShowTip("未设置布设模型!", StatusBar.TipLevel.Warning);
 				return;
+			}
+
+			if (m_selectedCurves.Count == 0)
+			{
+				RPGEditorToolWindow.ShowTip("未选择布设曲线!", StatusBar.TipLevel.Warning);
+				return;
+			}
+
+			Generate(viewModel);
 		}
 
 		private void OnOkClick()
@@ -81,5 +98,22 @@ namespace Echo.Editor
 			throw new NotImplementedException();
 		}
 		#endregion
+
+		private void Generate(Model_LinePlacement viewModel)
+		{
+			for (int i = 0; i < m_selectedCurves.Count; i++)
+			{
+				var curveGO = m_selectedCurves[i];
+				var curve = curveGO.GetComponent<Curve>();
+				if (curve == null)
+					continue;
+
+				if (curve.GetLength() == 0)
+					continue;
+				
+				//创建LinePlacementStrategy组件
+				
+			}
+		}
 	}
 }

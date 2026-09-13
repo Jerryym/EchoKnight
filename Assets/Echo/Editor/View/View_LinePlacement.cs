@@ -54,6 +54,38 @@ namespace Echo.Editor
 			InitWidget();
 		}
 
+		public void InitData(Model_LinePlacement model)
+		{
+			m_prefabField.value = model.placeModel;
+
+			m_spacingField.value = model.param.spacing;
+			m_offsetStartField.value = model.param.offsetStart;
+			m_offsetEndField.value = model.param.offsetEnd;
+
+			m_randomRotationToggle.value = model.param.randomRotation;
+			m_rotationField.value = model.param.rotation;
+			m_rotationRangeField.value = model.param.rotationRange;
+		}
+
+		public Model_LinePlacement GetData()
+		{
+			LinePlacementParam param = new LinePlacementParam();
+			param.mode = PlacementMode.Line;
+			param.spacing = m_spacingField.value;
+			param.offsetStart = m_offsetStartField.value;
+			param.offsetEnd = m_offsetEndField.value;
+			param.randomRotation = m_randomRotationToggle.value;
+			param.rotation = m_rotationField.value;
+			if (m_randomRotationToggle.value)
+				param.rotationRange = m_rotationRangeField.value;
+
+			return new Model_LinePlacement
+			{
+				placeModel = m_prefabField.value as GameObject,
+				param = param
+			};
+		}
+
 		private void InitWidget()
 		{
 			m_scrollView = new ScrollView(ScrollViewMode.Vertical);
@@ -104,8 +136,10 @@ namespace Echo.Editor
 			orientationGroup.Add(m_rotationRangeField);
 			m_randomRotationToggle.RegisterValueChangedCallback(evt =>
 			{
+				m_rotationField.style.display = evt.newValue ? DisplayStyle.None : DisplayStyle.Flex;
 				m_rotationRangeField.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
 			});
+			m_rotationField.style.display = m_randomRotationToggle.value ? DisplayStyle.None : DisplayStyle.Flex;
 			m_rotationRangeField.style.display = m_randomRotationToggle.value ? DisplayStyle.Flex : DisplayStyle.None;
 
 			//布设路径

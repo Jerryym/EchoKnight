@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Echo
@@ -5,6 +6,7 @@ namespace Echo
 	/// <summary>
 	/// 沿线布设参数
 	/// </summary>
+	[Serializable]
 	public class LinePlacementParam : PlacementParam
 	{
 		/// <summary>

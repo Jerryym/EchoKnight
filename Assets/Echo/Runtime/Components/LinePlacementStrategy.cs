@@ -20,8 +20,20 @@ namespace Echo.Component
 		}
 
 		/// <summary>
+		/// 布设模型
+		/// </summary>
+		[SerializeField]
+		private GameObject m_placeModel = null;
+		public GameObject PlaceModel
+		{
+			get { return m_placeModel; }
+			set { m_placeModel = value; }
+		}
+
+		/// <summary>
 		/// 沿线布设参数
 		/// </summary>
+		[SerializeField]
 		private LinePlacementParam m_param = null;
 		public LinePlacementParam Param
 		{
@@ -29,12 +41,27 @@ namespace Echo.Component
 			set { m_param = value; }
 		}
 
-		private List<GameObject> m_models = null;
-
 		public LinePlacementStrategy()
 		{
 			m_param = new LinePlacementParam();
-			m_models = new List<GameObject>();
+		}
+
+		public bool Place()
+		{
+			if (m_curve == null || m_param == null || m_placeModel == null)
+				return false;
+
+			if (m_curve.Type == CurveType.PolyLine)//多段线
+			{
+				LinePlaceByPolyLine();
+			}
+			return true;
+		}
+
+		private void LinePlaceByPolyLine()
+		{
+			var points = m_curve.GetPoints(m_param.spacing);
+
 		}
 	}
 }

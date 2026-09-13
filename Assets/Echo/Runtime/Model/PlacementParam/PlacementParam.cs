@@ -1,8 +1,11 @@
+using System;
+
 namespace Echo
 {
 	/// <summary>
 	/// 程序化布设参数
 	/// </summary>
+	[Serializable]
 	public abstract class PlacementParam
 	{
 		/// <summary>
