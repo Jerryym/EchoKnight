@@ -14,11 +14,11 @@ namespace Echo
 		/// </summary>
 		public float spacing = 1.0f;
 		/// <summary>
-		/// 起点偏移
+		/// 起点横向偏移（左+右-）
 		/// </summary>
 		public float offsetStart = 0.0f;
 		/// <summary>
-		/// 终点偏移
+		/// 终点横向偏移（左+右-）
 		/// </summary>
 		public float offsetEnd = 0.0f;
 		/// <summary>

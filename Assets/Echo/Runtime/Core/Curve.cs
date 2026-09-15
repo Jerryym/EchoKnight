@@ -43,7 +43,7 @@ namespace Echo
 			return transform.TransformPoint(GetPoint(t));
 		}
 
-		public virtual IReadOnlyList<Vector3> GetWorldPoints(float spacing = -1)
+		public virtual List<Vector3> GetWorldPoints(float spacing = -1)
 		{
 			var points = GetPoints(spacing);
 			List<Vector3> worldPts = new List<Vector3>(points.Count);

@@ -119,7 +119,7 @@ namespace Echo.Editor
 			if (!m_terrainSetting.enableLOD)
 			{
 				var terrainGO = Utils.TerrainGenerator.GenerateTerrain(param.terrainName, m_terrainSetting);
-				terrainGO.hideFlags = HideFlags.DontSave;
+				terrainGO.hideFlags = HideFlags.DontSaveInEditor;
 				m_terrainGOList.Add(terrainGO);
 			}
 			else
@@ -129,7 +129,7 @@ namespace Echo.Editor
 				{
 					if (item)
 					{
-						item.hideFlags = HideFlags.DontSave;
+						item.hideFlags = HideFlags.DontSaveInEditor;
 					}
 				}
 			}

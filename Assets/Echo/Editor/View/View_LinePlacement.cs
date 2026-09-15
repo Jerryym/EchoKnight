@@ -15,8 +15,11 @@ namespace Echo.Editor
 		#region 控件
 		private ScrollView m_scrollView = null;
 
-		//沿线布设参数
+		//基础参数
+		private TextField m_nameField = null;
 		private ObjectField m_prefabField = null;
+		
+		//沿线布设参数
 		private FloatField m_spacingField = null;
 		private FloatField m_offsetStartField = null;
 		private FloatField m_offsetEndField = null;
@@ -56,6 +59,7 @@ namespace Echo.Editor
 
 		public void InitData(Model_LinePlacement model)
 		{
+			m_nameField.value = model.name;
 			m_prefabField.value = model.placeModel;
 
 			m_spacingField.value = model.param.spacing;
@@ -81,6 +85,7 @@ namespace Echo.Editor
 
 			return new Model_LinePlacement
 			{
+				name = m_nameField.value,
 				placeModel = m_prefabField.value as GameObject,
 				param = param
 			};
@@ -103,6 +108,9 @@ namespace Echo.Editor
 			contentGroup.AddToClassList("group-box");
 			m_scrollView.Add(contentGroup);
 
+			m_nameField = new TextField("名称");
+			contentGroup.Add(m_nameField);
+
 			m_prefabField = new ObjectField("模型");
 			m_prefabField.objectType = typeof(GameObject);
 			m_prefabField.RegisterValueChangedCallback(OnPrefabChanged);
@@ -115,10 +123,10 @@ namespace Echo.Editor
 			m_spacingField = new FloatField("间隔");
 			distributionGroup.Add(m_spacingField);
 
-			m_offsetStartField = new FloatField("起点偏移");
+			m_offsetStartField = new FloatField("起点偏移（左+右-）");
 			distributionGroup.Add(m_offsetStartField);
 
-			m_offsetEndField = new FloatField("终点偏移");
+			m_offsetEndField = new FloatField("终点偏移（左+右-）");
 			distributionGroup.Add(m_offsetEndField);
 
 			//朝向
@@ -197,6 +205,12 @@ namespace Echo.Editor
 
 		private void OnPrefabChanged(ChangeEvent<UnityEngine.Object> evt)
 		{
+			var model = m_prefabField.value as GameObject;
+			string name = m_nameField.value;
+			if (string.IsNullOrEmpty(name))
+			{
+				m_nameField.value = model.name;
+			}
 		}
 	}
 }

@@ -2,9 +2,8 @@ using Echo.Component;
 using Echo.Editor.Tool;
 using Echo.Editor.UI;
 using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 
 namespace Echo.Editor
@@ -23,12 +22,15 @@ namespace Echo.Editor
 		/// </summary>
 		private List<GameObject> m_selectedCurves = null;
 
+		private List<GameObject> m_previewGOs = null;
+
 		public Controller_LinePlacement(View_LinePlacement view)
 		{
 			m_view = view;
 			//m_view.InitData(LinePlacementSettings.instance.viewData);
 
 			m_selectedCurves = new List<GameObject>();
+			m_previewGOs = new List<GameObject>();
 
 			//订阅事件
 			m_view.SelCurves += OnSelCurves;
@@ -72,6 +74,9 @@ namespace Echo.Editor
 
 		private void OnPreviewBtnClick()
 		{
+			//清空预览
+			ClearPreview();
+
 			var viewModel = m_view.GetData();
 			if (viewModel.placeModel == null)
 			{
@@ -95,25 +100,88 @@ namespace Echo.Editor
 
 		private void OnCancelClick()
 		{
-			throw new NotImplementedException();
+			//清空预览
+			ClearPreview();
 		}
 		#endregion
 
 		private void Generate(Model_LinePlacement viewModel)
 		{
+			int index = 0;
 			for (int i = 0; i < m_selectedCurves.Count; i++)
 			{
+				string name = viewModel.name;
+				if (i != 0)
+					name += $"_{index}";
+				
 				var curveGO = m_selectedCurves[i];
-				var curve = curveGO.GetComponent<Curve>();
-				if (curve == null)
+				var placementGO = CreatePreviewGO(name, curveGO, viewModel.param, viewModel.placeModel);
+				if (placementGO == null)
+				{
+					continue;
+				}
+				m_previewGOs.Add(placementGO);
+				index++;
+			}
+		}
+
+		/// <summary>
+		/// 创建预览
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="curveGO"></param>
+		/// <returns></returns>
+		private GameObject CreatePreviewGO(string name, GameObject curveGO, LinePlacementParam param, GameObject placeModel)
+		{
+			var curve = curveGO.GetComponent<Curve>();
+			if (curve == null || curve.GetLength() == 0)
+				return null;
+
+			GameObject go = new GameObject(name);
+			go.hideFlags = HideFlags.DontSaveInEditor;//预览对象不保存到场景中
+
+			//添加沿线布设策略组件
+			var lineStrategy = go.AddComponent<LinePlacementStrategy>();
+			lineStrategy.Curve = curve;
+			lineStrategy.Param = param;
+			lineStrategy.PlaceModel = placeModel;
+
+			//获取布设点
+			IReadOnlyList<Vector3> placePts = lineStrategy.Compute();
+			if (placePts == null || placePts.Count == 0)
+			{
+				UnityEngine.Object.DestroyImmediate(go);
+				return null;
+			}
+
+			//放置模型
+			for (int i = 0; i < placePts.Count; i++)
+			{
+				GameObject instance = PrefabUtility.InstantiatePrefab(placeModel) as GameObject;
+				if (instance == null)
 					continue;
 
-				if (curve.GetLength() == 0)
-					continue;
-				
-				//创建LinePlacementStrategy组件
-				
+				instance.transform.SetParent(go.transform, true);
+				instance.transform.position = placePts[i];
+				instance.hideFlags = HideFlags.DontSaveInEditor;
 			}
+
+			return go;
+		}
+
+		/// <summary>
+		/// 清理预览
+		/// </summary>
+		private void ClearPreview()
+		{
+			for (int i = 0; i < m_previewGOs.Count; i++)
+			{
+				if (m_previewGOs[i] != null)
+				{
+					UnityEngine.Object.DestroyImmediate(m_previewGOs[i]);
+				}
+			}
+			m_previewGOs.Clear();
 		}
 	}
 }
