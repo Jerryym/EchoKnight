@@ -7,7 +7,7 @@ namespace Echo.Component
 	/// <summary>
 	/// 多段线组件
 	/// </summary>
-	public class PolyLine : Curve, IPickable
+	public class PolyLine : Curve
 	{
 		/// <summary>
 		/// 多段线的所有顶点坐标列表
@@ -103,7 +103,7 @@ namespace Echo.Component
 		}
 
 		#region IPickable Interface
-		public float HitObject(Vector3 hitPt)
+		public override float HitObject(Vector3 hitPt)
 		{
 			if (m_points == null || m_points.Count < 2)
 				return float.MaxValue;
@@ -114,11 +114,6 @@ namespace Echo.Component
 				points.Add(transform.TransformPoint(pt));
 			}
 			return HandleUtility.DistanceToPolyLine(points.ToArray());
-		}
-
-		public GameObject GetGameObject()
-		{
-			return this.gameObject;
 		}
 		#endregion
 

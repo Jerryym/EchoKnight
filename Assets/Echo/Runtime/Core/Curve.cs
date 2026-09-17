@@ -6,7 +6,8 @@ namespace Echo
 	/// <summary>
 	/// 曲线基类
 	/// </summary>
-	public abstract class Curve : MonoBehaviour, ICurve
+	[ExecuteInEditMode]
+	public abstract class Curve : MonoBehaviour, ICurve, IPickable
 	{
 		/// <summary>
 		/// 线宽
@@ -19,6 +20,7 @@ namespace Echo
 		/// </summary>
 		public Color color = Color.white;
 
+		#region ICurve Interface
 		public abstract CurveType Type { get; }
 
 		public abstract float GetLength();
@@ -27,6 +29,15 @@ namespace Echo
 
 		public abstract Vector3 GetPoint(float t);
 		public abstract IReadOnlyList<Vector3> GetPoints(float spacing = -1);
+		#endregion
+
+		#region IPickable Interface
+		public abstract float HitObject(Vector3 hitPt);
+		public GameObject GetGameObject()
+		{
+			return gameObject;
+		}
+		#endregion
 
 		public virtual Vector3 WorldStartPoint()
 		{
@@ -52,6 +63,16 @@ namespace Echo
 				worldPts.Add(transform.TransformPoint(points[i]));
 			}
 			return worldPts;
+		}
+
+		protected virtual void OnEnable()
+		{
+			PickManager.Register(gameObject, this);
+		}
+
+		protected virtual void OnDisable()
+		{
+			PickManager.Unregister(gameObject);
 		}
 	}
 }

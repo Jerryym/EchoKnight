@@ -32,7 +32,6 @@ namespace Echo.Editor
 
 		//按钮
 		private ButtonField m_selCurve = null;
-		private Button m_drawAndPlaceBtn = null;
 		private Button m_previewBtn = null;
 		private Button m_okBtn = null;
 		private Button m_cancelBtn = null;
@@ -40,10 +39,10 @@ namespace Echo.Editor
 
 		#region 事件
 		public event Action SelCurves;
-		public event Action DrawAndPlaceBtnClick;
 		public event Action PreviewBtnClick;
 		public event Action OkClick;
 		public event Action CancelClick;
+		public event Action ValueChanged;
 		#endregion
 
 		public View_LinePlacement() : base()
@@ -121,12 +120,25 @@ namespace Echo.Editor
 			distributionGroup.AddToClassList("group-box");
 			m_scrollView.Add(distributionGroup);
 			m_spacingField = new FloatField("间隔");
+			m_spacingField.value = 5.0f;
+			m_spacingField.RegisterValueChangedCallback(evt =>
+			{
+				//spacing不可小于0
+				if (evt.newValue <= 0)
+				{
+					m_spacingField.SetValueWithoutNotify(evt.previousValue);
+					return;
+				}
+				ValueChanged?.Invoke();
+			});
 			distributionGroup.Add(m_spacingField);
 
 			m_offsetStartField = new FloatField("起点偏移（左+右-）");
+			m_offsetStartField.RegisterValueChangedCallback(evt => ValueChanged?.Invoke());
 			distributionGroup.Add(m_offsetStartField);
 
 			m_offsetEndField = new FloatField("终点偏移（左+右-）");
+			m_offsetEndField.RegisterValueChangedCallback(evt => ValueChanged?.Invoke());
 			distributionGroup.Add(m_offsetEndField);
 
 			//朝向
@@ -135,21 +147,25 @@ namespace Echo.Editor
 			m_scrollView.Add(orientationGroup);
 
 			m_randomRotationToggle = new Toggle("随机旋转");
-			orientationGroup.Add(m_randomRotationToggle);
-
-			m_rotationField = new FloatField("旋转角度");
-			orientationGroup.Add(m_rotationField);
-
-			m_rotationRangeField = new Vector2Field("旋转角度范围");
-			orientationGroup.Add(m_rotationRangeField);
 			m_randomRotationToggle.RegisterValueChangedCallback(evt =>
 			{
 				m_rotationField.style.display = evt.newValue ? DisplayStyle.None : DisplayStyle.Flex;
 				m_rotationRangeField.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
-			});
-			m_rotationField.style.display = m_randomRotationToggle.value ? DisplayStyle.None : DisplayStyle.Flex;
-			m_rotationRangeField.style.display = m_randomRotationToggle.value ? DisplayStyle.Flex : DisplayStyle.None;
 
+				ValueChanged?.Invoke();
+			});
+			orientationGroup.Add(m_randomRotationToggle);
+
+			m_rotationField = new FloatField("旋转角度");
+			m_rotationField.style.display = m_randomRotationToggle.value ? DisplayStyle.None : DisplayStyle.Flex;
+			m_rotationField.RegisterValueChangedCallback(evt => ValueChanged?.Invoke());
+			orientationGroup.Add(m_rotationField);
+
+			m_rotationRangeField = new Vector2Field("旋转角度范围");
+			m_rotationRangeField.style.display = m_randomRotationToggle.value ? DisplayStyle.Flex : DisplayStyle.None;
+			m_rotationRangeField.RegisterValueChangedCallback(evt => ValueChanged?.Invoke());
+			orientationGroup.Add(m_rotationRangeField);
+	
 			//布设路径
 			GroupBox pathGroup = new GroupBox("布设路径");
 			pathGroup.AddToClassList("group-box");
@@ -177,11 +193,6 @@ namespace Echo.Editor
 			leftPanel.style.flexDirection = FlexDirection.Row;
 			buttonPanel.Add(leftPanel);
 
-			m_drawAndPlaceBtn = new Button();
-			m_drawAndPlaceBtn.text = "绘制并布设";
-			m_drawAndPlaceBtn.clicked += () => DrawAndPlaceBtnClick?.Invoke();
-			leftPanel.Add(m_drawAndPlaceBtn);
-
 			VisualElement rightPanel = new VisualElement();
 			rightPanel.style.flexDirection = FlexDirection.Row;
 			rightPanel.style.justifyContent = Justify.FlexEnd;
@@ -206,11 +217,12 @@ namespace Echo.Editor
 		private void OnPrefabChanged(ChangeEvent<UnityEngine.Object> evt)
 		{
 			var model = m_prefabField.value as GameObject;
-			string name = m_nameField.value;
-			if (string.IsNullOrEmpty(name))
+			if (model != null && string.IsNullOrEmpty(m_nameField.value))
 			{
 				m_nameField.value = model.name;
 			}
+
+			ValueChanged?.Invoke();
 		}
 	}
 }

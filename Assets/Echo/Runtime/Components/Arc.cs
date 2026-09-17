@@ -7,7 +7,7 @@ namespace Echo.Component
 	/// <summary>
 	/// 圆弧组件
 	/// </summary>
-	public class Arc : Curve, IPickable
+	public class Arc : Curve
 	{
 		[SerializeField]
 		/// <summary>
@@ -143,7 +143,7 @@ namespace Echo.Component
 		}
 
 		#region IPickable Interface
-		public float HitObject(Vector3 hitPt)
+		public override float HitObject(Vector3 hitPt)
 		{
 			Vector3 localPt = transform.InverseTransformPoint(hitPt);
 			localPt.y = 0.0f;
@@ -168,13 +168,8 @@ namespace Echo.Component
 			}
     		return Mathf.Abs(distance - m_radius);
 		}
-
-		public GameObject GetGameObject()
-		{
-			return this.gameObject;
-		}
 		#endregion
-		
+
 		private void OnDestroy()
 		{
 			PickManager.Unregister(this.gameObject);

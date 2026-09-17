@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Echo.Component
 {
-	public class Circle : Curve, IPickable
+	public class Circle : Curve
 	{
 		/// <summary>
 		/// 圆心
@@ -49,11 +49,6 @@ namespace Echo.Component
 			return m_center + Vector3.right * m_radius;
 		}
 
-		public GameObject GetGameObject()
-		{
-			return this.gameObject;
-		}
-
 		public override float GetLength()
 		{
 			return 2 * Mathf.PI * m_radius;
@@ -91,11 +86,13 @@ namespace Echo.Component
 			return result;
 		}
 
-		public float HitObject(Vector3 hitPt)
+		#region IPickable Interface
+		public override float HitObject(Vector3 hitPt)
 		{
 			float distToCenter = Vector3.Distance(hitPt, WorldCenterPoint);
 			return Mathf.Abs(distToCenter - m_radius);
 		}
+		#endregion
 
 		private void OnDestroy()
 		{
