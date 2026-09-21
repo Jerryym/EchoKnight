@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace Echo.Editor
 {
 	/// <summary>
@@ -19,47 +16,32 @@ namespace Echo.Editor
 			}
 		}
 
-		private Dictionary<string, Func<ICommand>> m_commandDic;
-		private Stack<ICommand> m_undoCMDStake;
-		private Stack<ICommand> m_redoCMDStake;
+		/// <summary>
+		/// 当前活动命令
+		/// </summary>
+		private ICommand m_activeCommand = null;
 
 		private CommandManager()
 		{
-			m_commandDic = new Dictionary<string, Func<ICommand>>();
-			m_undoCMDStake = new Stack<ICommand>();
-			m_redoCMDStake = new Stack<ICommand>();
 		}
 
 		public void Execute(ICommand command)
 		{
-			command.Execute();
-			m_undoCMDStake.Push(command);
-			m_redoCMDStake.Clear();
-		}
-
-		public void Undo()
-		{
-			if (m_undoCMDStake.Count == 0)
-			{
+			if (command == null)
 				return;
-			}
 
-			ICommand command = m_undoCMDStake.Pop();
-			command.Undo();
-			m_redoCMDStake.Push(command);
+			//结束当前命令
+			m_activeCommand?.Deactivate();
+
+			//执行命令
+			m_activeCommand = command;
+			m_activeCommand.Execute();
 		}
 
-		public void Redo()
+		public void Deactivate()
 		{
-			if (m_redoCMDStake.Count == 0)
-			{
-				return;
-			}
-
-			ICommand command = m_redoCMDStake.Pop();
-			command.Execute();
-			m_undoCMDStake.Push(command);
+			m_activeCommand?.Deactivate();
+			m_activeCommand = null;
 		}
-
 	}
 }

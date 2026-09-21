@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 namespace Echo.Component
@@ -173,15 +172,6 @@ namespace Echo.Component
 		private void OnDestroy()
 		{
 			PickManager.Unregister(this.gameObject);
-		}
-
-		private void OnDrawGizmos()
-		{
-			Handles.color = color;
-			Vector3 center = transform.TransformPoint(m_centerPoint);
-			Vector3 from = transform.TransformDirection(new Vector3(Mathf.Cos(m_startAngle), 0.0f, Mathf.Sin(m_startAngle)));
-			float sweepAngle = Mathf.Abs(m_sweepAngle) * Mathf.Rad2Deg;
-			Handles.DrawWireArc(center, transform.up, from, sweepAngle, m_radius);
 		}
 
 		private Vector3 CalculatePoint(float angle)

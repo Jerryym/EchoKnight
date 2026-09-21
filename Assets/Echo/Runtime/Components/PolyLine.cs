@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 namespace Echo.Component
@@ -108,43 +107,24 @@ namespace Echo.Component
 			if (m_points == null || m_points.Count < 2)
 				return float.MaxValue;
 
-			List<Vector3> points = new List<Vector3>();
-			foreach (var pt in m_points)
+			float minDistance = float.MaxValue;
+			for (int i = 0; i < m_points.Count - 1; i++)
 			{
-				points.Add(transform.TransformPoint(pt));
+				Vector3 start = transform.TransformPoint(m_points[i]);
+				Vector3 end = transform.TransformPoint(m_points[i + 1]);
+				minDistance = Mathf.Min(minDistance, DistanceToSegment(hitPt, start, end));
 			}
-			return HandleUtility.DistanceToPolyLine(points.ToArray());
-		}
-		#endregion
-
-		private void OnDestroy()
-		{
-			PickManager.Unregister(this.gameObject);
-		}
-
-		private void OnDrawGizmos()
-		{
-			if (m_points == null || m_points.Count < 2)
-				return;
-
-			//转成世界坐标
-			Vector3[] worldPoints = new Vector3[m_points.Count];
-			for (int i = 0; i < m_points.Count; i++)
-			{
-				worldPoints[i] = transform.TransformPoint(m_points[i]);
-			}
-
-			//绘制多段线
-			Handles.color = color;
-			Handles.DrawAAPolyLine(width, worldPoints);
 
 			if (m_isClosed)
 			{
-				Vector3 pt1 = worldPoints[^1];
-				Vector3 pt2 = worldPoints[0];
-				Handles.DrawAAPolyLine(width, pt1, pt2);
+				Vector3 start = transform.TransformPoint(m_points[^1]);
+				Vector3 end = transform.TransformPoint(m_points[0]);
+				minDistance = Mathf.Min(minDistance, DistanceToSegment(hitPt, start, end));
 			}
+
+			return minDistance;
 		}
+		#endregion
 
 		public override float GetLength()
 		{
@@ -232,16 +212,9 @@ namespace Echo.Component
 				return result;
 			}
 
-			List<Vector3> points = new List<Vector3>();
+			List<Vector3> points = new List<Vector3>(m_points);
 			if (m_isClosed)
-			{
-				points.AddRange(m_points);
 				points.Add(m_points[0]);
-			}
-			else
-			{
-				points.AddRange(m_points);
-			}
 
 			float sum = 0.0f;
 			float sampleDistance = 0.0f;
@@ -276,5 +249,27 @@ namespace Echo.Component
 
 			return result;
 		}
+
+		private static float DistanceToSegment(Vector3 point, Vector3 start, Vector3 end)
+		{
+			Vector3 segment = end - start;
+			float sqrLength = segment.sqrMagnitude;
+
+			if (sqrLength <= Mathf.Epsilon)
+				return Vector3.Distance(point, start);
+
+			float t = Vector3.Dot(point - start, segment) / sqrLength;
+			t = Mathf.Clamp01(t);
+
+			Vector3 closestPoint = start + segment * t;
+			return Vector3.Distance(point, closestPoint);
+		}
+
+		#region Unity 消息函数
+		private void OnDestroy()
+		{
+			PickManager.Unregister(this.gameObject);
+		}
+		#endregion
 	}
 }

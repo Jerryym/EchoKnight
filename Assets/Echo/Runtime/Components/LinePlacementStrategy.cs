@@ -43,13 +43,18 @@ namespace Echo.Component
 
 		public LinePlacementStrategy()
 		{
-			m_param = new LinePlacementParam();
 		}
 
 		public List<Pose> Compute()
 		{
 			if (m_curve == null || m_param == null)
 				return null;
+
+			if (m_param.spacing < 1e-6)
+			{
+				Debug.LogWarning("布设间距不能为0!");
+				return null;
+			}
 
 			if (m_curve.Type == CurveType.PolyLine)//多段线
 			{

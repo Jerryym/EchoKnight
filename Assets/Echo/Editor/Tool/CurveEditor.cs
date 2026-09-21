@@ -51,10 +51,10 @@ namespace Echo.Editor.Tool
 			Vector3 centerPt = arc.WorldCenterPoint;
 			Vector3 startDir = arc.WorldStartDirection;
 			float radius = arc.Radius;
-			float sweepAngle = Mathf.Abs(arc.SweepAngle) * Mathf.Rad2Deg;
+			float sweepAngle = -arc.SweepAngle * Mathf.Rad2Deg;
 
 			Handles.color = SELECT_COLOR;
-			Handles.DrawSolidDisc(centerPt, transform.up, 0.08f);
+			Handles.DrawSolidDisc(centerPt, transform.up, 0.05f);
 			Handles.DrawWireArc(centerPt, transform.up, startDir, sweepAngle, radius);
 		}
 
@@ -66,7 +66,7 @@ namespace Echo.Editor.Tool
 
 			var transform = arc.transform;
 			Vector3 centerPt = arc.WorldCenterPoint;
-			float size = HandleUtility.GetHandleSize(centerPt) * 0.08f;
+			float size = HandleUtility.GetHandleSize(centerPt) * 0.05f;
 
 			Handles.color = SELECT_COLOR;
 			Handles.DrawSolidDisc(centerPt, transform.up, size);
@@ -155,7 +155,7 @@ namespace Echo.Editor.Tool
 				return;
 
 			Vector3 centerPt = circle.WorldCenterPoint;
-			float size = HandleUtility.GetHandleSize(centerPt) * 0.08f;
+			float size = HandleUtility.GetHandleSize(centerPt) * 0.05f;
 
 			Handles.color = SELECT_COLOR;
 			Handles.DrawSolidDisc(centerPt, circle.transform.up, size);

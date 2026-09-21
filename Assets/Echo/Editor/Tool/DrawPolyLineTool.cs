@@ -146,6 +146,7 @@ namespace Echo.Editor.Tool
 			m_state = ToolState.Completed;
 			if (m_points.Count < 2)
 			{
+				Debug.LogWarning("创建多段线需至少两个点!");
 				EditorToolManager.ClearTool();
 				return;
 			}

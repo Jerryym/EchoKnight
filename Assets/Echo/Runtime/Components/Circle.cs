@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 namespace Echo.Component
@@ -28,7 +27,6 @@ namespace Echo.Component
 			get => m_radius;
 			set => m_radius = value;
 		}
-
 
 		public override CurveType Type => CurveType.Circle;
 
@@ -97,14 +95,6 @@ namespace Echo.Component
 		private void OnDestroy()
 		{
 			PickManager.Unregister(this.gameObject);
-		}
-
-		private void OnDrawGizmos()
-		{
-			Vector3 centerPt = transform.TransformPoint(CenterPoint);
-
-			Handles.color = color;
-			Handles.DrawWireDisc(centerPt, Vector3.up, m_radius);
 		}
 	}
 }

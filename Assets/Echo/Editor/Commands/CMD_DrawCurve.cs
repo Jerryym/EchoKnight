@@ -11,9 +11,10 @@ namespace Echo.Editor.Command
 		{
 			EditorToolManager.SetTool(new DrawArcTool());
 		}
-		
-		public void Undo()
+
+		public void Deactivate()
 		{
+			EditorToolManager.ClearTool();
 		}
 	}
 
@@ -24,8 +25,9 @@ namespace Echo.Editor.Command
 			EditorToolManager.SetTool(new DrawCircleTool());
 		}
 
-		public void Undo()
+		public void Deactivate()
 		{
+			EditorToolManager.ClearTool();
 		}
 	}
 
@@ -39,8 +41,9 @@ namespace Echo.Editor.Command
 			EditorToolManager.SetTool(new DrawPolyLineTool());
 		}
 
-		public void Undo()
+		public void Deactivate()
 		{
+			EditorToolManager.ClearTool();
 		}
 	}
 }

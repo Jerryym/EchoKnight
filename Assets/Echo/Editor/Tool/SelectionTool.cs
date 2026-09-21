@@ -58,6 +58,10 @@ namespace Echo.Editor.Tool
 		{
 			m_state = ToolState.Idle;
 			m_selectedObjs.Clear();
+
+			Selection.objects = null;
+			PickCursor.Enabled = false;
+			SceneView.RepaintAll();
 		}
 
 		void IEditorTool.OnSceneGUI(SceneView sceneView)

@@ -15,22 +15,15 @@ namespace Echo.Editor.Command
 				return;
 
 			m_controller?.Dispose();
-			activeWindow.RemoveElement();
-
 			m_view = new View_PTGTool();
 			m_controller = new Controller_PTGTool(m_view);
+
 			activeWindow.AddElement(m_view);
 		}
 
-		public void Undo()
+		public void Deactivate()
 		{
-			var activeWindow = RPGEditorToolWindow.ActiveWindow;
-			if (activeWindow == null)
-				return;
-
 			m_controller?.Dispose();
-			activeWindow.RemoveElement();
-			
 			m_controller = null;
 			m_view = null;
 		}

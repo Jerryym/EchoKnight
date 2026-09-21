@@ -75,25 +75,6 @@ namespace Echo.Editor
 			InitWidget();
 		}
 
-		private void OnGUI()
-		{
-			Event e = Event.current;
-			if (e.type == EventType.KeyDown)
-			{
-				if (e.control && e.keyCode == KeyCode.Z)
-				{
-					CommandManager.Instance.Undo();
-					e.Use();
-				}
-
-				if (e.control && e.keyCode == KeyCode.Y)
-				{
-					CommandManager.Instance.Redo();
-					e.Use();
-				}
-			}
-		}
-
 		public void AddElement(VisualElement element)
 		{
 			RemoveElement();
@@ -117,8 +98,11 @@ namespace Echo.Editor
 
 		private void OnDestroy()
 		{
-			if (ActiveWindow == this)
-				ActiveWindow = null;
+			if (ActiveWindow != this)
+				return;
+
+			CommandManager.Instance.Deactivate();
+			ActiveWindow = null;
 		}
 
 		private void InitLayout()
@@ -238,7 +222,7 @@ namespace Echo.Editor
 		{
 			foreach (var item in selectedItems)
 			{
-				var cmdInfo = item as CommandInfo;
+				CommandInfo cmdInfo = item as CommandInfo;
 				if (cmdInfo == null)
 					return;
 				Debug.Log("cmdName = " + cmdInfo.name);

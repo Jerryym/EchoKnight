@@ -71,6 +71,9 @@ namespace Echo.Editor
 			//删除预览
 			ClearPreview();
 
+			//清空编辑器工具
+			EditorToolManager.ClearTool();
+
 			m_isDisposed = true;
 		}
 

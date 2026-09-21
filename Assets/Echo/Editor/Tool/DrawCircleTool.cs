@@ -69,9 +69,14 @@ namespace Echo.Editor
 					}
 				case EventType.KeyDown:
 					{
-						if (e.keyCode == KeyCode.Return || e.keyCode == KeyCode.Escape || e.keyCode == KeyCode.KeypadEnter)
+						if (e.keyCode == KeyCode.Return || e.keyCode == KeyCode.KeypadEnter)//回车
 						{
 							Finish();
+							e.Use();
+						}
+						else if (e.keyCode == KeyCode.Escape)//ESC
+						{
+							Cancel();
 							e.Use();
 						}
 						break;
