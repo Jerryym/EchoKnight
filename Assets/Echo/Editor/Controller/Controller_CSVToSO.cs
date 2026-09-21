@@ -23,9 +23,10 @@ namespace Echo.Editor
 		private TextAsset m_csvAsset = null;
 
 		public Controller_CSVToSO(View_CSVToSO view)
-		{ 
+		{
+			var editorSettings = EditorSettings.instance;
 			m_view = view;
-			m_view.InitData(CSVToSOSettings.instance.viewData);//初始化数据
+			m_view.InitData(editorSettings.model_csvToSO);//初始化数据
 
 			m_tableModel = new TableModel();
 
@@ -35,8 +36,8 @@ namespace Echo.Editor
 			m_view.GenerateClicked += GenerateSO;
 			m_view.UpdateClicked += UpdateCSVFile;
 
-			int index = CSVToSOSettings.instance.viewData.configIndex;
-			TextAsset csvAsset = CSVToSOSettings.instance.viewData.csvfileAsset;
+			int index = editorSettings.model_csvToSO.configIndex;
+			TextAsset csvAsset = editorSettings.model_csvToSO.csvfileAsset;
 			InitTable(m_view.SOCofigTypes[index]);
 			if (csvAsset != null)
 				ReadCSVFile(csvAsset);
@@ -129,8 +130,9 @@ namespace Echo.Editor
 			RPGEditorToolWindow.ShowTip($"生成SO资源成功，共生成 {m_tableModel.RowCount} 条");
 
 			//保存界面数据
-			CSVToSOSettings.instance.viewData = m_view.GetData();
-			CSVToSOSettings.instance.Save();
+			var editorSettings = EditorSettings.instance;
+			editorSettings.model_csvToSO = m_view.GetData();
+			editorSettings.SaveSettings();
 		}
 
 		private void UpdateCSVFile()
@@ -157,8 +159,9 @@ namespace Echo.Editor
 				RPGEditorToolWindow.ShowTip("更新CSV文件失败，请查看控制台");
 
 			//保存界面数据
-			CSVToSOSettings.instance.viewData = m_view.GetData();
-			CSVToSOSettings.instance.Save();
+			var editorSettings = EditorSettings.instance;
+			editorSettings.model_csvToSO = m_view.GetData();
+			editorSettings.SaveSettings();
 		}
 
 		private void LoadCharacterPhysicsConfig(TextAsset textAsset, ref List<TableWidget.ColumnItem> columnItems)

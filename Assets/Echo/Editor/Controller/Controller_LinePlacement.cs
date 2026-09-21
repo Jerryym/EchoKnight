@@ -39,8 +39,9 @@ namespace Echo.Editor
 
 		public Controller_LinePlacement(View_LinePlacement view)
 		{
+			var editorSettings = EditorSettings.instance;
 			m_view = view;
-			//m_view.InitData(LinePlacementSettings.instance.viewData);
+			m_view.InitData(editorSettings.model_linePlacement);
 
 			m_selectedCurves = new List<GameObject>();
 			m_previewGOMap = new Dictionary<GameObject, GameObject>();
@@ -148,9 +149,14 @@ namespace Echo.Editor
 					CreatePlacementGO(name, curveGO);
 				}
 			}
-
+			RPGEditorToolWindow.ShowTip($"布设对象创建成功!");
 			m_placePoseMap.Clear();
 			m_isPreviewing = false;
+
+			//保存界面数据
+			var editorSettings = EditorSettings.instance;
+			editorSettings.model_linePlacement = m_viewModel;
+			editorSettings.SaveSettings();
 		}
 
 		private void OnCancelClick()

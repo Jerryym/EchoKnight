@@ -20,8 +20,9 @@ namespace Echo.Editor
 
 		public Controller_PTGTool(View_PTGTool view)
 		{
+			var editorSettings = EditorSettings.instance;
 			m_view = view;
-			m_view.InitData(PTGToolSettings.instance.viewData);//初始化数据
+			m_view.InitData(editorSettings.model_PTGTool);//初始化数据
 
 			m_terrainSetting = ScriptableObject.CreateInstance<TerrainSetting>();
 			m_terrainGOList = new List<GameObject>();
@@ -92,8 +93,9 @@ namespace Echo.Editor
 			}
 
 			//保存界面数据
-			PTGToolSettings.instance.viewData = param;
-			PTGToolSettings.instance.Save();
+			var editorSettings = EditorSettings.instance;
+			editorSettings.model_PTGTool = param;
+			editorSettings.SaveSettings();
 		}
 
 		/// <summary>
@@ -140,8 +142,9 @@ namespace Echo.Editor
 			}
 
 			//保存界面数据
-			PTGToolSettings.instance.viewData = param;
-			PTGToolSettings.instance.Save();
+			var editorSettings = EditorSettings.instance;
+			editorSettings.model_PTGTool = param;
+			editorSettings.SaveSettings();
 		}
 
 		/// <summary>
