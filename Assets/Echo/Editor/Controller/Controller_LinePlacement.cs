@@ -39,7 +39,7 @@ namespace Echo.Editor
 
 		public Controller_LinePlacement(View_LinePlacement view)
 		{
-			var editorSettings = EditorSettings.instance;
+			var editorSettings = EchoEditorSettings.instance;
 			m_view = view;
 			m_view.InitData(editorSettings.model_linePlacement);
 
@@ -154,7 +154,7 @@ namespace Echo.Editor
 			m_isPreviewing = false;
 
 			//保存界面数据
-			var editorSettings = EditorSettings.instance;
+			var editorSettings = EchoEditorSettings.instance;
 			editorSettings.model_linePlacement = m_viewModel;
 			editorSettings.SaveSettings();
 		}

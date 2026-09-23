@@ -20,7 +20,7 @@ namespace Echo.Editor
 
 		public Controller_PTGTool(View_PTGTool view)
 		{
-			var editorSettings = EditorSettings.instance;
+			var editorSettings = EchoEditorSettings.instance;
 			m_view = view;
 			m_view.InitData(editorSettings.model_PTGTool);//初始化数据
 
@@ -93,7 +93,7 @@ namespace Echo.Editor
 			}
 
 			//保存界面数据
-			var editorSettings = EditorSettings.instance;
+			var editorSettings = EchoEditorSettings.instance;
 			editorSettings.model_PTGTool = param;
 			editorSettings.SaveSettings();
 		}
@@ -142,7 +142,7 @@ namespace Echo.Editor
 			}
 
 			//保存界面数据
-			var editorSettings = EditorSettings.instance;
+			var editorSettings = EchoEditorSettings.instance;
 			editorSettings.model_PTGTool = param;
 			editorSettings.SaveSettings();
 		}

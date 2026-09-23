@@ -24,7 +24,7 @@ namespace Echo.Editor
 
 		public Controller_CSVToSO(View_CSVToSO view)
 		{
-			var editorSettings = EditorSettings.instance;
+			var editorSettings = EchoEditorSettings.instance;
 			m_view = view;
 			m_view.InitData(editorSettings.model_csvToSO);//初始化数据
 
@@ -130,7 +130,7 @@ namespace Echo.Editor
 			RPGEditorToolWindow.ShowTip($"生成SO资源成功，共生成 {m_tableModel.RowCount} 条");
 
 			//保存界面数据
-			var editorSettings = EditorSettings.instance;
+			var editorSettings = EchoEditorSettings.instance;
 			editorSettings.model_csvToSO = m_view.GetData();
 			editorSettings.SaveSettings();
 		}
@@ -159,7 +159,7 @@ namespace Echo.Editor
 				RPGEditorToolWindow.ShowTip("更新CSV文件失败，请查看控制台");
 
 			//保存界面数据
-			var editorSettings = EditorSettings.instance;
+			var editorSettings = EchoEditorSettings.instance;
 			editorSettings.model_csvToSO = m_view.GetData();
 			editorSettings.SaveSettings();
 		}
