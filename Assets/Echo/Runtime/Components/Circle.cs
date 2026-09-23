@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Echo.Component
+namespace Echo.Components
 {
 	public class Circle : Curve
 	{

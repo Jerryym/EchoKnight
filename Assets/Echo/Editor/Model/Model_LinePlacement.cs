@@ -15,6 +15,10 @@ namespace Echo.Editor
 		/// </summary>
 		public GameObject placeModel;
 		/// <summary>
+		/// 探测图层
+		/// </summary>
+		public LayerMask layerMask;
+		/// <summary>
 		/// 沿线布设参数
 		/// </summary>
 		public LinePlacementParam param = new LinePlacementParam();

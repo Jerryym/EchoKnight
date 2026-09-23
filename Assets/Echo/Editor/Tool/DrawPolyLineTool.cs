@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Echo.Component;
+using Echo.Components;
 using Echo.Editor.Utils;
 using Echo.Utils;
 using UnityEditor;

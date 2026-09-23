@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,6 +9,33 @@ namespace Echo.Editor.Utils
 	/// </summary>
 	public static class EditorTool
 	{
+		/// <summary>
+		/// 最大图层树
+		/// </summary>
+		private const int MaxLayerCount = 32;
+
+		#region Layer
+		/// <summary>
+		/// 获取所有图层名
+		/// </summary>
+		public static List<string> GetAllLayer()
+		{
+			List<string> layers = new List<string>();
+
+			for (int i = 0; i < MaxLayerCount; i++)
+			{
+				string layerName = LayerMask.LayerToName(i);
+				if (!string.IsNullOrEmpty(layerName))
+				{
+					layers.Add(layerName);
+				}
+			}
+
+			return layers;
+		}
+
+		#endregion
+
 		#region Tag
 		/// <summary>
 		/// 判断Tag是否存在

@@ -1,7 +1,8 @@
+using Echo.Utils;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Echo.Component
+namespace Echo.Components
 {
 	/// <summary>
 	/// 沿线布设组件
@@ -31,6 +32,17 @@ namespace Echo.Component
 		}
 
 		/// <summary>
+		/// 高度探测图层
+		/// </summary>
+		[SerializeField]
+		private LayerMask m_colliderLayer;
+		public LayerMask ColliderLayer
+		{
+			get { return m_colliderLayer; }
+			set { m_colliderLayer = value; }
+		}
+
+		/// <summary>
 		/// 沿线布设参数
 		/// </summary>
 		[SerializeField]
@@ -56,14 +68,16 @@ namespace Echo.Component
 				return null;
 			}
 
+			//获取指定图层中的组件
+			List<Collider> targetComponts = GameObjectUtility.FindComponentsByLayer<Collider>(m_colliderLayer);
 			if (m_curve.Type == CurveType.PolyLine)//多段线
 			{
-				return LinePlaceByPolyLine();
+				return LinePlaceByPolyLine(targetComponts);
 			}
 			return null;
 		}
 
-		private List<Pose> LinePlaceByPolyLine()
+		private List<Pose> LinePlaceByPolyLine(List<Collider> targetComponts)
 		{
 			PolyLine polyLine = m_curve as PolyLine;
 			if (polyLine == null)
@@ -78,7 +92,7 @@ namespace Echo.Component
 			float totalLength = GetPolyLineLength(points, out List<float> segmentLengths);
 
 			//获取采样点
-			List<Pose> poseList = ComputePoses(points, segmentLengths, totalLength);
+			List<Pose> poseList = ComputePoses(points, segmentLengths, totalLength, targetComponts);
 			return poseList;
 		}
 
@@ -102,7 +116,7 @@ namespace Echo.Component
 		/// <summary>
 		/// 按指定间距计算沿线布设 Pose
 		/// </summary>
-		private List<Pose> ComputePoses(List<Vector3> points, List<float> segmentLengths, float totalLength)
+		private List<Pose> ComputePoses(List<Vector3> points, List<float> segmentLengths, float totalLength, List<Collider> targetComponts)
 		{
 			float accumulation = 0.0f;
 			float sampleDistance = 0.0f;
@@ -131,6 +145,12 @@ namespace Echo.Component
 					float offset = Mathf.Lerp(m_param.offsetStart, m_param.offsetEnd, progress);
 					samplePt += tangentVec * offset;
 
+					//计算采样点高度
+					if (GetSamplePtHeight(samplePt, targetComponts, out float height))
+					{
+						samplePt.y = height;
+					}
+
 					//旋转
 					float angle = m_param.randomRotation ? Random.Range(m_param.rotationRange.x, m_param.rotationRange.y) : m_param.rotation;
 					Quaternion rotation = baseRotation * Quaternion.Euler(0f, angle, 0f);//先沿切线朝向，再叠加Y轴旋转
@@ -144,6 +164,41 @@ namespace Echo.Component
 			}
 
 			return poseList;
+		}
+
+		/// <summary>
+		/// 获取采样点高度
+		/// </summary>
+		private bool GetSamplePtHeight(Vector3 samplePt, List<Collider> colliders, out float height)
+		{
+			height = samplePt.y;
+			if (colliders == null || colliders.Count == 0)
+				return false;
+
+			bool isFind = false;
+			const float margin = 0.1f;
+			foreach (Collider collider in colliders)
+			{
+				if (collider == null || !collider.enabled || !collider.gameObject.activeInHierarchy ||
+					collider.isTrigger || (collider.gameObject.hideFlags & HideFlags.DontSaveInEditor) != 0)
+					continue;
+
+				Bounds bounds = collider.bounds;
+				if (samplePt.x < bounds.min.x || samplePt.x > bounds.max.x ||
+					samplePt.z < bounds.min.z || samplePt.z > bounds.max.z)
+					continue;
+
+				Vector3 origin = new Vector3(samplePt.x, bounds.max.y + margin, samplePt.z);
+				Ray ray = new Ray(origin, Vector3.down);
+				float maxDistance = bounds.size.y + 2f * margin;
+				if (collider.Raycast(ray, out RaycastHit hit, maxDistance) && (!isFind || hit.point.y > height))
+				{
+					height = hit.point.y;
+					isFind = true;
+				}
+			}
+
+			return isFind;
 		}
 	}
 }

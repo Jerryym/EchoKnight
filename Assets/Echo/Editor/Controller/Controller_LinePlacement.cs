@@ -1,4 +1,4 @@
-using Echo.Component;
+using Echo.Components;
 using Echo.Editor.Tool;
 using Echo.Editor.UI;
 using System;
@@ -229,6 +229,7 @@ namespace Echo.Editor
 			lineStrategy.Curve = curve;
 			lineStrategy.Param = m_viewModel.param;
 			lineStrategy.PlaceModel = m_viewModel.placeModel;
+			lineStrategy.ColliderLayer = m_viewModel.layerMask;
 
 			//获取布设点
 			List<Pose> placePoses= lineStrategy.Compute();
@@ -276,6 +277,7 @@ namespace Echo.Editor
 			lineStrategy.Curve = newCurveGO.GetComponent<Curve>();
 			lineStrategy.Param = m_viewModel.param;
 			lineStrategy.PlaceModel = m_viewModel.placeModel;
+			lineStrategy.ColliderLayer = m_viewModel.layerMask;
 
 			//获取布设点
 			List<Pose> placePoses = lineStrategy.Compute();
@@ -322,6 +324,7 @@ namespace Echo.Editor
 			lineStrategy.Curve = newCurveGO.GetComponent<Curve>();
 			lineStrategy.Param = m_viewModel.param;
 			lineStrategy.PlaceModel = m_viewModel.placeModel;
+			lineStrategy.ColliderLayer = m_viewModel.layerMask;
 
 			//放置模型
 			GameObject placementGO = new GameObject("Placement Models");

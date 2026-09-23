@@ -1,4 +1,4 @@
-using Echo.Component;
+using Echo.Components;
 using UnityEditor;
 using UnityEngine;
 

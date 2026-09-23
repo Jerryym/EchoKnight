@@ -18,7 +18,8 @@ namespace Echo.Editor
 		//基础参数
 		private TextField m_nameField = null;
 		private ObjectField m_prefabField = null;
-		
+		private LayerMaskField m_colliderLayerField = null;
+
 		//沿线布设参数
 		private FloatField m_spacingField = null;
 		private FloatField m_offsetStartField = null;
@@ -60,6 +61,7 @@ namespace Echo.Editor
 		{
 			m_nameField.value = model.name;
 			m_prefabField.value = model.placeModel;
+			m_colliderLayerField.value = model.layerMask;
 
 			m_spacingField.value = model.param.spacing;
 			m_offsetStartField.value = model.param.offsetStart;
@@ -86,6 +88,7 @@ namespace Echo.Editor
 			{
 				name = m_nameField.value,
 				placeModel = m_prefabField.value as GameObject,
+				layerMask = m_colliderLayerField.value,
 				param = param
 			};
 		}
@@ -114,6 +117,10 @@ namespace Echo.Editor
 			m_prefabField.objectType = typeof(GameObject);
 			m_prefabField.RegisterValueChangedCallback(OnPrefabChanged);
 			contentGroup.Add(m_prefabField);
+
+			m_colliderLayerField = new LayerMaskField("高度探测图层");
+			m_colliderLayerField.RegisterValueChangedCallback(evt => ValueChanged?.Invoke());
+			contentGroup.Add(m_colliderLayerField);
 
 			//沿线分布
 			GroupBox distributionGroup = new GroupBox("沿线分布");
