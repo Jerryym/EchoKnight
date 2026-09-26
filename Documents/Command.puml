@@ -1,0 +1,30 @@
+@startuml Command
+interface ICommand {
+    + void Execute()
+}
+
+class MoveCommand implements ICommand {
+    - m_playerController : PlayerController
+    - m_input : Vector2
+
+    + MoveCommand(PlayerController player, Vector2 input)
+    + void Execute()
+}
+
+class JumpCommand implements ICommand {
+    - m_playerController : PlayerController
+
+    + JumpCommand(PlayerController player)
+    + void Execute()
+}
+
+class CommandManager {
+    - m_player : PlayerController
+    - m_currentCMD : ICommand
+
+    + CommandManager(PlayerController player)
+    + void ExecuteCommand()
+}
+
+CommandManager o-- ICommand
+@enduml

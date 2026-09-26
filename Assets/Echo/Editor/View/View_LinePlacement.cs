@@ -1,0 +1,235 @@
+using System;
+using Echo.Editor.UI;
+using UnityEditor;
+using UnityEditor.UIElements;
+using UnityEngine;
+using UnityEngine.UIElements;
+
+namespace Echo.Editor
+{
+	/// <summary>
+	/// 沿线布设
+	/// </summary>
+	public class View_LinePlacement : EchoElement
+	{
+		#region 控件
+		private ScrollView m_scrollView = null;
+
+		//基础参数
+		private TextField m_nameField = null;
+		private ObjectField m_prefabField = null;
+		private LayerMaskField m_colliderLayerField = null;
+
+		//沿线布设参数
+		private FloatField m_spacingField = null;
+		private FloatField m_offsetStartField = null;
+		private FloatField m_offsetEndField = null;
+		private Toggle m_randomRotationToggle = null;
+		private FloatField m_rotationField = null;
+		private Vector2Field m_rotationRangeField = null;
+
+		private Label m_label = null;
+		public Label Label => m_label;
+
+		//按钮
+		private ButtonField m_selCurve = null;
+		private Button m_previewBtn = null;
+		private Button m_okBtn = null;
+		private Button m_cancelBtn = null;
+		#endregion
+
+		#region 事件
+		public event Action SelCurves;
+		public event Action PreviewBtnClick;
+		public event Action OkClick;
+		public event Action CancelClick;
+		public event Action ValueChanged;
+		#endregion
+
+		public View_LinePlacement() : base()
+		{
+			//加载uss
+			StyleSheet uss_GroupBox = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Echo/Editor/View/Styles/GroupBox.uss");
+			this.styleSheets.Add(uss_GroupBox);
+			this.style.fontSize = 12;
+
+			SetElementTitle("沿线布设");
+			InitWidget();
+		}
+
+		public void InitData(Model_LinePlacement model)
+		{
+			m_nameField.value = model.name;
+			m_prefabField.value = model.placeModel;
+			m_colliderLayerField.value = model.layerMask;
+
+			m_spacingField.value = model.param.spacing;
+			m_offsetStartField.value = model.param.offsetStart;
+			m_offsetEndField.value = model.param.offsetEnd;
+
+			m_randomRotationToggle.value = model.param.randomRotation;
+			m_rotationField.value = model.param.rotation;
+			m_rotationRangeField.value = model.param.rotationRange;
+		}
+
+		public Model_LinePlacement GetData()
+		{
+			LinePlacementParam param = new LinePlacementParam();
+			param.mode = PlacementMode.Line;
+			param.spacing = m_spacingField.value;
+			param.offsetStart = m_offsetStartField.value;
+			param.offsetEnd = m_offsetEndField.value;
+			param.randomRotation = m_randomRotationToggle.value;
+			param.rotation = m_rotationField.value;
+			if (m_randomRotationToggle.value)
+				param.rotationRange = m_rotationRangeField.value;
+
+			return new Model_LinePlacement
+			{
+				name = m_nameField.value,
+				placeModel = m_prefabField.value as GameObject,
+				layerMask = m_colliderLayerField.value,
+				param = param
+			};
+		}
+
+		private void InitWidget()
+		{
+			m_scrollView = new ScrollView(ScrollViewMode.Vertical);
+			m_scrollView.style.flexGrow = 1;
+			this.Add(m_scrollView);
+
+			InitParams();
+			InitButton();
+		}
+
+		private void InitParams()
+		{
+			//放置对象
+			GroupBox contentGroup = new GroupBox("布设内容");
+			contentGroup.AddToClassList("group-box");
+			m_scrollView.Add(contentGroup);
+
+			m_nameField = new TextField("名称");
+			contentGroup.Add(m_nameField);
+
+			m_prefabField = new ObjectField("模型");
+			m_prefabField.objectType = typeof(GameObject);
+			m_prefabField.RegisterValueChangedCallback(OnPrefabChanged);
+			contentGroup.Add(m_prefabField);
+
+			m_colliderLayerField = new LayerMaskField("高度探测图层");
+			m_colliderLayerField.RegisterValueChangedCallback(evt => ValueChanged?.Invoke());
+			contentGroup.Add(m_colliderLayerField);
+
+			//沿线分布
+			GroupBox distributionGroup = new GroupBox("沿线分布");
+			distributionGroup.AddToClassList("group-box");
+			m_scrollView.Add(distributionGroup);
+			m_spacingField = new FloatField("间隔");
+			m_spacingField.value = 5.0f;
+			m_spacingField.RegisterValueChangedCallback(evt =>
+			{
+				//spacing不可小于0
+				if (evt.newValue <= 0)
+				{
+					m_spacingField.SetValueWithoutNotify(evt.previousValue);
+					return;
+				}
+				ValueChanged?.Invoke();
+			});
+			distributionGroup.Add(m_spacingField);
+
+			m_offsetStartField = new FloatField("起点偏移（左+右-）");
+			m_offsetStartField.RegisterValueChangedCallback(evt => ValueChanged?.Invoke());
+			distributionGroup.Add(m_offsetStartField);
+
+			m_offsetEndField = new FloatField("终点偏移（左+右-）");
+			m_offsetEndField.RegisterValueChangedCallback(evt => ValueChanged?.Invoke());
+			distributionGroup.Add(m_offsetEndField);
+
+			//朝向
+			GroupBox orientationGroup = new GroupBox("朝向");
+			orientationGroup.AddToClassList("group-box");
+			m_scrollView.Add(orientationGroup);
+
+			m_randomRotationToggle = new Toggle("随机旋转");
+			m_randomRotationToggle.RegisterValueChangedCallback(evt =>
+			{
+				m_rotationField.style.display = evt.newValue ? DisplayStyle.None : DisplayStyle.Flex;
+				m_rotationRangeField.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
+
+				ValueChanged?.Invoke();
+			});
+			orientationGroup.Add(m_randomRotationToggle);
+
+			m_rotationField = new FloatField("旋转角度");
+			m_rotationField.style.display = m_randomRotationToggle.value ? DisplayStyle.None : DisplayStyle.Flex;
+			m_rotationField.RegisterValueChangedCallback(evt => ValueChanged?.Invoke());
+			orientationGroup.Add(m_rotationField);
+
+			m_rotationRangeField = new Vector2Field("旋转角度范围");
+			m_rotationRangeField.style.display = m_randomRotationToggle.value ? DisplayStyle.Flex : DisplayStyle.None;
+			m_rotationRangeField.RegisterValueChangedCallback(evt => ValueChanged?.Invoke());
+			orientationGroup.Add(m_rotationRangeField);
+	
+			//布设路径
+			GroupBox pathGroup = new GroupBox("布设路径");
+			pathGroup.AddToClassList("group-box");
+			m_scrollView.Add(pathGroup);
+
+			m_selCurve = new ButtonField("选择曲线", "选择曲线");
+			m_selCurve.button.clicked += () => SelCurves?.Invoke();
+			pathGroup.Add(m_selCurve);
+
+			m_label = new Label("已选曲线：0");
+			pathGroup.Add(m_label);
+		}
+
+		private void InitButton()
+		{
+			VisualElement buttonPanel = new VisualElement();
+			buttonPanel.style.flexDirection = FlexDirection.Row;
+			buttonPanel.style.justifyContent = Justify.SpaceBetween;
+			buttonPanel.style.alignItems = Align.Center;
+			buttonPanel.style.marginTop = 6;
+			buttonPanel.style.marginBottom = 4;
+			m_scrollView.Add(buttonPanel);
+
+			VisualElement leftPanel = new VisualElement();
+			leftPanel.style.flexDirection = FlexDirection.Row;
+			buttonPanel.Add(leftPanel);
+
+			VisualElement rightPanel = new VisualElement();
+			rightPanel.style.flexDirection = FlexDirection.Row;
+			rightPanel.style.justifyContent = Justify.FlexEnd;
+			buttonPanel.Add(rightPanel);
+
+			m_previewBtn = new Button();
+			m_previewBtn.text = "预览";
+			m_previewBtn.clicked += () => PreviewBtnClick?.Invoke();
+			rightPanel.Add(m_previewBtn);
+
+			m_okBtn = new Button();
+			m_okBtn.text = "确定";
+			m_okBtn.clicked += () => OkClick?.Invoke();
+			rightPanel.Add(m_okBtn);
+
+			m_cancelBtn = new Button();
+			m_cancelBtn.text = "取消";
+			m_cancelBtn.clicked += () => CancelClick?.Invoke();
+			rightPanel.Add(m_cancelBtn);
+		}
+
+		private void OnPrefabChanged(ChangeEvent<UnityEngine.Object> evt)
+		{
+			var model = m_prefabField.value as GameObject;
+			if (model != null && string.IsNullOrEmpty(m_nameField.value))
+			{
+				m_nameField.value = model.name;
+			}
+
+			ValueChanged?.Invoke();
+		}
+	}
+}

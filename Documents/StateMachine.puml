@@ -1,0 +1,64 @@
+@startuml StateMachine
+
+class PlayerStateMachine {
+	- m_playerController : PlayerController
+	- m_currentState : PlayerBaseState
+
+	+ PlayerStateMachine(PlayerController playerController)
+	+ void Update()
+	+ void SetMoveInput(Vector2 input)
+}
+
+interface IState {
+	+ void EnterState();
+	+ void UpdateState();
+	+ void ExitState();
+}
+
+abstract class PlayerBaseState implements IState {
+	# m_stateMachine : PlayerStateMachine
+
+	+ PlayerBaseState(PlayerStateMachine stateMachine)
+	+ {abstract} void EnterState()
+	+ {abstract} void UpdateState()
+	+ {abstract} void ExitState()
+}
+
+abstract class PlayerParentState extends PlayerBaseState {
+	# m_subStates : Dictionary<PlayerSubStateType, PlayerSubState>
+	# m_currentSubState : PlayerSubState
+
+	+ PlayerParentState(PlayerStateMachine stateMachine)
+	# {abstract} void CheckSwitchStates()
+	# {abstract} void InitSubStates()
+	# void SwitchParentState(PlayerStateType parentStateType)
+	# void SwitchSubState(PlayerSubStateType subStateType)
+}
+
+abstract class PlayerSubState extends PlayerBaseState { 
+	+ {abstract} PlayerSubStateType Type
+}
+
+class PlayerGroundedState extends PlayerParentState {
+}
+
+class PlayerIdleState extends PlayerSubState {
+}
+
+class PlayerWalkState extends PlayerSubState {
+}
+
+class PlayerRunState extends PlayerSubState {
+}
+
+class PlayerAirBorneState extends PlayerParentState { 
+}
+
+class PlayerJumpState extends PlayerSubState { 
+}
+
+class PlayerFallingState extends PlayerSubState { 
+}
+
+PlayerStateMachine *-- PlayerBaseState
+@enduml
