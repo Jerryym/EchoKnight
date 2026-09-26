@@ -42,18 +42,17 @@ namespace Echo.Editor
 		private Toggle m_toggleLOD = null;
 		private DropdownField m_lodLevelField = null;
 		
-		private Button m_updateBtn = null;
 		private Button m_refreshBtn = null;
-		private Button m_saveBtn = null;
+		private Button m_saveSettingBtn = null;
+		private Button m_okBtn = null;
+		private Button m_cancelBtn = null;
 		#endregion
 
-		public string ConfigSavePath => m_configSavePath.Path;
-		public string TerrainSavePath => m_terrainPath.Path;
-
 		#region 事件
-		public event Action UpdateClicked;
 		public event Action RefreshClicked;
-		public event Action SaveClicked;
+		public event Action SaveSettingClicked;
+		public event Action OkClicked;
+		public event Action CancelClicked;
 		#endregion
 
 		public View_PTGTool() : base()
@@ -262,20 +261,25 @@ namespace Echo.Editor
 			buttonPanel.style.justifyContent = Justify.FlexEnd;
 			m_scrollView.Add(buttonPanel);
 
-			m_updateBtn = new Button();
-			m_updateBtn.text = "保存/更新设置";
-			m_updateBtn.clicked += () => UpdateClicked?.Invoke();
-			buttonPanel.Add(m_updateBtn);
-
 			m_refreshBtn = new Button();
 			m_refreshBtn.text = "生成/刷新";
 			m_refreshBtn.clicked += () => RefreshClicked?.Invoke();
 			buttonPanel.Add(m_refreshBtn);
 
-			m_saveBtn = new Button();
-			m_saveBtn.text = "保存";
-			m_saveBtn.clicked += () => SaveClicked?.Invoke();
-			buttonPanel.Add(m_saveBtn);
+			m_saveSettingBtn = new Button();
+			m_saveSettingBtn.text = "更新/保存设置";
+			m_saveSettingBtn.clicked += () => SaveSettingClicked?.Invoke();
+			buttonPanel.Add(m_saveSettingBtn);
+
+			m_okBtn = new Button();
+			m_okBtn.text = "确定";
+			m_okBtn.clicked += () => OkClicked?.Invoke();
+			buttonPanel.Add(m_okBtn);
+
+			m_cancelBtn = new Button();
+			m_cancelBtn.text = "取消";
+			m_cancelBtn.clicked += () => CancelClicked?.Invoke();
+			buttonPanel.Add(m_cancelBtn);
 		}
 
 		private void UpdateParamByType(ChangeEvent<Enum> evt)

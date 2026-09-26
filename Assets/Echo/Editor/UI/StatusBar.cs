@@ -13,6 +13,7 @@ namespace Echo.Editor.UI
 		/// </summary>
 		public enum TipLevel
 		{
+			Debug,
 			Info,
 			Warning,
 			Error
@@ -37,8 +38,11 @@ namespace Echo.Editor.UI
 			m_label.text = text;
 			switch (level)
 			{
-				case TipLevel.Info:
+				case TipLevel.Debug:
 					ApplyStyle(new Color(0.18f, 0.18f, 0.18f), new Color(0.85f, 0.85f, 0.85f));
+					break;
+				case TipLevel.Info:
+					ApplyStyle(new Color(0.05f, 0.25f, 0.10f), new Color(0.35f, 0.90f, 0.45f));
 					break;
 				case TipLevel.Warning:
 					ApplyStyle(new Color(0.35f, 0.28f, 0.0f), new Color(1.0f, 0.8f, 0.2f));

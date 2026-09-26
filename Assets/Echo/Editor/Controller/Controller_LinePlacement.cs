@@ -133,20 +133,24 @@ namespace Echo.Editor
 
 			//清空预览
 			ClearPreview();
-			//删除已创建的布设对象
-			ClearPlacementObject();
 
-			for (int i = 0; i < m_selectedCurves.Count; i++)
+			using (new EditorUndoScope("Create Line Placement"))
 			{
-				string name = (i == 0) ? m_viewModel.name : m_viewModel.name + $"_{i + 1}";
-				var curveGO = m_selectedCurves[i];
-				if (m_placePoseMap.TryGetValue(curveGO, out List<Pose> placePoses))
+				//删除已创建的布设对象
+				ClearPlacementObject();
+
+				for (int i = 0; i < m_selectedCurves.Count; i++)
 				{
-					CreatePlacementGO(name, curveGO, placePoses);
-				}
-				else
-				{
-					CreatePlacementGO(name, curveGO);
+					string name = (i == 0) ? m_viewModel.name : m_viewModel.name + $"_{i + 1}";
+					var curveGO = m_selectedCurves[i];
+					if (m_placePoseMap.TryGetValue(curveGO, out List<Pose> placePoses))
+					{
+						CreatePlacementGO(name, curveGO, placePoses);
+					}
+					else
+					{
+						CreatePlacementGO(name, curveGO);
+					}
 				}
 			}
 			RPGEditorToolWindow.ShowTip($"布设对象创建成功!");
@@ -299,6 +303,7 @@ namespace Echo.Editor
 				instance.transform.SetParent(placementGO.transform, true);
 				instance.transform.SetPositionAndRotation(placePoses[i].position, placePoses[i].rotation);
 			}
+			EditorUndoUtility.RegisterCreateObject(placementRootGO, "Create Line Placement");
 			m_placementGOs.Add(placementRootGO);
 		}
 
@@ -338,6 +343,7 @@ namespace Echo.Editor
 				instance.transform.SetParent(placementGO.transform, true);
 				instance.transform.SetPositionAndRotation(placePoses[i].position, placePoses[i].rotation);
 			}
+			EditorUndoUtility.RegisterCreateObject(placementRootGO, "Create Line Placement");
 			m_placementGOs.Add(placementRootGO);
 		}
 
@@ -395,10 +401,10 @@ namespace Echo.Editor
 			{
 				if (m_placementGOs[i] != null)
 				{
-					UnityEngine.Object.DestroyImmediate(m_placementGOs[i]);
+					EditorUndoUtility.DestoryObject(m_placementGOs[i]);
 				}
 			}
-			m_placementGOs.Clear();
+			//保留引用，确保Undo恢复旧对象后，后续重新生成仍能找到并替换它们
 		}
 	}
 }

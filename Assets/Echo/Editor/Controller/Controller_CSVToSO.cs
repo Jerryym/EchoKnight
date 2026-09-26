@@ -94,45 +94,49 @@ namespace Echo.Editor
 			{
 				GenerateCharacterPhysicsConfigSO();
 			}
+
+
+			//保存界面数据
+			var editorSettings = EchoEditorSettings.instance;
+			editorSettings.model_csvToSO = m_view.GetData();
+			editorSettings.SaveSettings();
 		}
 
 		private void GenerateCharacterPhysicsConfigSO()
 		{
-			for (int i = 0; i < m_tableModel.RowCount; i++)
+			using (new EditorUndoScope("Generate Character Physics Config"))
 			{
-				string characterName = m_tableModel.GetValue(i, 0).ToString();
-				if (string.IsNullOrEmpty(characterName))
+				for (int i = 0; i < m_tableModel.RowCount; i++)
 				{
-					RPGEditorToolWindow.ShowTip($"第{i + 1}行 角色类型 为空!", StatusBar.TipLevel.Warning);
-					continue;
-				}
+					string characterName = m_tableModel.GetValue(i, 0).ToString();
+					if (string.IsNullOrEmpty(characterName))
+					{
+						RPGEditorToolWindow.ShowTip($"第{i + 1}行 角色类型 为空!", StatusBar.TipLevel.Warning);
+						continue;
+					}
 
-				string assetPath = Path.Combine(m_view.ConfigSavePath, characterName + ".asset");
-				var configSO = AssetDatabase.LoadAssetAtPath<CharacterPhysicsConfigSO>(assetPath);
-				if (configSO == null)
-				{
-					configSO = ScriptableObject.CreateInstance<CharacterPhysicsConfigSO>();
-					Undo.RegisterCreatedObjectUndo(configSO, "Create SO");
-					AssetDatabase.CreateAsset(configSO, assetPath);
-				}
-				else
-				{
-					Undo.RecordObject(configSO, "Modify SO");
-				}
+					string assetPath = Path.Combine(m_view.ConfigSavePath, characterName + ".asset");
+					var configSO = AssetDatabase.LoadAssetAtPath<CharacterPhysicsConfigSO>(assetPath);
+					if (configSO == null)
+					{
+						configSO = ScriptableObject.CreateInstance<CharacterPhysicsConfigSO>();
+						AssetDatabase.CreateAsset(configSO, assetPath);
+					}
+					else
+					{
+						EditorUndoUtility.RecordObject(configSO, "Generate Character Physics Config");
+					}
 
-				//赋值
-				SetCharacterPhysicsConfig(m_tableModel.Rows[i], configSO);
+					//赋值
+					SetCharacterPhysicsConfig(m_tableModel.Rows[i], configSO);
+					EditorUtility.SetDirty(configSO);
+				}
 			}
 
 			//保存
 			AssetDatabase.SaveAssets();
 			AssetDatabase.Refresh();
 			RPGEditorToolWindow.ShowTip($"生成SO资源成功，共生成 {m_tableModel.RowCount} 条");
-
-			//保存界面数据
-			var editorSettings = EchoEditorSettings.instance;
-			editorSettings.model_csvToSO = m_view.GetData();
-			editorSettings.SaveSettings();
 		}
 
 		private void UpdateCSVFile()

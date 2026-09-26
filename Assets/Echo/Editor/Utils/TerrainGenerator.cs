@@ -1,4 +1,3 @@
-using Echo.Editor;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,9 +11,7 @@ namespace Echo.Editor.Utils
 		/// <summary>
 		/// 创建地形Mesh
 		/// </summary>
-		/// <param name="setting">地形配置</param>
-		/// <returns></returns>
-		public static GameObject GenerateTerrain(string terrainName, TerrainSetting setting)
+		public static Dictionary<Vector3, Mesh> GenerateTerrain(TerrainSetting setting)
 		{
 			if (setting == null)
 			{
@@ -22,45 +19,32 @@ namespace Echo.Editor.Utils
 				return null;
 			}
 
-			if (terrainName == null)
-			{
-				terrainName = "Terrain";
-			}
-
 			//创建高度图
 			float[,] heightMap = GenerateHeightMap(setting);
 
-			//创建GameObject
-			GameObject terrainGO = new GameObject(terrainName);
-
 			//创建分块Mesh
+			Dictionary<Vector3, Mesh> chunkMeshMap = new Dictionary<Vector3, Mesh>();
 			int chunkCountX = setting.terrainWidth / setting.chunkSize;
 			int chunkCountZ = setting.terrainLength / setting.chunkSize;
 			for (int cz = 0; cz < chunkCountZ; cz++)
 			{
 				for (int cx = 0; cx < chunkCountX; cx++)
 				{
-					GameObject chunkGO = new GameObject($"Chunk_{cx}_{cz}");
-					chunkGO.transform.parent = terrainGO.transform;
-					chunkGO.transform.localPosition = new Vector3(cx * setting.chunkSize, 0, cz * setting.chunkSize);
-
-					//添加组件
-					MeshFilter meshFilter = chunkGO.AddComponent<MeshFilter>();
-					MeshRenderer meshRenderer = chunkGO.AddComponent<MeshRenderer>();
-					MeshCollider meshCollider = chunkGO.AddComponent<MeshCollider>();
-
 					//创建Mesh
 					Mesh mesh = CreateMesh(setting, cx, cz, heightMap, 1);
 					mesh.name = $"Chunk_{cx}_{cz}";
-					meshFilter.sharedMesh = mesh;
-					meshRenderer.sharedMaterial = setting.material;
-					meshCollider.sharedMesh = mesh;
+
+					Vector3 position = new Vector3(cx * setting.chunkSize, 0, cz * setting.chunkSize);
+					chunkMeshMap.Add(position, mesh);
 				}
 			}
-			return terrainGO;
+			return chunkMeshMap;
 		}
 
-		public static List<GameObject> GenerateTerrainLODs(string terrainName, TerrainSetting setting)
+		/// <summary>
+		/// 创建地形LOD分块Mesh
+		/// </summary>
+		public static Dictionary<int, Dictionary<Vector3, Mesh>> GenerateTerrainLODs(TerrainSetting setting)
 		{
 			if (setting == null)
 			{
@@ -68,93 +52,70 @@ namespace Echo.Editor.Utils
 				return null;
 			}
 
-			if (terrainName == null)
-			{
-				terrainName = "Terrain";
-			}
-
-			List<GameObject> terrainGOList = new List<GameObject>();
-
 			//创建高度图
 			float[,] heightMap = GenerateHeightMap(setting);
+
+			//创建分块Mesh
+			Dictionary<int, Dictionary<Vector3, Mesh>> lodMeshMap = new Dictionary<int, Dictionary<Vector3, Mesh>>();
+			int chunkCountX = setting.terrainWidth / setting.chunkSize;
+			int chunkCountZ = setting.terrainLength / setting.chunkSize;
 			for (int i = 0; i < setting.lodLevel; ++i)
 			{
-				//创建GameObject
-				GameObject terrainGO = new GameObject($"{terrainName}_LOD{i}");
-				terrainGO.transform.position = new Vector3((setting.terrainWidth + 20) * i, 0, 0);
-
-				//创建分块Mesh
-				int chunkCountX = setting.terrainWidth / setting.chunkSize;
-				int chunkCountZ = setting.terrainLength / setting.chunkSize;
+				Dictionary<Vector3, Mesh> chunkMeshMap = new Dictionary<Vector3, Mesh>(chunkCountX * chunkCountZ);
 				for (int cz = 0; cz < chunkCountZ; cz++)
 				{
 					for (int cx = 0; cx < chunkCountX; cx++)
 					{
-						GameObject chunkGO = new GameObject($"Chunk_{cx}_{cz}");
-						chunkGO.transform.parent = terrainGO.transform;
-						chunkGO.transform.localPosition = new Vector3(cx * setting.chunkSize, 0, cz * setting.chunkSize);
-
-						//添加组件
-						MeshFilter meshFilter = chunkGO.AddComponent<MeshFilter>();
-						MeshRenderer meshRenderer = chunkGO.AddComponent<MeshRenderer>();
-						MeshCollider meshCollider = chunkGO.AddComponent<MeshCollider>();
-
 						//创建Mesh
 						Mesh mesh = CreateMesh(setting, cx, cz, heightMap, 1 << i);
 						mesh.name = $"Chunk_{cx}_{cz}";
-						meshFilter.sharedMesh = mesh;
-						meshRenderer.sharedMaterial = setting.material;
-						meshCollider.sharedMesh = mesh;
+						Vector3 position = new Vector3(cx * setting.chunkSize, 0, cz * setting.chunkSize);
+						chunkMeshMap.Add(position, mesh);
 					}
 				}
-				terrainGOList.Add(terrainGO);
+				lodMeshMap.Add(i, chunkMeshMap);
 			}
-			return terrainGOList;
+			return lodMeshMap;
 		}
 
 		/// <summary>
 		/// 合并分块Mesh
 		/// </summary>
-		/// <param name="terrainGO"></param>
-		public static GameObject CombineChunkMeshes(GameObject terrainGO, Material terrainMat)
+		public static Mesh CombineChunkMeshes(MeshFilter[] meshFilters, Transform transform, string meshName)
 		{
-			if (terrainGO == null)
+			if (meshFilters == null || meshFilters.Length == 0 || transform == null)
 				return null;
 
 			//获取子对象的MeshFilter
-			MeshFilter[] meshFilters = terrainGO.GetComponentsInChildren<MeshFilter>();
 			List<CombineInstance> combineInstances = new List<CombineInstance>();
 			foreach (MeshFilter meshFilter in meshFilters)
 			{
 				if (meshFilter == null || meshFilter.sharedMesh == null)
 					continue;
 
-				CombineInstance combineInstance = new CombineInstance();
-				combineInstance.mesh = meshFilter.sharedMesh;
-				combineInstance.transform = meshFilter.transform.localToWorldMatrix * terrainGO.transform.worldToLocalMatrix;
+				CombineInstance combineInstance = new CombineInstance
+				{
+					mesh = meshFilter.sharedMesh,
+					transform = meshFilter.transform.localToWorldMatrix * transform.worldToLocalMatrix
+				};
 				combineInstances.Add(combineInstance);
 			}
 
-			GameObject newTerrainGO = new GameObject(terrainGO.name);
-			MeshFilter newMeshFilter = newTerrainGO.AddComponent<MeshFilter>();
-			MeshRenderer newMeshRenderer = newTerrainGO.AddComponent<MeshRenderer>();
-			MeshCollider meshCollider = newTerrainGO.AddComponent<MeshCollider>();
+			if (combineInstances.Count == 0)
+				return null;
 
 			//创建Mesh
-			Mesh combinedMesh = new Mesh();
-			combinedMesh.name = $"{terrainGO.name}_Mesh";
-			combinedMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+			Mesh combinedMesh = new Mesh()
+			{
+				name = meshName,
+				indexFormat = UnityEngine.Rendering.IndexFormat.UInt32
+			};
 			combinedMesh.CombineMeshes(combineInstances.ToArray(), true, true);
 			combinedMesh.RecalculateBounds();
 			combinedMesh.RecalculateNormals();
 			combinedMesh.RecalculateTangents();
 
-			newMeshFilter.sharedMesh = combinedMesh;
-			newMeshRenderer.sharedMaterial = terrainMat;
-			meshCollider.sharedMesh = combinedMesh;
-
-			newTerrainGO.transform.position = Vector3.zero;
-			return newTerrainGO;
+			return combinedMesh;
 		}
 
 		/// <summary>

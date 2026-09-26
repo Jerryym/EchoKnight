@@ -27,5 +27,27 @@ namespace Echo.Utils
 
 			return results;
 		}
+
+		/// <summary>
+		/// 获取指定图层上所有指定组件的对象
+		/// </summary>
+		public static List<T> FindComponentsByLayer<T>(int layerIndex)
+			where T : Component
+		{
+			T[] components = Object.FindObjectsByType<T>(FindObjectsSortMode.None);
+			if (components.Length == 0)
+				return null;
+
+			List<T> results = new List<T>();
+			foreach (var component in components)
+			{
+				if (component.gameObject.layer == layerIndex)
+				{
+					results.Add(component);
+				}
+			}
+
+			return results;
+		}
 	}
 }
