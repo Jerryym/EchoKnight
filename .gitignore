@@ -99,6 +99,6 @@ InitTestScene*.unity*
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
 /.vscode
 
-# Settings
-PTGTool.asset
-CSVToSO.asset
+# MCP
+Tools/EchoKnight.Mcp/EchoKnight.Mcp.Server/bin/
+Tools/EchoKnight.Mcp/EchoKnight.Mcp.Server/obj/
