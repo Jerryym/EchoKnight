@@ -5,6 +5,10 @@ VisualStudioVersion = 17.14.37628.2
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EchoKnight.Mcp.Server", "EchoKnight.Mcp.Server\EchoKnight.Mcp.Server.csproj", "{9DCA0A96-C697-4D90-81E8-A02B837C37FD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EchoKnight.Mcp.Bridge", "EchoKnight.Mcp.Bridge\EchoKnight.Mcp.Bridge.csproj", "{FD2E6AAE-0EDB-4E8E-B8DE-28667543EB6B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EchoKnight.Mcp.Protocol", "EchoKnight.Mcp.Protocol\EchoKnight.Mcp.Protocol.csproj", "{A7659875-7650-4CDB-AD83-542CF1552A32}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{9DCA0A96-C697-4D90-81E8-A02B837C37FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DCA0A96-C697-4D90-81E8-A02B837C37FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9DCA0A96-C697-4D90-81E8-A02B837C37FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD2E6AAE-0EDB-4E8E-B8DE-28667543EB6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD2E6AAE-0EDB-4E8E-B8DE-28667543EB6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD2E6AAE-0EDB-4E8E-B8DE-28667543EB6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD2E6AAE-0EDB-4E8E-B8DE-28667543EB6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7659875-7650-4CDB-AD83-542CF1552A32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7659875-7650-4CDB-AD83-542CF1552A32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7659875-7650-4CDB-AD83-542CF1552A32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7659875-7650-4CDB-AD83-542CF1552A32}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

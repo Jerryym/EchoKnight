@@ -100,5 +100,5 @@ InitTestScene*.unity*
 /.vscode
 
 # MCP
-Tools/EchoKnight.Mcp/EchoKnight.Mcp.Server/bin/
-Tools/EchoKnight.Mcp/EchoKnight.Mcp.Server/obj/
+Tools/EchoKnight.Mcp/*/bin/
+Tools/EchoKnight.Mcp/*/obj/

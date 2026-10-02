@@ -12,4 +12,8 @@
     <PackageReference Include="ModelContextProtocol" Version="2.2.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\EchoKnight.Mcp.Bridge\EchoKnight.Mcp.Bridge.csproj" />
+  </ItemGroup>
+
 </Project>
