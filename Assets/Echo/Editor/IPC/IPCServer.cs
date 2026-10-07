@@ -9,7 +9,7 @@ using Unity.Plastic.Newtonsoft.Json;
 using Unity.Plastic.Newtonsoft.Json.Serialization;
 using UnityEngine;
 
-namespace Echo.Editor.MCP
+namespace Echo.Editor.IPC
 {
 	/// <summary>
 	/// IPC 服务器
@@ -37,6 +37,8 @@ namespace Echo.Editor.MCP
 
 		private CancellationTokenSource m_cancellationTokenSource;
 
+		private RequestDispatcher m_dispatcher;
+
 		/// <summary>
 		/// JSON 序列化配置
 		/// </summary>
@@ -45,8 +47,9 @@ namespace Echo.Editor.MCP
 			ContractResolver = new CamelCasePropertyNamesContractResolver()
 		};
 
-		public IPCServer(int port = 9257)
+		public IPCServer(RequestDispatcher dispatcher, int port = 9257)
 		{
+			m_dispatcher = dispatcher;
 			m_port = port;
 		}
 
@@ -133,13 +136,7 @@ namespace Echo.Editor.MCP
 						string requestStr = JsonConvert.SerializeObject(request, Formatting.None, s_jsonOptions);
 						Debug.Log($"EchoKnight IPC received: {requestStr}");
 
-						IPCResponse response = new IPCResponse
-						{
-							Id = request.Id,
-							Success = true,
-							Result = null,
-							Error = null
-						};
+						IPCResponse response = await m_dispatcher.DispatchAsync(request);
 						await WriteMessageAsync(stream, response, cancellationToken);
 					}
 				}
